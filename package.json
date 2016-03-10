@@ -1,0 +1,15 @@
+{
+  "name": "go-for-go-book",
+  "scripts": {
+    "start": "npm-run-all -p serve watch:build",
+    "serve": "browser-sync start --server --files='*.html'",
+    "watch:build": "gaze 'bundle exec asciidoctor -r ./macro.rb index.adoc' *.adoc"
+  },
+  "author": "motemen (https://motemen.github.io/)",
+  "private": true,
+  "devDependencies": {
+    "browser-sync": "^2.11.1",
+    "gaze-cli": "^0.2.0",
+    "npm-run-all": "^1.5.2"
+  }
+}

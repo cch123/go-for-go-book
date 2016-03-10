@@ -1,0 +1,23 @@
+= Go のための Go
+:doctype: book
+:icons: font
+:listing-caption: リスト
+:sectanchors:
+:idprefix:
+:numbered:
+:sectnums:
+:source-highlighter: pygments
+:toc: left
+:toc-title: 目次
+:toclevels: 3
+:lang: ja
+:author: motemen <https://motemen.github.io/>
+
+:leveloffset: +1
+
+include::01-intro.adoc[]
+include::02-ast.adoc[]
+
+:leveloffset: +0
+
+// http://asciidoctor.org/docs/user-manual/#block-macro-processor-example
