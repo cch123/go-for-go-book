@@ -4,6 +4,15 @@ require 'pathname'
 
 CACHE_DIR = Pathname.new('.cache')
 
+# ref: http://asciidoctor.org/docs/user-manual/#block-macro-processor-example
+
+# Expands to an example code under ./examples or its output
+# TODO: place a link to Go playground
+#
+#   goexample::parsefile[]
+#   goexample::parsefile[output]
+#
+# Runs examples/parseexpr/parseexpr.go
 class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
   use_dsl
 
@@ -47,6 +56,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
   end
 end
 
+#   godoc::go/ast.Print[]
 class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
   use_dsl
 

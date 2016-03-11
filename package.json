@@ -2,8 +2,8 @@
   "name": "go-for-go-book",
   "scripts": {
     "start": "npm-run-all -p serve watch:build",
-    "serve": "browser-sync start --server --files='*.html'",
-    "watch:build": "gaze 'bundle exec asciidoctor -r ./macro.rb index.adoc' *.adoc"
+    "serve": "browser-sync start --server --files='*.html' --no-open --no-ui",
+    "watch:build": "gaze 'bundle exec asciidoctor -r ./macro.rb index.adoc' *.adoc **/*.adoc examples/**/*.go"
   },
   "author": "motemen (https://motemen.github.io/)",
   "private": true,

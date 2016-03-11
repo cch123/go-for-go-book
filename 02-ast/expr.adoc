@@ -1,0 +1,47 @@
+= 式の構文解析
+
+Goのソースコードの構文解析を行うには、標準パッケージの `go/parser` を使用します。
+まずはGoの式（expression）を解析するところからはじめましょう。
+
+goexample::parseexpr[]
+
+NOTE: 簡単のため、サンプルコードではエラーを無視することがあります。
+
+`go/parser.ParserExpr` はGoの式である文字列を構文解析し、式を表現する抽象構文木である `ast.Expr` を返します。
+
+godoc::go/parser.ParseExpr[]
+
+実行すると以下のように、式 `a * -1` に対応する抽象構文木が `*ast.BinaryExpr` として得られたことが分かります。
+
+goexample::parseexpr[output]
+
+二項演算子 `*` の左の項である `a` が `X`（`*ast.Ident`）として、右の項である `-1` が `Y`（`*ast.UnaryExpr`）として表現されていそうだ、ということが見て取れます。
+
+`%#v` による表示でも大まかには構文木のノードの様子を知ることができますが、定数値の意味やさらに深いノードの情報には欠けています。。構文木をさらに深く見ていくには、`ast.Print` 関数が便利です:
+
+goexample::parseexpr-print[]
+goexample::parseexpr-print[output]
+
+`X.Name` が `"a"` であることや `Op` が `"*"` であることなど、先ほどの式 `a * -1` を表す抽象構文木の構造がより詳細に理解できます。
+
+`ast.Print` は抽象構文木を人間に読みやすい形で標準出力に印字します。便利な関数ですがあくまで開発中やデバッグに便利な関数であって、実際にコードを書いて何かを達成するために直接これを使うことはないでしょう。
+
+godoc::go/ast.Print[]
+
+第一引数 `fset *token.FileSet` に関しては、<<ソースコード中の位置>> で触れます。ここでは `nil` を渡すので十分です。
+
+== ast.Expr
+
+`*ast.BinaryExpr` 構造体は二項演算に対応する構文ノードです。
+
+godoc::go/ast.BinaryExpr[]
+
+`ast.ParseExpr` は `ast.Expr` を返す関数でしたが、二項演算の左右の式である `X` や `Y` も `ast.Expr` として定義されていることがわかります。先ほどの例では `*ast.Ident` や `*ast.UnaryExpr` がその値となっていました。
+
+これらの構造体を含め、すべてのGoの式に対応する構文ノードは、`ast.Expr` インターフェースを実装しています。
+
+godoc::go/ast.Expr[]
+
+`ast.Expr` に定義されているインターフェースは公開されない関数で構成されているため、分類用のインターフェースであるといえます。
+
+`ast.Expr` が埋め込んでいる `ast.Node` インターフェースについては、後の <<ast.Node>> で触れます。
