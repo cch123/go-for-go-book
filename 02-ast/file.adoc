@@ -6,7 +6,13 @@
 
 まず、Goのソースコードファイルの構造を確認しておきましょう。
 
-TBD spec
+https://golang.org/ref/spec#Source_file_organization[The Go Programming Language Specification - Source file organization] によれば、ひとつのファイルの中には
+
+1. パッケージ名
+2. `import` 節
+3. 値や関数などトップレベルの宣言
+
+の順番で現れることになっています。
 
 == parser.ParseFile
 
@@ -42,23 +48,17 @@ godoc::go/ast.File[]
 // Imports は Decls のうち IMPORT なものをフラットに並べてるだけで parser.ImportsOnly なときに便利ってくらい？
 // 5be77a204bee72c81a8f0182d0a23bfd32b36ab9
 
-== ast.Decl
+== 構文木の探索
 
-`ast.Decl` インターフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードです。<<ast.Expr>> と同様に公開されたメソッドの定義されていない、分類用のインターフェースです。Goの宣言には
+<<構文ノードのインターフェース,先>>に述べたように構文木のノードは `ast` パッケージのインターフェースとして得られるので、具体的な内容を知るには type assertion や type switch を用いなければなりません。これを手で書いていくのは大変で間違いも起きがちですが、`ast.Inspect` 関数を使えば構文ノードに対する深さ優先探索を行えます。
 
-* パッケージのインポート（`import`）
-* 変数および定数（`var`、`const`）
-* 型（`type`）
-* 関数およびメソッド（`func`）
+godoc::go/ast.Inspect[]
 
-といったものがありますが、`ast.Decl` インターフェースを実装している構造体は `*ast.GenDecl` と `*ast.FuncDecl` の2つのみです。後者は関数及びメソッドの宣言に相当し、前者が残りすべてをカバーします。
+各ノードを引数に呼ばれるコールバック関数 `f` が `true` を返すと、さらにその下のノードを探索していきます。
 
-== ast.FuncDecl
+以下は先ほどのソースコードファイル中の識別子を一覧する例です。`ast.Node` の具体的な型を知るために、type assertion をおこなっています。
 
-godoc::go/ast.FuncDecl[]
+goexample::listidents[]
+goexample::listidents[output]
 
-== ast.GenDecl
-
-godoc::go/ast.GenDecl[]
-
-Specs 複数
+パッケージ名や変数名などの識別子が構文木に含まれていることが確認できます。

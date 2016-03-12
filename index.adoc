@@ -9,7 +9,7 @@
 :source-highlighter: pygments
 :toc: left
 :toc-title: 目次
-:toclevels: 3
+:toclevels: 4
 :lang: ja
 :author: motemen <https://motemen.github.io/>
 

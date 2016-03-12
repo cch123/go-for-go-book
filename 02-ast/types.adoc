@@ -1,0 +1,117 @@
+= 構文ノードの実装
+
+== ast.Node
+
+抽象構文木のノードに対応する構造体は、すべて `ast.Node` インターフェースを実装しています。
+
+godoc::go/ast.Node[]
+
+定義を見れば分かる通り、`ast.Node` インターフェース自身はその<<ソースコード中の位置>>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するには type assertion や type swtich による具体的な型への変換が必要になります。
+
+構文木のノードを大別するため、`ast.Node` を実装するサブインターフェースが定義されています:
+
+`ast.Decl`:: 宣言（declaration）。`import` や `type` など
+`ast.Stmt`:: 文（statement）。`if` や `switch` など
+`ast.Expr`:: 式（expression）。識別子や演算、型など
+
+以下でこれらのうち主要なものを見て行きます。
+
+NOTE: <<ast.Node の階層>> で `ast.Node` を実装する型の完全な一覧を確認できます。
+
+== ast.Decl
+
+`ast.Decl` インターフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言には
+
+* パッケージのインポート（`import`）
+* 変数および定数（`var`、`const`）
+* 型（`type`）
+* 関数およびメソッド（`func`）
+
+といったものがありますが、`ast.Decl` インターフェースを実装している構造体は `*ast.GenDecl` と `*ast.FuncDecl` の2つのみです。後者は関数及びメソッドの宣言に相当し、前者が残りすべてをカバーします。
+
+=== ast.FuncDecl
+
+godoc::go/ast.FuncDecl[]
+
+`ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` か否かで関数の宣言かメソッドの宣言かを区別できます。
+
+`Recv` の型である <<ast.FieldList,`*ast.FieldList`>> は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。（ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！）
+
+// Recv.NumFields() > 1 ありうえる？
+// src/go/parser/parser.go に書いてあった:
+// > The parser accepts a larger language than is syntactically permitted by
+// > the Go spec, for simplicity, and for improved robustness in the presence
+// > of syntax errors. For instance, in method declarations, the receiver is
+// > treated like an ordinary parameter list and thus may contain multiple
+// > entries where the spec permits exactly one. Consequently, the corresponding
+// > field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.
+
+=== ast.GenDecl
+
+godoc::go/ast.GenDecl[]
+
+`import`、`const`、`var`、`type` の宣言は `ast.GenDecl` がまとめて引き受けます。`Specs` フィールドは `ast.Spec` インターフェースのスライスと宣言されていますが、要素の型は `*ast.ImportSpec`、`*ast.ValueSpec`、`*ast.TypeSpec` のいずれかひとつであり、`Tok` フィールドの値によって決まります。`*ast.ValueSpec` は `const` と `var` の場合両方をカバーします。
+
+// TODO: 一応正しいかソース読む
+
+これらの宣言は、以下のようにグループ化できるという共通点があります。グループ化された宣言のひとつが `Specs` のひとつの要素に対応します。
+
+[source,go]
+----
+import (
+    "foo"
+    "bar"
+)
+
+const (
+    a = 1
+    b = 2
+)
+
+var (
+    x int
+    y bool
+)
+
+type (
+    t struct{}
+    y interface{}
+)
+----
+
+== ast.Stmt
+
+`ast.Decl` インターフェースはGoソースコードにおける https://golang.org/ref/spec#Statements[文] に対応する構文木のノードを表します。文はプログラムの実行を制御するもので、`go/ast` パッケージの実装では以下のように分類されています:
+
+// ast.go 内の順番
+
+.ast.Decl の分類
+* 宣言（`ast.DeclStmt`）
+* 空の文（`ast.EmptyStmt`）
+* ラベル付き文（`ast.LabeledStmt`）
+* 式だけの文（`ast.ExprStmt`）
+* チャンネルへの送信（`ast.SendStmt`）
+* インクリメント・デクリメント（`ast.IncDecStmt`）
+* 代入または定義（`ast.AssignStmt`）
+* `go` （`ast.GoStmt`）
+* `defer`（`ast.DeferStmt`）
+* `return`（`ast.ReturnStmt`）
+* `break`、`continue`、`goto`、`fallthrough`（`ast.BranchStmt`）
+* ブロック（`ast.BlockStmt`）
+* `if`（`ast.IfStmt`）
+* 式による `switch`（`ast.SwitchStmt`）
+* 型による `switch`（`ast.TypeSwitchStmt`）
+* `switch` 中のひとつの節（`ast.CaseClause`）
+* `select`（`ast.SelectStmt`）
+* `select` 中のひとつの節（`ast.CommClause`）
+* `range` を含まない `for`（`ast.ForStmt`）
+* `range` を含む `for`（`ast.RangeStmt`）
+
+== ast.Expr
+
+[appendix]
+== ast.Node の階層
+
+----
+include::../listings/ast-node-hierarchy.txt[]
+----

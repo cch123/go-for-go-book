@@ -9,6 +9,7 @@
 
 include::expr.adoc[leveloffset=+1]
 include::file.adoc[leveloffset=+1]
+include::types.adoc[leveloffset=+1]
 
 == ソースコード中の位置
 
@@ -37,10 +38,6 @@ TBD
 
 - ast.Inspect
 - ast.Walk
-
-== ast.Node の階層
-
-TBD
 
 == スコープ
 

@@ -56,6 +56,8 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
   end
 end
 
+# Expands to `go doc` output
+#
 #   godoc::go/ast.Print[]
 class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
   use_dsl
@@ -64,8 +66,10 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
 
   def process(parent, target, attrs)
     m = %r<^((?:[\w.]+/)?\w+)\.([\w.]+)$>.match(target)
+    opts = attrs.delete(1)
+
     pkg, entry = m[1], m[2]
-    decl = %x(go doc #{target}).gsub("\t", '    ').lines.map(&:chomp).take_while { |line| not line.empty? }
+    decl = %x(go doc #{opts} #{target}).gsub("\t", '    ').lines.map(&:chomp).take_while { |line| not line.empty? }
     create_listing_block(
       parent,
       decl,

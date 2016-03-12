@@ -11,10 +11,12 @@ func main() {
 	fset := token.NewFileSet()
 	f, _ := parser.ParseFile(fset, "example.go", src, parser.Mode(0))
 
-	for _, d := range f.Decls {
-		ast.Print(nil, d)
-		fmt.Println()
-	}
+	ast.Inspect(f, func(n ast.Node) bool {
+		if ident, ok := n.(*ast.Ident); ok {
+			fmt.Println(ident.Name)
+		}
+		return true
+	})
 }
 
 var src = `package p
