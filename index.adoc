@@ -13,8 +13,8 @@
 :lang: ja
 :author: motemen <https://motemen.github.io/>
 
-include::01-intro.adoc[leveloffset=+1]
-include::02-ast/index.adoc[leveloffset=+1]
+include::00-intro.adoc[leveloffset=+1]
+include::01-ast/index.adoc[leveloffset=+1]
 
 == コメントとドキュメント
 

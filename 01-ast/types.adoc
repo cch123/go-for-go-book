@@ -107,7 +107,41 @@ type (
 * `range` を含まない `for`（`ast.ForStmt`）
 * `range` を含む `for`（`ast.RangeStmt`）
 
+=== ast.TypeSwitchStmt
+
+* Assign
+
 == ast.Expr
+
+ * （`ast.Ident`）
+ * （`ast.Ellipsis`）
+ * （`ast.BasicLit`）
+ * （`ast.FuncLit`）
+ * （`ast.CompositeLit`）
+ * （`ast.ParenExpr`）
+ * （`ast.SelectorExpr`）
+ * （`ast.IndexExpr`）
+ * （`ast.SliceExpr`）
+ * （`ast.TypeAssertExpr`）
+ * （`ast.CallExpr`）
+ * （`ast.StarExpr`）
+ * （`ast.UnaryExpr`）
+ * （`ast.BinaryExpr`）
+ * （`ast.KeyValueExpr`）
+ * （`ast.ArrayType`）
+ * （`ast.StructType`）
+ * （`ast.FuncType`）
+ * （`ast.InterfaceType`）
+ * （`ast.MapType`）
+ * （`ast.ChanType`）
+
+=== ast.Ident
+
+// TODO InterfaceType.Incomplete?
+
+== その他のノード
+
+=== ast.FieldList
 
 [appendix]
 == ast.Node の階層
