@@ -39,11 +39,13 @@ TBD
 - ast.Inspect
 - ast.Walk
 
-== スコープ
+== スコープとオブジェクト
 
 TBD
 
 - ast.Scope
+- ast.Object
+
 
 == パッケージ
 
@@ -51,11 +53,5 @@ TBD
 
 - ast.NewPackage
 - parser.ParseDir
-
-== オブジェクト
-
-TBD
-
-- ast.Object
 
 // vim: set ft=asciidoc:

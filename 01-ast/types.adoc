@@ -113,31 +113,50 @@ type (
 
 == ast.Expr
 
- * （`ast.Ident`）
- * （`ast.Ellipsis`）
- * （`ast.BasicLit`）
- * （`ast.FuncLit`）
- * （`ast.CompositeLit`）
- * （`ast.ParenExpr`）
- * （`ast.SelectorExpr`）
- * （`ast.IndexExpr`）
- * （`ast.SliceExpr`）
- * （`ast.TypeAssertExpr`）
- * （`ast.CallExpr`）
- * （`ast.StarExpr`）
- * （`ast.UnaryExpr`）
- * （`ast.BinaryExpr`）
- * （`ast.KeyValueExpr`）
- * （`ast.ArrayType`）
- * （`ast.StructType`）
- * （`ast.FuncType`）
- * （`ast.InterfaceType`）
- * （`ast.MapType`）
- * （`ast.ChanType`）
+`ast.Expr` インターフェースはおもにGoソースコードにおける https://golang.org/ref/spec#Expressions[式] および https://golang.org/ref/spec#Types[型] に対応する構文木のノードを表します。`go/ast` パッケージの実装では以下のように分類されています:
+
+NOTE: `ast.Ellipsis` や `ast.KeyValueExpr` のように、それ単体では式となり得ないノードも `ast.Expr` を実装していますが、このおかげでこれらを含むノードの実装が簡単になっているようです。
+
+* 識別子（`ast.Ident`）
+* `...`（`ast.Ellipsis`）
+* 基本的な型のリテラル（`ast.BasicLit`）
+* 関数リテラル（`ast.FuncLit`）
+* https://golang.org/ref/spec#Composite_literals[複合リテラル]（`ast.CompositeLit`）
+* 括弧（`ast.ParenExpr`）
+* セレクタまたは修飾された識別子（`x.y`）（`ast.SelectorExpr`）
+* 添字アクセス（`ast.IndexExpr`）
+* スライス式（`ast.SliceExpr`）
+* 型アサーション（`ast.TypeAssertExpr`）
+* 関数またはメソッド呼び出し（`ast.CallExpr`）
+* ポインタの間接参照またはポインタ型（`*p`）（`ast.StarExpr`）
+* 単項演算（`ast.UnaryExpr`）
+* 二項演算（`ast.BinaryExpr`）
+* 複合リテラル中のキーと値のペア（`key: value`）（`ast.KeyValueExpr`）
+* 配列またはスライス型（`ast.ArrayType`）
+* 構造体型（`ast.StructType`）
+* 関数型（`ast.FuncType`）
+* インターフェース型（`ast.InterfaceType`）
+* マップ型（`ast.MapType`）
+* チャンネル型（`ast.ChanType`）
 
 === ast.Ident
 
-// TODO InterfaceType.Incomplete?
+godoc::go/ast.Ident[]
+
+`ast.Ident` はコード中の識別子を表し、変数名をはじめパッケージ名、ラベルなどさまざまな場所に登場します。
+
+`Obj` フィールドはその実体を表す `ast.Object` への参照になっています。詳しくは <<スコープとオブジェクト>> で触れます。
+
+=== ast.StructType と ast.InterfaceType
+
+godoc::go/ast.StructType[]
+
+godoc::go/ast.InterfaceType[]
+
+これら2つの構造体は `Incomplete` フィールドを持っています。これは通常 `false` ですが、<<ast.Filter,フィルタ>>によってノードが書き換えられ、フィールドやメソッドの宣言が取り除かれた場合に `true` が設定され、ソースコードとノードに乖離があることを示します。`go doc` が出力する "// contains filtered or unexported fields" はこの値を参照しています。
+
+goexample::structtypeincomplete[]
+goexample::structtypeincomplete[output]
 
 == その他のノード
 
@@ -149,3 +168,6 @@ type (
 ----
 include::../listings/ast-node-hierarchy.txt[]
 ----
+
+// TODO: ast.Filter
+// TODO: ast.Fprint
