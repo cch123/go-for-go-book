@@ -12,7 +12,7 @@ func main() {
 	f, _ := parser.ParseFile(fset, "example.go", src, parser.Mode(0))
 
 	for _, d := range f.Decls {
-		ast.Print(nil, d)
+		ast.Print(fset, d)
 		fmt.Println()
 	}
 }
