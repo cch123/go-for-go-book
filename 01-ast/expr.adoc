@@ -19,7 +19,7 @@ goexample::parseexpr[output]
 
 == ast.Print
 
-`%#v` による表示でも大まかには構文木のノードの様子を知ることができますが、定数値の意味やさらに深いノードの情報には欠けています。。構文木をさらに深く見ていくには、`ast.Print` 関数が便利です:
+`%#v` による表示でも大まかには構文木のノードの様子を知ることができますが、定数値の意味やさらに深いノードの情報には欠けています。構文木をさらに深く見ていくには、`ast.Print` 関数が便利です:
 
 goexample::parseexpr-print[]
 goexample::parseexpr-print[output]

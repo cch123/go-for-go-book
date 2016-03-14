@@ -160,7 +160,34 @@ goexample::structtypeincomplete[output]
 
 == その他のノード
 
-=== ast.FieldList
+以上の3種類に分類されないノードもいくつか存在します。
+
+=== ast.Comment と ast.CommentGroup
+
+godoc::go/ast.Comment[]
+
+godoc::go/ast.CommentGroup[]
+
+`ast.Comment` はひとつのコメント（`// ...` または `/* ... */`）に、`ast.CommentGroup` は連続するコメントに対応します。<<コメントとドキュメント>> で詳しく見ます。
+
+=== ast.Field と ast.FieldList
+
+godoc::go/ast.Field[]
+
+godoc::go/ast.FieldList[]
+
+それぞれ、識別子と型の組ひとつと、そのリストに対応します。
+
+`ast.FieldList` は以下の構造体に含まれています:
+
+* `ast.StructType`    ...... 構造体のフィールドのリストとして
+* `ast.InterfaceType` ...... インターフェースのメソッドのリストとして
+* `ast.FuncType`      ...... 関数のパラメータおよび返り値として
+* `ast.FuncDecl`      ...... メソッドのレシーバとして
+
+`ast.Field` の `Tag` は構造体のフィールドである場合のみ存在しえます。
+
+// git grep -w Tag src/go/parser; parseStructType -> parseFieldDecl
 
 [appendix]
 == ast.Node の階層

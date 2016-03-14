@@ -10,34 +10,7 @@
 include::expr.adoc[leveloffset=+1]
 include::file.adoc[leveloffset=+1]
 include::types.adoc[leveloffset=+1]
-
-== ソースコード中の位置
-
-前の例では `token.FileSet` という新しい構造体が登場しました。これはソースコード上の位置情報を一元化して保持するものです。
-
-さて、`ast.Node` は以下の2メソッドだけからなるインターフェースでした。
-
-godoc::go/ast.Node[]
-
-これらはその名が示すとおり、当該のノードがソースコード上に占める位置をあらわしています。ノードが保持する位置情報である `token.Pos` は単なる整数値であり、これだけではファイル名や行番号など、多くの場合に必要となる情報を得ることはできません。
-
-godoc::go/token.Pos[]
-
-`token.Pos` は `token.FileSet` と組み合わせることで、その完全な情報である `token.Position` に変換できます。
-
-godoc::go/token.FileSet.Position[]
-
-`token.Pos` は特定の `token.FileSet` に対する相対位置としてエンコードされているので、
-抽象構文木を生成した際に使用した `token.FileSet` をその後も使い回すことになります。
-
-通常、ひとつのプログラムにただひとつの `token.FileSet` を保持しておけば十分です。
-
-== 構文木の探索
-
-TBD
-
-- ast.Inspect
-- ast.Walk
+include::pos.adoc[leveloffset=+1]
 
 == スコープとオブジェクト
 

@@ -62,3 +62,5 @@ goexample::listidents[]
 goexample::listidents[output]
 
 パッケージ名や変数名などの識別子が構文木に含まれていることが確認できます。
+
+NOTE: もうひとつの方法として、`ast.Visitor` インターフェースを実装して `ast.Walk(v ast.Visitor, node ast.Node)` を使うこともできます。実際 `ast.Inspect` の内部では `ast.Walk` が使われています。

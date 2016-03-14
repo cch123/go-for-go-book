@@ -1,0 +1,38 @@
+= ソースコード中の位置
+
+ソースコードを対象とするプログラムがユーザにフィードバックを行う際は、ファイル名や行番号など、ソースコードにおける位置情報を含めるのが通常です。
+
+.go vet の出力
+....
+% go vet github.com/motemen/gore
+quickfix.go:76: go/ast.ExprStmt composite literal uses unkeyed fields
+exit status 1
+....
+
+この節では、ソースコード中の位置情報を扱うためのAPIを見ていきます。
+
+== token.Pos
+
+さて、すべての抽象構文木のノードは <<ast.Node>> インターフェースを実装しているのでした。`ast.Node` は `token.Pos` を返す `Pos()` と `End()` の2つのメソッドで構成されます。
+
+godoc::go/ast.Node[]
+
+これらはその名が示すとおり、当該のノードがソースコード上に占める開始位置と終了位置を表しています。`token.Pos` の実体は `int` 型です。
+
+godoc::go/token.Pos[]
+
+`token.Pos` の zero value （= `0`）は `token.NoPos` という特別な名前をつけられています。
+
+godoc::go/token.NoPos[]
+
+`token.Pos` は単なる整数値でしかないので、ファイル名や行番号などの詳細な情報をこれだけから得ることはできません。実はノードの持つこれらの位置情報は `token.FileSet` を基準にした相対的なものなので、完全な情報を復元するには2つを組み合わせる必要があります。`token.FileSet` はこれまでの例にも登場してきた（そして無視されてきた）`fset` と呼ばれる変数です。
+
+== token.FileSet
+
+TBD
+
+* 相対位置としてエンコード
+* ひとつ保持していれば十分
+* token.Position
+* ファイル名やらなんやらを持つ
+* 重複するファイル名もOK
