@@ -1,0 +1,38 @@
+= スコープとオブジェクト
+
+Goはレキシカルスコープを形成するので、ソースコード中の識別子が表す対象（オブジェクト）を文法的な構造によって区別することができます。
+
+例えば次のコードでは3種類の `x` が登場しますが、それぞれ
+
+* 外部のパッケージ名（`import x "..."`）
+* 定義された変数（`x := ...`）
+* 関数の仮引数名（`func (x ...)`）
+
+と、静的に区別することができます。
+
+[source,go]
+----
+package foo
+
+import x "pkg"
+
+func foo() {
+    if x := x.f(); x != nil {
+        x(func(x int) int { return x + 1 })
+    }
+}
+----
+
+これらをプログラム的に解析するためのAPIも提供されています。以下ではこれらを詳しく見ていきます。
+
+== ast.Object
+
+識別子を表す `ast.Ident` には、`*ast.Object` 型の `Obj` というフィールドが定義されていました。
+
+godoc::go/ast.Ident[]
+
+godoc::go/ast.Object[]
+
+== ast.Scope
+
+// TODO: ast.Object が不完全なのはナンデ
