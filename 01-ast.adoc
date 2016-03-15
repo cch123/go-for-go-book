@@ -7,10 +7,10 @@
 
 といったことについて見ていきます。
 
-include::expr.adoc[leveloffset=+1]
-include::file.adoc[leveloffset=+1]
-include::types.adoc[leveloffset=+1]
-include::pos.adoc[leveloffset=+1]
+include::01-ast/expr.adoc[leveloffset=+1]
+include::01-ast/file.adoc[leveloffset=+1]
+include::01-ast/types.adoc[leveloffset=+1]
+include::01-ast/pos.adoc[leveloffset=+1]
 
 == スコープとオブジェクト
 

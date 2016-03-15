@@ -4,7 +4,6 @@
 :listing-caption: リスト
 :sectanchors:
 :idprefix:
-:numbered:
 :sectnums:
 :source-highlighter: pygments
 :toc: left
@@ -14,7 +13,7 @@
 :author: motemen <https://motemen.github.io/>
 
 include::00-intro.adoc[leveloffset=+1]
-include::01-ast/index.adoc[leveloffset=+1]
+include::01-ast.adoc[leveloffset=+1]
 
 == コメントとドキュメント
 
