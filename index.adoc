@@ -30,7 +30,7 @@ WARNING: WIP
 - go/printer
 - go/format
 
-== 型情報
+== 型解析
 
 WARNING: WIP
 

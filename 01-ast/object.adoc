@@ -34,9 +34,17 @@ godoc::go/ast.Ident[]
 
 godoc::go/ast.Object[]
 
-この `ast.Object` が、識別子の表す対象に対応します（文法的に同じ対象を指す識別子は同じ `ast.Object` を共有します）。
+この `ast.Object` が、識別子の表すオブジェクトに対応します（文法的に同じ対象を指す識別子は同じ `ast.Object` を共有します）。
 
-WARNING: TODO: 各フィールドの説明
+`Kind` は `ObjKind` 型に定義されている値のいずれかを取り、オブジェクトの種類を表します。
+
+godoc::go/ast.Bad[]
+
+パッケージ名、定数名、型名、変数名、関数名またはメソッド名に加え、ラベル名もスコープを持った識別子になります。
+
+`Data` や `Type` フィールドはオブジェクトの詳しい情報を保持しますが、この情報には構文解析の時点では不完全であるものもあり、<<型解析>> によって得られる情報を参照することのほうが多いでしょう。
+
+// TODO もっと詳しく
 
 先ほど例に挙げたコードを解析してみましょう。
 
@@ -44,11 +52,19 @@ goexample::astobject[]
 
 goexample::astobject[output]
 
-// XXX なんでパッケージ名の場合は obj=nil なんだろなー。必要ないから？
+// XXX パッケージ名の場合は Obj == nil なのは型解析しないと意味ある情報が出てこないから？ TODO ast.NewPackage してみる
 
 `import` したパッケージ名としての `x`、定義された変数としての `x`、関数の仮引数名としての `x` がそれぞれ違った `Obj` をもち、文法的に同じものであれば `Obj` が同じものを指しています。
 
-WARNING: TODO: ast.Object だけでは不完全な件
+// TODO: ast.Object だけでは不完全な件
+
+== スコープ
+
+Go のスコープはブロックにもとづいて作られます。ブレース（`{...}`）による明示的なブロックの他に作られるブロックもあります。link:https://golang.org/ref/spec#Declarations_and_scope[Declarations and scope - The Go Programming Language Specification] に述べられていますが、抄訳します:
+
+* あらかじめ定義されている識別子（`nil` など）の属するユニバースブロック（universe block）に属します。
+* トップレベルの定数、変数、関数（メソッドは除く）はパッケージブロック（package block）に属します。
+* インポートされたパッケージの名前は、それを含むファイルブロック（file block）に属します。
 
 == ast.Scope
 

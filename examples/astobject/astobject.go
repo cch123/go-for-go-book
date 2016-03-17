@@ -17,7 +17,11 @@ func main() {
 			if ident != nil && ident.Obj != nil {
 				decl = ident.Obj.Decl
 			}
-			fmt.Printf("%-17sobj=%-12p  decl=%T\n", fset.Position(ident.Pos()), ident.Obj, decl)
+			var kind ast.ObjKind
+			if ident.Obj != nil {
+				kind = ident.Obj.Kind
+			}
+			fmt.Printf("%-17sobj=%-12p  kind=%s decl=%T\n", fset.Position(ident.Pos()), ident.Obj, kind, decl)
 		}
 		return true
 	})
