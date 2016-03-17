@@ -8,7 +8,7 @@
 :source-highlighter: pygments
 :toc: left
 :toc-title: 目次
-:toclevels: 4
+:toclevels: 3
 :lang: ja
 :author: motemen <https://motemen.github.io/>
 
@@ -17,39 +17,39 @@ include::01-ast.adoc[leveloffset=+1]
 
 == コメントとドキュメント
 
-TBD
+WARNING: WIP
 
 - parser.ParseComments
 - doc.New
 
 
-== 文字列化
+== ソースコードの文字列化
 
-TBD
+WARNING: WIP
 
 - go/printer
 - go/format
 
 == 型情報
 
-TBD
+WARNING: WIP
 
 - go/types
 
 == ビルド情報
 
-TBD
+WARNING: WIP
 
 - go/build
 
 == 高レベルのAPI
 
-TBD
+WARNING: WIP
 
 - tools/go/loader
 
 == フロー解析
 
-TBD
+WARNING: WIP
 
 - tools/go/ssa

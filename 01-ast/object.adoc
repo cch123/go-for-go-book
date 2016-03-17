@@ -4,26 +4,27 @@ Goはレキシカルスコープを形成するので、ソースコード中の
 
 例えば次のコードでは3種類の `x` が登場しますが、それぞれ
 
-* 外部のパッケージ名（`import x "..."`）
+* `import` したパッケージ名（`import x "..."`）
 * 定義された変数（`x := ...`）
 * 関数の仮引数名（`func (x ...)`）
 
 と、静的に区別することができます。
 
+.3種類の `x` が出てくるソースコード
 [source,go]
 ----
-package foo
+package p
 
-import x "pkg"
+import x "pkg" // <1>
 
-func foo() {
-    if x := x.f(); x != nil {
-        x(func(x int) int { return x + 1 })
+func f() {
+    if x := x.f(); x != nil { // <2>
+        x(func(x int) int { return x + 1 }) // <3>
     }
 }
 ----
 
-これらをプログラム的に解析するためのAPIも提供されています。以下ではこれらを詳しく見ていきます。
+これらをプログラム的に解析するためのAPIも提供されています。以下ではこれらを見ていきます。
 
 == ast.Object
 
@@ -33,6 +34,22 @@ godoc::go/ast.Ident[]
 
 godoc::go/ast.Object[]
 
+この `ast.Object` が、識別子の表す対象に対応します（文法的に同じ対象を指す識別子は同じ `ast.Object` を共有します）。
+
+WARNING: TODO: 各フィールドの説明
+
+先ほど例に挙げたコードを解析してみましょう。
+
+goexample::astobject[]
+
+goexample::astobject[output]
+
+// XXX なんでパッケージ名の場合は obj=nil なんだろなー。必要ないから？
+
+`import` したパッケージ名としての `x`、定義された変数としての `x`、関数の仮引数名としての `x` がそれぞれ違った `Obj` をもち、文法的に同じものであれば `Obj` が同じものを指しています。
+
+WARNING: TODO: ast.Object だけでは不完全な件
+
 == ast.Scope
 
-// TODO: ast.Object が不完全なのはナンデ
+WARNING: TODO: File.Scope とか

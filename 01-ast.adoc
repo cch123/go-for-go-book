@@ -15,7 +15,7 @@ include::01-ast/object.adoc[leveloffset=+1]
 
 == パッケージ
 
-TBD
+WARNING: WIP
 
 - ast.NewPackage
 - parser.ParseDir

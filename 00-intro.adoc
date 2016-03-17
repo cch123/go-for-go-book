@@ -5,7 +5,7 @@
 
 == なぜ Go for Go なのか
 
-TBD
+WARNING: WIP
 
 * Goの言語仕様そのままだと表現力は（設計により）貧弱
 * 一方でそれを補完するオフィシャルなエコシステムが充実している、例: https://blog.golang.org/generate[go generate]
@@ -13,7 +13,7 @@ TBD
 
 == この本のねらい
 
-TBD
+WARNING: WIP
 
 * ドキュメントとソースコードの中間
 * API同士の関連について書く
@@ -21,6 +21,6 @@ TBD
 
 == 対象読者
 
-TBD
+WARNING: WIP
 
 :sectnums:
