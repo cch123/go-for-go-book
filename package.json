@@ -4,15 +4,16 @@
     "start": "npm-run-all -p serve watch:build",
     "serve": "browser-sync start --server --files='*.html' --no-open --no-ui",
     "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go",
-    "build:html":  "bundle exec asciidoctor -r ./macro.rb index.adoc",
-    "build:pdf":   "bundle exec asciidoctor-pdf -r asciidoctor-pdf-cjk -r ./macro.rb index.adoc",
-    "build:mobi":  "bundle exec asciidoctor-epub3 -a ebook-format=kf8 -r ./macro.rb index.adoc"
+    "build:html": "bundle exec asciidoctor -r ./macro.rb index.adoc",
+    "build:pdf": "bundle exec asciidoctor-pdf -r asciidoctor-pdf-cjk -r ./macro.rb index.adoc",
+    "build:mobi": "bundle exec asciidoctor-epub3 -a ebook-format=kf8 -r ./macro.rb index.adoc"
   },
   "author": "motemen (https://motemen.github.io/)",
   "private": true,
   "devDependencies": {
     "browser-sync": "^2.11.1",
     "gaze-cli": "^0.2.0",
+    "gh-pages": "^0.11.0",
     "npm-run-all": "^1.5.2"
   }
 }
