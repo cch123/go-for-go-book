@@ -11,13 +11,6 @@ include::01-ast/expr.adoc[leveloffset=+1]
 include::01-ast/file.adoc[leveloffset=+1]
 include::01-ast/types.adoc[leveloffset=+1]
 include::01-ast/pos.adoc[leveloffset=+1]
-include::01-ast/object.adoc[leveloffset=+1]
-
-== パッケージ
-
-WARNING: WIP
-
-- ast.NewPackage
-- parser.ParseDir
+include::01-ast/scope.adoc[leveloffset=+1]
 
 // vim: set ft=asciidoc:
