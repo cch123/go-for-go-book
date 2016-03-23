@@ -69,7 +69,7 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
     opts = attrs.delete(1)
 
     pkg, entry = m[1], m[2]
-    decl = %x(go doc #{opts} #{target}).gsub("\t", '    ').lines.map(&:chomp).take_while { |line| not line.empty? }
+    decl = %x(go doc #{opts} #{target}).gsub(/^ {4}.*/m, '').gsub("\t", '    ').lines.map(&:chomp)
     create_listing_block(
       parent,
       decl,
