@@ -14,14 +14,7 @@
 
 include::00-intro.adoc[leveloffset=+1]
 include::01-ast.adoc[leveloffset=+1]
-
-== コメントとドキュメント
-
-WARNING: WIP
-
-- parser.ParseComments
-- doc.New
-
+include::02-comment-and-document.adoc[leveloffset=+1]
 
 == ソースコードの文字列化
 
@@ -47,6 +40,17 @@ WARNING: WIP
 WARNING: WIP
 
 - tools/go/loader
+
+== 標準コマンドを読む
+
+WARNING: WIP
+
+- go doc
+- go fmt
+- stringer
+- gorename
+- guru
+- goimports
 
 == フロー解析
 

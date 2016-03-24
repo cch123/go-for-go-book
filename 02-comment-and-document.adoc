@@ -1,0 +1,56 @@
+= コメントとドキュメント
+
+これまではプログラムの実行に関わるコード本体をプログラムから扱う方法について見てきました。この章ではGoソースコード中のコメントを扱っていきます。
+
+コメントはドキュメントの記述にも使用されており、そのためのAPIも用意されています。
+
+== コメントの解析
+
+`parser.ParseFile` の第4引数 `mode` に `parser.ParseComments` 定数を指定することで、構文解析の結果にコメントを含めることができます。
+
+godoc::go/parser.ParseFile[]
+
+goexample::parsecomment[]
+goexample::parsecomment[output]
+
+こうやって解析されたコメントは通常の構文木とは別に、`ast.File` 構造体の `Comments` フィールドに格納されます。`Comments` フィールドは `[]*ast.CommentGroup` として宣言されています。`ast.CommentGroup` は連続して続くコメントをひとまとめにしたもので、
+
+* `/* ... \*/` 形式のコメントなら `/*` から `*/` まで
+* `// ...` 形式なら `//` から行末まで
+
+が、ひとつの `ast.Comment` に対応します。
+
+godoc::go/ast.CommentGroup[]
+godoc::go/ast.Comment[]
+
+例えばコメントが以下のように書かれていた場合、それぞれ `CommentGroup` は2つ生成され、それぞれ2個の `Comment` を持ちます。
+
+[source,go]
+----
+// foo
+/* bar */
+
+// baz
+// quux
+----
+
+コメントも `ast.Node` インターフェースを実装し、位置情報を保持しています。<<ソースコードの文字列化>>の際は、この位置情報をもとにコメントが正しい位置に挿入されるようになっています。
+
+== Goにおけるドキュメント
+
+Goではトップレベルの型や関数のすぐ直前のコメントがそのAPIのドキュメントである、と標準的に定められています（link:http://blog.golang.org/godoc-documenting-go-code[Godoc: documenting Go code]）。標準の `go doc` コマンドもこのルールに則ってドキュメントを
+
+....
+% go doc go/parser.ParseFile
+func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode) (f *ast.File, err error)
+    ParseFile parses the source code of a single Go source file and returns the
+    corresponding ast.File node. The source code may be provided via the
+    filename of the source file, or via the src parameter.
+...
+....
+
+== doc.New
+
+== 例示コード
+
+* doc.Examples
