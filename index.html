@@ -544,12 +544,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </li>
-<li><a href="#コメントとドキュメント">2. コメントとドキュメント</a></li>
+<li><a href="#コメントとドキュメント">2. コメントとドキュメント</a>
+<ul class="sectlevel2">
+<li><a href="#コメントの解析">2.1. コメントの解析</a></li>
+<li><a href="#goにおけるドキュメント">2.2. Goにおけるドキュメント</a></li>
+<li><a href="#doc_new">2.3. doc.New</a></li>
+<li><a href="#例示コード">2.4. 例示コード</a></li>
+</ul>
+</li>
 <li><a href="#ソースコードの文字列化">3. ソースコードの文字列化</a></li>
 <li><a href="#型解析">4. 型解析</a></li>
 <li><a href="#ビルド情報">5. ビルド情報</a></li>
 <li><a href="#高レベルのapi">6. 高レベルのAPI</a></li>
-<li><a href="#フロー解析">7. フロー解析</a></li>
+<li><a href="#標準コマンドを読む">7. 標準コマンドを読む</a></li>
+<li><a href="#フロー解析">8. フロー解析</a></li>
 </ul>
 </div>
 </div>
@@ -801,7 +809,7 @@ WIP
 <p><code>ast.Expr</code> は（埋め込まれている <code>ast.Node</code> を除けば）外部に公開されないメソッドで構成されています。そのため、これを実装する型は <code>ast</code> パッケージに定義されているものに限られます。</p>
 </div>
 <div class="paragraph">
-<p><code>exprNode()</code> は実際にはどこからも呼ばれないメソッドなので、<code>ast.Expr</code> はその振る舞いに関する情報を提供しない、分類用のインターフェースであるといえます（後で見ますが、<code>ast.Node</code> も構文木に対する情報を含んだメソッドを提供しません）。同様に、文や宣言に対応するインターフェース（<code>ast.Stmt</code> と <code>ast.Decl</code>）も定義されています。埋め込まれている <code>ast.Node</code> インターフェースも含め、これらについて詳しくは <a href="#構文ノードの実装">構文ノードの実装</a> で見ます。</p>
+<p><code>exprNode()</code> は実際にはどこからも呼ばれないメソッドなので、<code>ast.Expr</code> はその振る舞いに関する情報を提供しない、分類用のインターフェースであるといえます（後で見ますが、<code>ast.Node</code> も構文木に対する情報を含んだメソッドを提供しません）。同様に、文や宣言に対応するインターフェース（<code>ast.Stmt</code> と <code>ast.Decl</code>）も定義されています。埋め込まれている <code>ast.Node</code> インターフェースも含め、これらについて詳しくは<a href="#構文ノードの実装">構文ノードの実装</a>で見ます。</p>
 </div>
 </div>
 </div>
@@ -850,10 +858,10 @@ WIP
 <p>第二引数の <code>filename</code> と第三引数の <code>src</code> はふたつで一組になっていて、構文解析するソースコードを指定します。<code>src != nil</code> であるときは <code>filename</code> に指定されたファイルを読み込み、それ以外の場合は <code>src</code> をソースコードとして読み込み、<code>filename</code> はソースコードの位置情報にだけ使われます。<code>src</code> に指定できるのは <code>string</code> か <code>[]byte</code> か <code>io.Reader</code> のいずれかのみです。</p>
 </div>
 <div class="paragraph">
-<p>第一引数の <code>fset</code> は構文解析によって得られた構文木のノードの詳細な位置情報を保持する <code>token.FileSet</code> 構造体へのポインタです。詳しくは <a href="#ソースコード中の位置">ソースコード中の位置</a> で説明しますが、基本的に、<code>token.NewFileSet()</code> で得られるものを渡せば十分です。</p>
+<p>第一引数の <code>fset</code> は構文解析によって得られた構文木のノードの詳細な位置情報を保持する <code>token.FileSet</code> 構造体へのポインタです。詳しくは<a href="#ソースコード中の位置">ソースコード中の位置</a>で説明しますが、基本的に、<code>token.NewFileSet()</code> で得られるものを渡せば十分です。</p>
 </div>
 <div class="paragraph">
-<p>最後の引数 <code>mode</code> では構文解析する範囲の指定などが行えます。後で <a href="#コメントとドキュメント">コメントとドキュメント</a> を扱うときに少し触れます。</p>
+<p>最後の引数 <code>mode</code> では構文解析する範囲の指定などが行えます。後で<a href="#コメントとドキュメント">コメントとドキュメント</a>を扱うときに少し触れます。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 3. parsefile.go</div>
@@ -988,13 +996,13 @@ WIP
 <div class="ulist">
 <ul>
 <li>
-<p><code>Package</code> は <a href="#ソースコード中の位置">ソースコード中の位置</a>、</p>
+<p><code>Package</code> は<a href="#ソースコード中の位置">ソースコード中の位置</a>、</p>
 </li>
 <li>
-<p><code>Scope</code> と <code>Unresolved</code> は <a href="#スコープ">スコープ</a>、</p>
+<p><code>Scope</code> と <code>Unresolved</code> は<a href="#スコープ">スコープ</a>、</p>
 </li>
 <li>
-<p><code>Doc</code> と <code>Comments</code> は <a href="#コメントとドキュメント">コメントとドキュメント</a></p>
+<p><code>Doc</code> と <code>Comments</code> は<a href="#コメントとドキュメント">コメントとドキュメント</a></p>
 </li>
 </ul>
 </div>
@@ -1124,7 +1132,7 @@ int</pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<a href="#ast_node_の階層">ast.Node の階層</a> で <code>ast.Node</code> を実装する型の完全な一覧を確認できます。
+<a href="#ast_node_の階層">ast.Node の階層</a>で <code>ast.Node</code> を実装する型の完全な一覧を確認できます。
 </td>
 </tr>
 </table>
@@ -1172,7 +1180,7 @@ int</pre>
 <p><code>ast.FuncDecl</code> 構造体は関数の宣言に対応します。<code>Recv</code> フィールドはそのレシーバを表しており、これが <code>nil</code> か否かで関数の宣言かメソッドの宣言かを区別できます。</p>
 </div>
 <div class="paragraph">
-<p><code>Recv</code> の型である <a href="#ast.FieldList"><code>*ast.FieldList</code></a> は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。<code>FieldList</code> はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。（ただし、<code>go/parser</code> は複数の組からなるレシーバをエラーなく解析します！）</p>
+<p><code>Recv</code> の型である <a href="#ast.FieldList"><code>*ast.FieldList</code></a>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。<code>FieldList</code> はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。（ただし、<code>go/parser</code> は複数の組からなるレシーバをエラーなく解析します！）</p>
 </div>
 </div>
 <div class="sect4">
@@ -1402,7 +1410,7 @@ int</pre>
 <p><code>ast.Ident</code> はコード中の識別子を表し、変数名をはじめパッケージ名、ラベルなどさまざまな場所に登場します。</p>
 </div>
 <div class="paragraph">
-<p><code>Obj</code> フィールドはその実体を表す <code>ast.Object</code> への参照になっています。詳しくは <a href="#スコープとオブジェクト">スコープとオブジェクト</a> で触れます。</p>
+<p><code>Obj</code> フィールドはその実体を表す <code>ast.Object</code> への参照になっています。詳しくは <a href="#スコープとオブジェクト">スコープとオブジェクト</a>で触れます。</p>
 </div>
 </div>
 <div class="sect4">
@@ -1496,7 +1504,7 @@ fields=[]*ast.Field{(*ast.Field)(0xc820014540)} incomplete=true</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>ast.Comment</code> はひとつのコメント（<code>// &#8230;&#8203;</code> または <code>/* &#8230;&#8203; */</code>）に、<code>ast.CommentGroup</code> は連続するコメントに対応します。<a href="#コメントとドキュメント">コメントとドキュメント</a> で詳しく見ます。</p>
+<p><code>ast.Comment</code> はひとつのコメント（<code>// &#8230;&#8203;</code> または <code>/* &#8230;&#8203; */</code>）に、<code>ast.CommentGroup</code> は連続するコメントに対応します。<a href="#コメントとドキュメント">コメントとドキュメント</a>で詳しく見ます。</p>
 </div>
 </div>
 <div class="sect4">
@@ -1637,7 +1645,7 @@ exit status 1</pre>
 <div class="sect3">
 <h4 id="token_pos"><a class="anchor" href="#token_pos"></a>1.4.1. token.Pos</h4>
 <div class="paragraph">
-<p>さて、すべての抽象構文木のノードは <a href="#ast_node">ast.Node</a> インターフェースを実装しているのでした。<code>ast.Node</code> は <code>token.Pos</code> を返す <code>Pos()</code> と <code>End()</code> の2つのメソッドで構成されます。</p>
+<p>さて、すべての抽象構文木のノードは<a href="#ast_node">ast.Node</a>インターフェースを実装しているのでした。<code>ast.Node</code> は <code>token.Pos</code> を返す <code>Pos()</code> と <code>End()</code> の2つのメソッドで構成されます。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Node">go/ast.Node</a></div>
@@ -1705,7 +1713,7 @@ exit status 1</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>token.FileSet</code> は、<code>go/parser</code> が生成する抽象構文木のノードの位置情報を一手に引きうけ、保持する構造体です。ノードの構造体が保持する位置情報は <a href="#token_pos">前項</a>で述べたように <code>token.FileSet</code> を基準にした相対的なもので、整数値としてエンコードされています。</p>
+<p><code>token.FileSet</code> は、<code>go/parser</code> が生成する抽象構文木のノードの位置情報を一手に引きうけ、保持する構造体です。ノードの構造体が保持する位置情報は<a href="#token_pos">前項</a>で述べたように <code>token.FileSet</code> を基準にした相対的なもので、整数値としてエンコードされています。</p>
 </div>
 <div class="paragraph">
 <p>名前の通り、<code>token.FileSet</code> が表すのは複数のソースファイルの集合です。ここでのファイルとは概念上のもので、ファイルシステム上に存在する必要はなく、またファイル名が重複していても問題ありません。</p>
@@ -1728,10 +1736,10 @@ exit status 1</pre>
 <p>構文木のノードを生成する際に必要です。</p>
 </li>
 <li>
-<p><a href="#ソースコードの文字列化">ソースコードの文字列化</a> に必要です。</p>
+<p><a href="#ソースコードの文字列化">ソースコードの文字列化</a>に必要です。</p>
 </li>
 <li>
-<p><a href="#ast_print">ast.Print</a> に渡すと、<code>token.Pos</code> がダンプされる際にファイル名と行番号、カラム位置が表示されます。</p>
+<p><a href="#ast_print">ast.Print</a>に渡すと、<code>token.Pos</code> がダンプされる際にファイル名と行番号、カラム位置が表示されます。</p>
 </li>
 </ul>
 </div>
@@ -1804,7 +1812,7 @@ Valid position with file name:      example.go:2:3</pre>
 <div class="sect3">
 <h4 id="構文解析だけでは不十分な例"><a class="anchor" href="#構文解析だけでは不十分な例"></a>1.5.1. 構文解析だけでは不十分な例</h4>
 <div class="paragraph">
-<p>ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。例えば以下のプログラムには <code>T{k: 0}</code> という同じ形をしたコードが出現しますが、ここで <code>k</code> が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります。（&lt;<a href="https://github.com/golang/example/tree/master/gotypes&gt;"><code>go/types</code>: The Go Type Checker</a> より）</p>
+<p>ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。例えば以下のプログラムには <code>T{k: 0}</code> という同じ形をしたコードが出現しますが、ここで <code>k</code> が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります。（<a href="https://github.com/golang/example/tree/master/gotypes"><code>go/types</code>: The Go Type Checker</a> より）</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 7. indeterminableident.go</div>
@@ -1842,7 +1850,7 @@ Valid position with file name:      example.go:2:3</pre>
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-このように、<code>go/ast</code> のAPIで得られるスコープの情報は不完全なもので、ソースコードが構文的に一定の正しさを持っていることを保証するものです。より正確で詳しい情報が知りたい場合には <a href="#型解析">型解析</a> を行います。
+このように、<code>go/ast</code> のAPIで得られるスコープの情報は不完全なもので、ソースコードが構文的に一定の正しさを持っていることを保証するものです。より正確で詳しい情報が知りたい場合には<a href="#型解析">型解析</a>を行います。
 </td>
 </tr>
 </table>
@@ -1882,7 +1890,7 @@ Valid position with file name:      example.go:2:3</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>スコープはその外側のスコープへの参照と、名前から <a href="#オブジェクト">オブジェクト</a> へのマッピングで構成されています。</p>
+<p>スコープはその外側のスコープへの参照と、名前から<a href="#オブジェクト">オブジェクト</a>へのマッピングで構成されています。</p>
 </div>
 </div>
 <div class="sect3">
@@ -1942,7 +1950,7 @@ Valid position with file name:      example.go:2:3</pre>
 <p><code>ast.Object</code> の <code>Decl</code> フィールドはそのオブジェクトが宣言されたノードを表します。</p>
 </div>
 <div class="paragraph">
-<p><code>Data</code> や <code>Type</code> などさらに詳しい情報を保持するためのフィールドもありますが、先に述べたように構文解析だけでは完全な情報が得られないので、これらの詳しい情報が必要な場合には <a href="#型解析">型解析</a> のAPIを使用することになるでしょう。</p>
+<p><code>Data</code> や <code>Type</code> などさらに詳しい情報を保持するためのフィールドもありますが、先に述べたように構文解析だけでは完全な情報が得られないので、これらの詳しい情報が必要な場合には<a href="#型解析">型解析</a>のAPIを使用することになるでしょう。</p>
 </div>
 </div>
 <div class="sect3">
@@ -2025,7 +2033,7 @@ Valid position with file name:      example.go:2:3</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>これらを正しく渡すことで完全な <code>ast.Package</code> を生成することができますが、（しつこいようですが）正しい情報が必要な場合には <a href="#型解析">型解析</a> を行うことを考えたほうがよいでしょう。</p>
+<p>これらを正しく渡すことで完全な <code>ast.Package</code> を生成することができますが、（しつこいようですが）正しい情報が必要な場合には<a href="#型解析">型解析</a>を行うことを考えたほうがよいでしょう。</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -2074,27 +2082,138 @@ TODO: golang/gddo の例
 <div class="sect1">
 <h2 id="コメントとドキュメント"><a class="anchor" href="#コメントとドキュメント"></a>2. コメントとドキュメント</h2>
 <div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>これまではプログラムの実行に関わるコード本体をプログラムから扱う方法について見てきました。この章ではGoソースコード中のコメントを扱っていきます。</p>
+</div>
+<div class="paragraph">
+<p>コメントはドキュメントの記述にも使用されており、そのためのAPIも用意されています。</p>
+</div>
+<div class="sect2">
+<h3 id="コメントの解析"><a class="anchor" href="#コメントの解析"></a>2.1. コメントの解析</h3>
+<div class="paragraph">
+<p><code>parser.ParseFile</code> の第4引数 <code>mode</code> に <code>parser.ParseComments</code> 定数を指定することで、構文解析の結果にコメントを含めることができます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/parser#ParseFile">go/parser.ParseFile</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span> <span class="tok-o">*</span><span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">FileSet</span><span class="tok-p">,</span> <span class="tok-nx">filename</span> <span class="tok-kt">string</span><span class="tok-p">,</span> <span class="tok-nx">src</span> <span class="tok-kd">interface</span><span class="tok-p">{},</span> <span class="tok-nx">mode</span> <span class="tok-nx">Mode</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">f</span> <span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">リスト 8. parsecomment.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
+
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/parser&quot;</span>
+    <span class="tok-s">&quot;go/token&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">fset</span> <span class="tok-o">:=</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">NewFileSet</span><span class="tok-p">()</span>
+    <span class="tok-nx">f</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-s">&quot;example.go&quot;</span><span class="tok-p">,</span> <span class="tok-nx">src</span><span class="tok-p">,</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseComments</span><span class="tok-p">)</span>
+
+    <span class="tok-k">for</span> <span class="tok-nx">_</span><span class="tok-p">,</span> <span class="tok-nx">c</span> <span class="tok-o">:=</span> <span class="tok-k">range</span> <span class="tok-nx">f</span><span class="tok-p">.</span><span class="tok-nx">Comments</span> <span class="tok-p">{</span>
+        <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Printf</span><span class="tok-p">(</span><span class="tok-s">&quot;%s: %q\n&quot;</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">.</span><span class="tok-nx">Position</span><span class="tok-p">(</span><span class="tok-nx">c</span><span class="tok-p">.</span><span class="tok-nx">Pos</span><span class="tok-p">()),</span> <span class="tok-nx">c</span><span class="tok-p">.</span><span class="tok-nx">Text</span><span class="tok-p">())</span>
+    <span class="tok-p">}</span>
+<span class="tok-p">}</span>
+
+<span class="tok-kd">var</span> <span class="tok-nx">src</span> <span class="tok-p">=</span> <span class="tok-s">`// Package p provides Add function</span>
+<span class="tok-s">// ...</span>
+<span class="tok-s">package p</span>
+
+<span class="tok-s">// Add adds two ints.</span>
+<span class="tok-s">func add(n, m int) int {</span>
+<span class="tok-s">    return n + m</span>
+<span class="tok-s">}</span>
+<span class="tok-s">`</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>example.go:1:1: "Package p provides Add function\n...\n"
+example.go:5:1: "Add adds two ints.\n"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>こうやって解析されたコメントは通常の構文木とは別に、<code>ast.File</code> 構造体の <code>Comments</code> フィールドに格納されます。<code>Comments</code> フィールドは <code>[]*ast.CommentGroup</code> として宣言されています。<code>ast.CommentGroup</code> は連続して続くコメントをひとまとめにしたもので、</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>parser.ParseComments</p>
+<p><code>/* &#8230;&#8203; */</code> 形式のコメントなら <code>/*</code> から <code>*/</code> まで</p>
 </li>
 <li>
-<p>doc.New</p>
+<p><code>// &#8230;&#8203;</code> 形式なら <code>//</code> から行末まで</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>が、ひとつの <code>ast.Comment</code> に対応します。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#CommentGroup">go/ast.CommentGroup</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">CommentGroup</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-nx">List</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">Comment</span> <span class="tok-c1">// len(List) &gt; 0</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Comment">go/ast.Comment</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Comment</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-nx">Slash</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">Pos</span> <span class="tok-c1">// position of &quot;/&quot; starting the comment</span>
+    <span class="tok-nx">Text</span>  <span class="tok-kt">string</span>    <span class="tok-c1">// comment text (excluding &#39;\n&#39; for //-style comments)</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>例えばコメントが以下のように書かれていた場合、それぞれ <code>CommentGroup</code> は2つ生成され、それぞれ2個の <code>Comment</code> を持ちます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// foo</span>
+<span class="tok-cm">/* bar */</span>
+
+<span class="tok-c1">// baz</span>
+<span class="tok-c1">// quux</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>コメントも <code>ast.Node</code> インターフェースを実装し、位置情報を保持しています。<a href="#ソースコードの文字列化">ソースコードの文字列化</a>の際は、この位置情報をもとにコメントが正しい位置に挿入されるようになっています。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="goにおけるドキュメント"><a class="anchor" href="#goにおけるドキュメント"></a>2.2. Goにおけるドキュメント</h3>
+<div class="paragraph">
+<p>Goではトップレベルの型や関数のすぐ直前のコメントがそのAPIのドキュメントである、と標準的に定められています（<a href="http://blog.golang.org/godoc-documenting-go-code">Godoc: documenting Go code</a>）。標準の <code>go doc</code> コマンドもこのルールに則ってドキュメントを</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>% go doc go/parser.ParseFile
+func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode) (f *ast.File, err error)
+    ParseFile parses the source code of a single Go source file and returns the
+    corresponding ast.File node. The source code may be provided via the
+    filename of the source file, or via the src parameter.
+...</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="doc_new"><a class="anchor" href="#doc_new"></a>2.3. doc.New</h3>
+
+</div>
+<div class="sect2">
+<h3 id="例示コード"><a class="anchor" href="#例示コード"></a>2.4. 例示コード</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>doc.Examples</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -2198,7 +2317,46 @@ WIP
 </div>
 </div>
 <div class="sect1">
-<h2 id="フロー解析"><a class="anchor" href="#フロー解析"></a>7. フロー解析</h2>
+<h2 id="標準コマンドを読む"><a class="anchor" href="#標準コマンドを読む"></a>7. 標準コマンドを読む</h2>
+<div class="sectionbody">
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+WIP
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>go doc</p>
+</li>
+<li>
+<p>go fmt</p>
+</li>
+<li>
+<p>stringer</p>
+</li>
+<li>
+<p>gorename</p>
+</li>
+<li>
+<p>guru</p>
+</li>
+<li>
+<p>goimports</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="フロー解析"><a class="anchor" href="#フロー解析"></a>8. フロー解析</h2>
 <div class="sectionbody">
 <div class="admonitionblock warning">
 <table>
@@ -2224,7 +2382,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-17 22:28:55 JST
+Last updated 2016-03-24 14:03:54 JST
 </div>
 </div>
 </body>
