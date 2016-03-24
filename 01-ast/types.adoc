@@ -16,7 +16,7 @@ godoc::go/ast.Node[]
 
 以下でこれらのうち主要なものを見て行きます。
 
-NOTE: <<ast.Node の階層>> で `ast.Node` を実装する型の完全な一覧を確認できます。
+NOTE: <<ast.Node の階層>>で `ast.Node` を実装する型の完全な一覧を確認できます。
 
 == ast.Decl
 
@@ -35,7 +35,7 @@ godoc::go/ast.FuncDecl[]
 
 `ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` か否かで関数の宣言かメソッドの宣言かを区別できます。
 
-`Recv` の型である <<ast.FieldList,`*ast.FieldList`>> は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。（ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！）
+`Recv` の型である <<ast.FieldList,`*ast.FieldList`>>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。（ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！）
 
 // Recv.NumFields() > 1 ありうえる？
 // src/go/parser/parser.go に書いてあった:
@@ -145,7 +145,7 @@ godoc::go/ast.Ident[]
 
 `ast.Ident` はコード中の識別子を表し、変数名をはじめパッケージ名、ラベルなどさまざまな場所に登場します。
 
-`Obj` フィールドはその実体を表す `ast.Object` への参照になっています。詳しくは <<スコープとオブジェクト>> で触れます。
+`Obj` フィールドはその実体を表す `ast.Object` への参照になっています。詳しくは <<スコープとオブジェクト>>で触れます。
 
 === ast.StructType と ast.InterfaceType
 
@@ -168,7 +168,7 @@ godoc::go/ast.Comment[]
 
 godoc::go/ast.CommentGroup[]
 
-`ast.Comment` はひとつのコメント（`// ...` または `/* ... */`）に、`ast.CommentGroup` は連続するコメントに対応します。<<コメントとドキュメント>> で詳しく見ます。
+`ast.Comment` はひとつのコメント（`// ...` または `/* ... */`）に、`ast.CommentGroup` は連続するコメントに対応します。<<コメントとドキュメント>>で詳しく見ます。
 
 === ast.Field と ast.FieldList
 
