@@ -1,0 +1,11 @@
+machine:
+  node:
+    version: 5.3.0
+  ruby:
+    version: 2.2.4
+  golang:
+    version: 1.5
+dependencies:
+  override:
+    - bundle
+    - npm install
