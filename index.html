@@ -548,8 +548,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#コメントの解析">2.1. コメントの解析</a></li>
 <li><a href="#goにおけるドキュメント">2.2. Goにおけるドキュメント</a></li>
-<li><a href="#doc_new">2.3. doc.New</a></li>
-<li><a href="#例示コード">2.4. 例示コード</a></li>
+<li><a href="#doc_package">2.3. doc.Package</a>
+<ul class="sectlevel3">
+<li><a href="#doc_package_のレイアウト">2.3.1. doc.Package のレイアウト</a></li>
+</ul>
+</li>
+<li><a href="#例示のためのテスト">2.4. 例示のためのテスト</a></li>
 </ul>
 </li>
 <li><a href="#ソースコードの文字列化">3. ソースコードの文字列化</a></li>
@@ -1949,8 +1953,17 @@ Valid position with file name:      example.go:2:3</pre>
 <div class="paragraph">
 <p><code>ast.Object</code> の <code>Decl</code> フィールドはそのオブジェクトが宣言されたノードを表します。</p>
 </div>
-<div class="paragraph">
-<p><code>Data</code> や <code>Type</code> などさらに詳しい情報を保持するためのフィールドもありますが、先に述べたように構文解析だけでは完全な情報が得られないので、これらの詳しい情報が必要な場合には<a href="#型解析">型解析</a>のAPIを使用することになるでしょう。</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>Data</code> や <code>Type</code> などさらに詳しい情報を保持するために用意されているフィールドもありますが、先に述べたように構文解析だけでは完全な情報が得られないので、これらの詳しい情報が必要な場合には<a href="#型解析">型解析</a>のAPIを使用することになるでしょう（現段階では <code>Type</code> フィールドはどこからも利用されていないようです）。
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect3">
@@ -2086,7 +2099,7 @@ TODO: golang/gddo の例
 <p>これまではプログラムの実行に関わるコード本体をプログラムから扱う方法について見てきました。この章ではGoソースコード中のコメントを扱っていきます。</p>
 </div>
 <div class="paragraph">
-<p>コメントはドキュメントの記述にも使用されており、そのためのAPIも用意されています。</p>
+<p>コメントはドキュメントの記述にも使用されており、そのためのAPIも <code>go/doc</code> パッケージとして用意されています。</p>
 </div>
 <div class="sect2">
 <h3 id="コメントの解析"><a class="anchor" href="#コメントの解析"></a>2.1. コメントの解析</h3>
@@ -2188,9 +2201,10 @@ example.go:5:1: "Add adds two ints.\n"</pre>
 <div class="sect2">
 <h3 id="goにおけるドキュメント"><a class="anchor" href="#goにおけるドキュメント"></a>2.2. Goにおけるドキュメント</h3>
 <div class="paragraph">
-<p>Goではトップレベルの型や関数のすぐ直前のコメントがそのAPIのドキュメントである、と標準的に定められています（<a href="http://blog.golang.org/godoc-documenting-go-code">Godoc: documenting Go code</a>）。標準の <code>go doc</code> コマンドもこのルールに則ってドキュメントを</p>
+<p>Goではトップレベルの型や関数のすぐ直前のコメントがそのAPIのドキュメントである、と標準的に定められています（<a href="http://blog.golang.org/godoc-documenting-go-code">Godoc: documenting Go code</a>）。標準の <code>go doc</code> コマンドもこのルールに則ってドキュメントを表示します。</p>
 </div>
 <div class="literalblock">
+<div class="title">go doc go/parser.ParseFile</div>
 <div class="content">
 <pre>% go doc go/parser.ParseFile
 func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode) (f *ast.File, err error)
@@ -2200,13 +2214,74 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 ...</pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">リスト 9. src/go/parser/interface.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// ParseFile parses the source code of a single Go source file and returns</span>
+<span class="tok-c1">// the corresponding ast.File node. The source code may be provided via</span>
+<span class="tok-c1">// the filename of the source file, or via the src parameter.</span>
+<span class="tok-c1">// ...</span>
+<span class="tok-c1">//</span>
+<span class="tok-kd">func</span> <span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span> <span class="tok-o">*</span><span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">FileSet</span><span class="tok-p">,</span> <span class="tok-nx">filename</span> <span class="tok-kt">string</span><span class="tok-p">,</span> <span class="tok-nx">src</span> <span class="tok-kd">interface</span><span class="tok-p">{},</span> <span class="tok-nx">mode</span> <span class="tok-nx">Mode</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">f</span> <span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span> <span class="tok-p">{</span></code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="doc_new"><a class="anchor" href="#doc_new"></a>2.3. doc.New</h3>
+<h3 id="doc_package"><a class="anchor" href="#doc_package"></a>2.3. doc.Package</h3>
+<div class="paragraph">
+<p>Goパッケージの（ソースコードから生成される）ドキュメントは、<code>doc.Package</code> として表現されます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/doc#Package">go/doc.Package</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Package</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-nx">Doc</span>        <span class="tok-kt">string</span>
+    <span class="tok-nx">Name</span>       <span class="tok-kt">string</span>
+    <span class="tok-nx">ImportPath</span> <span class="tok-kt">string</span>
+    <span class="tok-nx">Imports</span>    <span class="tok-p">[]</span><span class="tok-kt">string</span>
+    <span class="tok-nx">Filenames</span>  <span class="tok-p">[]</span><span class="tok-kt">string</span>
+    <span class="tok-nx">Notes</span>      <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-kt">string</span><span class="tok-p">][]</span><span class="tok-o">*</span><span class="tok-nx">Note</span>
+
+    <span class="tok-c1">// Deprecated: For backward compatibility Bugs is still populated,</span>
+    <span class="tok-c1">// but all new code should use Notes instead.</span>
+    <span class="tok-nx">Bugs</span> <span class="tok-p">[]</span><span class="tok-kt">string</span>
+
+    <span class="tok-c1">// declarations</span>
+    <span class="tok-nx">Consts</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">Value</span>
+    <span class="tok-nx">Types</span>  <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">Type</span>
+    <span class="tok-nx">Vars</span>   <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">Value</span>
+    <span class="tok-nx">Funcs</span>  <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">Func</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>doc.Package</code> は <code>doc.New</code> 関数によって <code>ast.Package</code>（<a href="#パッケージ">パッケージ</a>）から生成されます。<code>mode</code> パラメータはドキュメントとして抽出する対象をコントロールできます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/doc#New">go/doc.New</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-nx">New</span><span class="tok-p">(</span><span class="tok-nx">pkg</span> <span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Package</span><span class="tok-p">,</span> <span class="tok-nx">importPath</span> <span class="tok-kt">string</span><span class="tok-p">,</span> <span class="tok-nx">mode</span> <span class="tok-nx">Mode</span><span class="tok-p">)</span> <span class="tok-o">*</span><span class="tok-nx">Package</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+ドキュメントに <code>`New takes ownership of the AST pkg and may edit or overwrite it.'' とある通り、`doc.New</code> は与えられた <code>pkg</code> を書き換えることがあります。
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="doc_package_のレイアウト"><a class="anchor" href="#doc_package_のレイアウト"></a>2.3.1. doc.Package のレイアウト</h4>
 
 </div>
+</div>
 <div class="sect2">
-<h3 id="例示コード"><a class="anchor" href="#例示コード"></a>2.4. 例示コード</h3>
+<h3 id="例示のためのテスト"><a class="anchor" href="#例示のためのテスト"></a>2.4. 例示のためのテスト</h3>
 <div class="ulist">
 <ul>
 <li>
