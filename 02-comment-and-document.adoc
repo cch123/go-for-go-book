@@ -2,7 +2,7 @@
 
 これまではプログラムの実行に関わるコード本体をプログラムから扱う方法について見てきました。この章ではGoソースコード中のコメントを扱っていきます。
 
-コメントはドキュメントの記述にも使用されており、そのためのAPIも用意されています。
+コメントはドキュメントの記述にも使用されており、そのためのAPIも `go/doc` パッケージとして用意されています。
 
 == コメントの解析
 
@@ -38,8 +38,9 @@ godoc::go/ast.Comment[]
 
 == Goにおけるドキュメント
 
-Goではトップレベルの型や関数のすぐ直前のコメントがそのAPIのドキュメントである、と標準的に定められています（link:http://blog.golang.org/godoc-documenting-go-code[Godoc: documenting Go code]）。標準の `go doc` コマンドもこのルールに則ってドキュメントを
+Goではトップレベルの型や関数のすぐ直前のコメントがそのAPIのドキュメントである、と標準的に定められています（link:http://blog.golang.org/godoc-documenting-go-code[Godoc: documenting Go code]）。標準の `go doc` コマンドもこのルールに則ってドキュメントを表示します。
 
+.go doc go/parser.ParseFile
 ....
 % go doc go/parser.ParseFile
 func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode) (f *ast.File, err error)
@@ -49,8 +50,31 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 ...
 ....
 
-== doc.New
+[source,go]
+.src/go/parser/interface.go
+----
+// ParseFile parses the source code of a single Go source file and returns
+// the corresponding ast.File node. The source code may be provided via
+// the filename of the source file, or via the src parameter.
+// ...
+//
+func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode) (f *ast.File, err error) {
+----
 
-== 例示コード
+== doc.Package
+
+Goパッケージの（ソースコードから生成される）ドキュメントは、`doc.Package` として表現されます。
+
+godoc::go/doc.Package[]
+
+`doc.Package` は `doc.New` 関数によって `ast.Package`（<<パッケージ>>）から生成されます。`mode` パラメータはドキュメントとして抽出する対象をコントロールできます。
+
+godoc::go/doc.New[]
+
+NOTE: ドキュメントに ``New takes ownership of the AST pkg and may edit or overwrite it.'' とある通り、`doc.New` は与えられた `pkg` を書き換えることがあります。
+
+=== doc.Package のレイアウト
+
+== 例示のためのテスト
 
 * doc.Examples
