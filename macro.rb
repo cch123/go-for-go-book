@@ -85,4 +85,22 @@ end
 Asciidoctor::Extensions.register do
   block_macro GoExampleMacro
   block_macro GoDocMacro
+
+  if @document.basebackend? 'html' && ENV['BOOK_ENV'] == 'production'
+    postprocessor do
+      process do |doc, output|
+        output.sub('</html>', <<-GA_HTML)
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-34276254-7', 'auto');
+  ga('send', 'pageview');
+</script>
+</html>
+        GA_HTML
+      end
+    end
+  end
 end
