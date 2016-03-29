@@ -9,12 +9,11 @@ machine:
     version: 2.2.3
 test:
   override:
-    - npm run build:html
+    - npm run lint || true
 deployment:
   production:
     branch: master
     commands:
-      - export BOOK_ENV=production
       - git config --global user.name "CircleCI"
       - git config --global user.email "sayhi@circleci.com"
-      - npm run publish-html
+      - PRODUCTION=1 npm run publish-html
