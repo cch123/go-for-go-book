@@ -22,7 +22,10 @@ end.map do |node|
   else
     node.render
       .gsub(%r( ?<code\b.*?>.*?</code> ?), CODE_PLACEHOLDER)
-      .gsub(/ ?<[^>]*> ?/, '').gsub(/\n+/, "\n").strip
+      .gsub(%r(（<dfn[^>]*>[a-z ]+?</dfn>）)i, '') # TermMacro。日本語じゃないので除く
+      .gsub(/ ?<[^>]*> ?/, '')
+      .gsub(/\n+/, "\n")
+      .strip
   end
 
   lines += CGI::unescape_html(s).lines.map do |line|
