@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+require 'asciidoctor'
+require 'cgi'
+require 'tempfile'
+require 'json'
+
+require './macro.rb'
+
+CODE_PLACEHOLDER = '◆◆'
+
+doc = Asciidoctor.load_file('index.adoc', safe: Asciidoctor::SafeMode::UNSAFE, sourcemap: true)
+doc.delete_attribute 'toc'
+
+lines = []
+
+doc.find_by do |node|
+  node.context == :section || node.context == :paragraph || node.context == :ulist || node.context == :olist || node.context == :dlist
+end.map do |node|
+  s = if node.context == :section
+    node.title
+  else
+    node.render
+      .gsub(%r( ?<code\b.*?>.*?</code> ?), CODE_PLACEHOLDER)
+      .gsub(/ ?<[^>]*> ?/, '').gsub(/\n+/, "\n").strip
+  end
+
+  lines += CGI::unescape_html(s).lines.map do |line|
+    {
+      line: line.chomp,
+      loc:  {
+        path:   node.source_location.path,
+        lineno: node.source_location.lineno
+      }
+    }
+  end
+end
+
+f = Tempfile.open([ 'textlint', '.txt' ]) do |f|
+  f.puts lines.map { |l| l[:line] }.join("\n")
+  f
+end
+
+has_error = false
+
+result = JSON.parse(%x(node_modules/.bin/textlint --format json #{f.path}))
+result.flat_map do |r|
+  r['messages']
+end.sort_by do |m|
+  m['line']
+end.each do |m|
+  loc = lines[m['line']-1][:loc]
+  if m['message'].index(%(don't repeat "#{CODE_PLACEHOLDER}))
+    # nop
+  else
+    has_error = true
+    puts "#{loc[:path]}:#{loc[:lineno]}:#{m['message']} (#{m['ruleId']})"
+  end
+end
+
+exit(1) if has_error

@@ -3,6 +3,7 @@
   "scripts": {
     "start": "npm-run-all -p serve watch:build",
     "serve": "browser-sync start --server --files='build/*.html' --no-open --no-ui",
+    "lint": "bundle exec ./scripts/lint",
     "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go",
     "build:html": "bundle exec asciidoctor -r ./macro.rb index.adoc -D build",
     "build:pdf": "bundle exec asciidoctor-pdf -r asciidoctor-pdf-cjk -r ./macro.rb index.adoc -D build",
@@ -16,6 +17,12 @@
     "browser-sync": "^2.11.1",
     "gaze-cli": "^0.2.0",
     "gh-pages": "^0.11.0",
-    "npm-run-all": "^1.5.2"
+    "npm-run-all": "^1.5.2",
+    "textlint": "^6.0.4",
+    "textlint-rule-no-doubled-conjunction": "^1.0.1",
+    "textlint-rule-no-doubled-conjunctive-particle-ga": "^1.0.2",
+    "textlint-rule-preset-japanese": "^1.0.3",
+    "textlint-rule-preset-jtf-style": "^2.1.2",
+    "textlint-rule-web-plus-db": "^1.1.4"
   }
 }
