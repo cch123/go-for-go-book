@@ -9,7 +9,7 @@
     "build:pdf": "bundle exec asciidoctor-pdf -r asciidoctor-pdf-cjk -r ./macro.rb index.adoc -D build",
     "build:mobi": "bundle exec asciidoctor-epub3 -a ebook-format=kf8 -r ./macro.rb index.adoc -D build",
     "publish-html": "npm-run-all build:html publish-html:gh-pages",
-    "publish-html:gh-pages": "gh-pages -d build --remote origin"
+    "publish-html:gh-pages": "gh-pages --dist build --remote origin --add"
   },
   "author": "motemen (https://motemen.github.io/)",
   "private": true,
