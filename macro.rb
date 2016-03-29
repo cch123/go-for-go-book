@@ -82,14 +82,26 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
   end
 end
 
+class TermMacro < Asciidoctor::Extensions::InlineMacroProcessor
+  use_dsl
+
+  named :term
+
+  def process parent, target, attrs
+    %(#{target}（<dfn>#{attrs[1]}</dfn>）)
+  end
+end
+
 Asciidoctor::Extensions.register do
-  block_macro GoExampleMacro
-  block_macro GoDocMacro
+  block_macro  GoExampleMacro
+  block_macro  GoDocMacro
+  inline_macro TermMacro
 
   if @document.basebackend?('html') && ENV['PRODUCTION']
     postprocessor do
       process do |doc, output|
-        output.sub('</html>', <<-GA_HTML)
+        output
+          .sub('</html>', <<-GA_HTML)
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -100,6 +112,18 @@ Asciidoctor::Extensions.register do
 </script>
 </html>
         GA_HTML
+      end
+    end
+  end
+
+  if @document.basebackend?('html')
+    postprocessor do
+      process do |doc, output|
+        output
+          .sub('</style>', <<-STYLE)
+body{word-break:break-word;}
+</style>
+          STYLE
       end
     end
   end
