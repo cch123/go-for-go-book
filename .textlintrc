@@ -1,0 +1,14 @@
+{
+    "rules": {
+        "preset-japanese": {
+        },
+        "preset-jtf-style": {
+        },
+        "no-doubled-conjunction": {
+        },
+        "no-doubled-conjunctive-particle-ga": {
+        },
+        "web-plus-db": {
+        }
+    }
+}
