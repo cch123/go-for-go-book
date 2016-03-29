@@ -86,7 +86,7 @@ Asciidoctor::Extensions.register do
   block_macro GoExampleMacro
   block_macro GoDocMacro
 
-  if @document.basebackend? 'html' && ENV['BOOK_ENV'] == 'production'
+  if @document.basebackend? 'html' && ENV['PRODUCTION']
     postprocessor do
       process do |doc, output|
         output.sub('</html>', <<-GA_HTML)
