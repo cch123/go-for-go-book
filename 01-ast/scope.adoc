@@ -6,7 +6,9 @@ Goのソースコードにおいて名前はレキシカルスコープを持ち
 
 == 構文解析だけでは不十分な例
 
-ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。例えば以下のプログラムには `T{k: 0}` という同じ形をしたコードが出現しますが、ここで `k` が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（link:https://github.com/golang/example/tree/master/gotypes[`go/types`: The Go Type Checker] より）。
+ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。
+
+以下のプログラムには `T{k: 0}` という同じ形をしたコードが出現します。ここで `k` が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（link:https://github.com/golang/example/tree/master/gotypes[`go/types`: The Go Type Checker] より）。
 
 goexample::indeterminableident[]
 
@@ -23,10 +25,10 @@ WARNING: このように、`go/ast` のAPIで得られるスコープの情報�
 
 == スコープ
 
-Go のスコープはブロックにもとづいて作られます。ブレース（`{...}`）による明示的なブロックの他に作られるブロックもあります。link:https://golang.org/ref/spec#Declarations_and_scope[Declarations and scope - The Go Programming Language Specification] に述べられていますが、抄訳します:
+Goのスコープはブロックにもとづいて作られます。ブレース（`{...}`）による明示的なブロックの他に作られるブロックもあります。link:https://golang.org/ref/spec#Declarations_and_scope[Declarations and scope - The Go Programming Language Specification] に述べられていますが、抄訳します：
 
 * あらかじめ定義されている名前（`nil` など）はユニバースブロック（universe block）に属します。
-* トップレベルの定数、変数、関数（メソッドは除く）はパッケージブロック（package block）に属します。
+* トップレベルの定数、変数、関数（メソッドを除く）はパッケージブロック（package block）に属します。
 * インポートされたパッケージの名前は、それを含むファイルブロック（file block）に属します。
 
 `go/ast` のAPIを使用してアクセスできるのはファイルブロックのスコープとパッケージブロックのスコープ（<<パッケージ>>）のみです。
@@ -43,7 +45,8 @@ godoc::go/ast.Scope[]
 
 godoc::go/ast.Ident[]
 
-`go/ast` や `go/types` では名前をつけられた言語上の実体（named language entity）をオブジェクト（object）と呼んでおり、構文上のオブジェクトはこの `ast.Object` によって表されています。
+`go/ast` や `go/types` ではterm:名前をつけられた言語上の実体[named language entity]をterm:オブジェクト[object]と呼んでおり、構文上のオブジェクトはこの `ast.Object` によって表されています。
+
 // TODO: named language entity の訳語
 
 godoc::go/ast.Object[]
@@ -65,7 +68,7 @@ NOTE: `Data` や `Type` などさらに詳しい情報を保持するために�
 
 Goでは、複数のソースファイルが集まってひとつのパッケージを構成します。コンパイルの成果物はパッケージ単位で生成され、パッケージを構成するソースコード中の名前はすべて解決できなければなりません。
 
-=== ast.File.Scope と ast.File.Unresolved
+=== ast.File.Scopeとast.File.Unresolved
 
 godoc::go/ast.File[]
 
@@ -82,7 +85,7 @@ godoc::go/ast.File[]
 
 godoc::go/ast.Package[]
 
-複数の `ast.File` をまとめたものが `ast.Package` です。先ほど触れたトップレベルの名前や外部から導入される名前が解決された結果が `Scope` や `Imports` フィールドに格納されます。
+複数の `ast.File` をまとめたものが `ast.Package` です。先ほど触れたトップレベルの名前や外部から導入される名前が解決され、`Scope` や `Imports` フィールドに格納されます。
 
 `ast.Package` は `ast.NewPackage` で生成されます。
 
@@ -94,7 +97,7 @@ godoc::go/ast.NewPackage[]
 
 godoc::go/ast.Importer[]
 
-これらを正しく渡すことで完全な `ast.Package` を生成することができますが、（しつこいようですが）正しい情報が必要な場合には<<型解析>>を行うことを考えたほうがよいでしょう。
+これらを正しく渡すことで完全な `ast.Package` を生成することができますが、正しい情報が必要な場合には<<型解析>>を行うことを考えたほうがよいでしょう。
 
 WARNING: TODO: golang/gddo の例
 

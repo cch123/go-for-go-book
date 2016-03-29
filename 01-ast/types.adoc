@@ -6,9 +6,9 @@
 
 godoc::go/ast.Node[]
 
-定義を見れば分かる通り、`ast.Node` インタフェース自身はその<<ソースコード中の位置>>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するには type assertion や type swtich による具体的な型への変換が必要になります。
+定義を見れば分かる通り、`ast.Node` インタフェース自身はその<<ソースコード中の位置>>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するにはtype assertionやtype swtichによる具体的な型への変換が必要になります。
 
-構文木のノードを大別するため、`ast.Node` を実装するサブインタフェースが定義されています:
+構文木のノードを大別するため、`ast.Node` を実装するサブインタフェースが定義されています：
 
 `ast.Decl`:: 宣言（declaration）。`import` や `type` など
 `ast.Stmt`:: 文（statement）。`if` や `switch` など
@@ -33,7 +33,7 @@ NOTE: <<ast.Node の階層>>で `ast.Node` を実装する型の完全な一覧�
 
 godoc::go/ast.FuncDecl[]
 
-`ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` か否かで関数の宣言かメソッドの宣言かを区別できます。
+`ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` である場合は関数を、そうでない場合はメソッドを表します。
 
 `Recv` の型である <<ast.FieldList,`*ast.FieldList`>>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。
 
@@ -87,7 +87,7 @@ type (
 
 // ast.go 内の順番
 
-.ast.Decl の分類
+.ast.Declの分類
 * 宣言（`ast.DeclStmt`）
 * 空の文（`ast.EmptyStmt`）
 * ラベル付き文（`ast.LabeledStmt`）
@@ -149,13 +149,13 @@ godoc::go/ast.Ident[]
 
 `Obj` フィールドはその実体を表す `ast.Object` への参照になっています。詳しくは <<スコープとオブジェクト>>で触れます。
 
-=== ast.StructType と ast.InterfaceType
+=== ast.StructTypeとast.InterfaceType
 
 godoc::go/ast.StructType[]
 
 godoc::go/ast.InterfaceType[]
 
-これら2つの構造体は `Incomplete` フィールドを持っています。これは通常 `false` ですが、<<ast.Filter,フィルタ>>によってノードが書き換えられ、フィールドやメソッドの宣言が取り除かれた場合に `true` が設定され、ソースコードとノードに乖離があることを示します。`go doc` が出力する "// contains filtered or unexported fields" はこの値を参照しています。
+これら2つの構造体は `Incomplete` フィールドを持っています。これは通常 `false` ですが、<<ast.Filter,フィルタ>>によってノード中のフィールドやメソッドの宣言が取り除かれる際に `true` となり、ソースコードとノードに乖離があることを示します。`go doc` が出力する "// contains filtered or unexported fields" はこの値を参照しています。
 
 goexample::structtypeincomplete[]
 goexample::structtypeincomplete[output]
@@ -164,7 +164,7 @@ goexample::structtypeincomplete[output]
 
 以上の3種類に分類されないノードもいくつか存在します。
 
-=== ast.Comment と ast.CommentGroup
+=== ast.Commentとast.CommentGroup
 
 godoc::go/ast.Comment[]
 
@@ -172,7 +172,7 @@ godoc::go/ast.CommentGroup[]
 
 `ast.Comment` はひとつのコメント（`// ...` または `/* ... */`）に、`ast.CommentGroup` は連続するコメントに対応します。<<コメントとドキュメント>>で詳しく見ます。
 
-=== ast.Field と ast.FieldList
+=== ast.Fieldとast.FieldList
 
 godoc::go/ast.Field[]
 
@@ -192,7 +192,7 @@ godoc::go/ast.FieldList[]
 // git grep -w Tag src/go/parser; parseStructType -> parseFieldDecl
 
 [appendix]
-== ast.Node の階層
+== ast.Nodeの階層
 
 ----
 include::../listings/ast-node-hierarchy.txt[]

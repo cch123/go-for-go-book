@@ -21,7 +21,7 @@ godoc::go/ast.Node[]
 
 godoc::go/token.Pos[]
 
-オフセット値は `1` から始まるバイト単位の値です。特に、`token.Pos` の zero value （= `0`）には `token.NoPos` という特別な名前が与えられています。
+オフセット値は `1` から始まるバイト単位の値です。特に、`token.Pos` のzero value（= `0`）には `token.NoPos` という特別な名前が与えられています。
 
 godoc::go/token.NoPos[]
 
@@ -60,7 +60,7 @@ godoc::go/token.NewFileSet[]
 
 godoc::go/token.Position[]
 
-`token.Position` 構造体はファイル名、行番号、カラム位置を持ち、ソースコード中の位置としては最も詳細な情報を含みます。`String()` メソッドによって human-readable な位置情報を得られます。
+`token.Position` 構造体はファイル名、行番号、カラム位置を持ち、ソースコード中の位置としては最も詳細な情報を含みます。`String()` メソッドによってわかりやすい位置情報が得られます。
 
 // TODO: 行番号とかカラム位置のない Position ってどこで出てくるんだろ
 

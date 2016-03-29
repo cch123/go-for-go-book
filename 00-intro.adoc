@@ -8,8 +8,8 @@
 WARNING: WIP
 
 * Goの言語仕様そのままだと表現力は（設計により）貧弱
-* 一方でそれを補完するオフィシャルなエコシステムが充実している、例：https://blog.golang.org/generate[go generate]
-* また、標準パッケージのAPIも。多くのツールが書かれ、提供されている 例：`goimports`
+* 一方でそれを補完するオフィシャルなエコシステムが充実している。例：link:https://blog.golang.org/generate[go generate]
+* また、標準パッケージのAPIも。多くのツールが書かれ、提供されている。例：`goimports`
 
 == この本のねらい
 
