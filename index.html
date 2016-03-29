@@ -416,7 +416,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .print-only{display:block!important}
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
+body{word-break:break-word;}
 </style>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
 <style>
 .listingblock .pygments .hll { background-color: #ffffcc }
@@ -523,7 +525,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#ast_stmt">1.3.3. ast.Stmt</a></li>
 <li><a href="#ast_expr">1.3.4. ast.Expr</a></li>
 <li><a href="#その他のノード">1.3.5. その他のノード</a></li>
-<li><a href="#ast_node_の階層">Appendix A: ast.Node の階層</a></li>
+<li><a href="#ast_nodeの階層">Appendix A: ast.Nodeの階層</a></li>
 </ul>
 </li>
 <li><a href="#ソースコード中の位置">1.4. ソースコード中の位置</a>
@@ -550,7 +552,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#goにおけるドキュメント">2.2. Goにおけるドキュメント</a></li>
 <li><a href="#doc_package">2.3. doc.Package</a>
 <ul class="sectlevel3">
-<li><a href="#doc_package_のレイアウト">2.3.1. doc.Package のレイアウト</a></li>
+<li><a href="#doc_packageのレイアウト">2.3.1. doc.Packageのレイアウト</a></li>
 </ul>
 </li>
 <li><a href="#例示のためのテスト">2.4. 例示のためのテスト</a></li>
@@ -589,10 +591,10 @@ WIP
 <p>Goの言語仕様そのままだと表現力は（設計により）貧弱</p>
 </li>
 <li>
-<p>一方でそれを補完するオフィシャルなエコシステムが充実している、例：https://blog.golang.org/generate[go generate]</p>
+<p>一方でそれを補完するオフィシャルなエコシステムが充実している。例：<a href="https://blog.golang.org/generate">go generate</a></p>
 </li>
 <li>
-<p>また、標準パッケージのAPIも。多くのツールが書かれ、提供されている 例：<code>goimports</code></p>
+<p>また、標準パッケージのAPIも。多くのツールが書かれ、提供されている。例：<code>goimports</code></p>
 </li>
 </ul>
 </div>
@@ -665,7 +667,7 @@ WIP
 <h3 id="式の構文解析"><a class="anchor" href="#式の構文解析"></a>1.1. 式の構文解析</h3>
 <div class="paragraph">
 <p>Goのソースコードの構文解析を行うには、標準パッケージの <code>go/parser</code> を使用します。
-まずはGoの式（expression）を解析するところからはじめましょう。</p>
+まずはGoの式（<dfn>expression</dfn>）を解析するところからはじめましょう。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 1. parseexpr.go</div>
@@ -710,7 +712,7 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d20), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d60)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -813,7 +815,7 @@ WIP
 <p><code>ast.Expr</code> は（埋め込まれている <code>ast.Node</code> を除けば）外部に公開されないメソッドで構成されています。そのため、これを実装する型は <code>ast</code> パッケージに定義されているものに限られます。</p>
 </div>
 <div class="paragraph">
-<p><code>exprNode()</code> は実際にはどこからも呼ばれないメソッドなので、<code>ast.Expr</code> はその振る舞いに関する情報を提供しない、分類用のインタフェースであるといえます（後で見ますが、<code>ast.Node</code> も構文木に対する情報を含んだメソッドを提供しません）。同様に、文や宣言に対応するインタフェース（<code>ast.Stmt</code> と <code>ast.Decl</code>）も定義されています。埋め込まれている <code>ast.Node</code> インタフェースも含め、これらについて詳しくは<a href="#構文ノードの実装">構文ノードの実装</a>で見ます。</p>
+<p><code>exprNode()</code> は実際にはどこからも呼ばれないメソッドなので、<code>ast.Expr</code> はその振る舞いに関する情報を提供しない、分類用のインタフェースであるといえます。同様に、文や宣言に対応するインタフェース（<code>ast.Stmt</code> と <code>ast.Decl</code>）も定義されています。埋め込まれている <code>ast.Node</code> インタフェースも含め、これらについて詳しくは<a href="#構文ノードの実装">構文ノードの実装</a>で見ます。</p>
 </div>
 </div>
 </div>
@@ -859,7 +861,7 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p>第二引数の <code>filename</code> と第三引数の <code>src</code> はふたつで一組になっていて、構文解析するソースコードを指定します。<code>src != nil</code> であるときは <code>filename</code> に指定されたファイルを読み込み、それ以外の場合は <code>src</code> をソースコードとして読み込み、<code>filename</code> はソースコードの位置情報にだけ使われます。<code>src</code> に指定できるのは <code>string</code> か <code>[]byte</code> か <code>io.Reader</code> のいずれかのみです。</p>
+<p>第二引数の <code>filename</code> と第三引数の <code>src</code> はふたつで一組になっていて、構文解析するソースコードを指定します。<code>src != nil</code> であるときは <code>filename</code> に指定されたファイルを読み込み、それ以外の場合は <code>src</code> をソースコードとして読み込み、<code>filename</code> はソースコードの位置情報にだけ使われます。<code>src</code> に指定できるのは <code>string</code>、<code>[]byte</code>、<code>io.Reader</code> のいずれかのみです。</p>
 </div>
 <div class="paragraph">
 <p>第一引数の <code>fset</code> は構文解析によって得られた構文木のノードの詳細な位置情報を保持する <code>token.FileSet</code> 構造体へのポインタです。詳しくは<a href="#ソースコード中の位置">ソースコード中の位置</a>で説明しますが、基本的に、<code>token.NewFileSet()</code> で得られるものを渡せば十分です。</p>
@@ -1017,7 +1019,7 @@ WIP
 <div class="sect3">
 <h4 id="構文木の探索"><a class="anchor" href="#構文木の探索"></a>1.2.4. 構文木の探索</h4>
 <div class="paragraph">
-<p><a href="#構文ノードのインタフェース">先</a>に述べたように構文木のノードは <code>ast</code> パッケージのインタフェースとして得られるので、具体的な内容を知るには type assertion や type switch を用いなければなりません。これを手で書いていくのは大変で間違いも起きがちですが、<code>ast.Inspect</code> 関数を使えば構文ノードに対する深さ優先探索を行えます。</p>
+<p><a href="#構文ノードのインタフェース">先</a>に述べたように構文木のノードは <code>ast</code> パッケージのインタフェースとして得られるので、具体的な内容を知るにはtype assertionやtype switchを用いなければなりません。これを手で書いていくのは大変で間違いも起きがちですが、<code>ast.Inspect</code> 関数を使えば構文ノードに対する深さ優先探索を行えます。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Inspect">go/ast.Inspect</a></div>
@@ -1029,7 +1031,7 @@ WIP
 <p>各ノードを引数に呼ばれるコールバック関数 <code>f</code> が <code>true</code> を返すと、さらにその下のノードを探索していきます。</p>
 </div>
 <div class="paragraph">
-<p>以下は先ほどのソースコードファイル中の識別子を一覧する例です。<code>ast.Node</code> の具体的な型を知るために、type assertion をおこなっています。</p>
+<p>以下は先ほどのソースコードファイル中の識別子を一覧する例です。<code>ast.Node</code> の具体的な型を知るために、type assertionをおこなっています。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 4. listidents.go</div>
@@ -1105,10 +1107,10 @@ int</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>定義を見れば分かる通り、<code>ast.Node</code> インタフェース自身はその<a href="#ソースコード中の位置">ソースコード中の位置</a>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するには type assertion や type swtich による具体的な型への変換が必要になります。</p>
+<p>定義を見れば分かる通り、<code>ast.Node</code> インタフェース自身はその<a href="#ソースコード中の位置">ソースコード中の位置</a>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するにはtype assertionやtype swtichによる具体的な型への変換が必要になります。</p>
 </div>
 <div class="paragraph">
-<p>構文木のノードを大別するため、<code>ast.Node</code> を実装するサブインタフェースが定義されています:</p>
+<p>構文木のノードを大別するため、<code>ast.Node</code> を実装するサブインタフェースが定義されています：</p>
 </div>
 <div class="dlist">
 <dl>
@@ -1136,7 +1138,7 @@ int</pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<a href="#ast_node_の階層">ast.Node の階層</a>で <code>ast.Node</code> を実装する型の完全な一覧を確認できます。
+<a href="#ast.Node の階層">[ast.Node の階層]</a>で <code>ast.Node</code> を実装する型の完全な一覧を確認できます。
 </td>
 </tr>
 </table>
@@ -1181,7 +1183,7 @@ int</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>ast.FuncDecl</code> 構造体は関数の宣言に対応します。<code>Recv</code> フィールドはそのレシーバを表しており、これが <code>nil</code> か否かで関数の宣言かメソッドの宣言かを区別できます。</p>
+<p><code>ast.FuncDecl</code> 構造体は関数の宣言に対応します。<code>Recv</code> フィールドはそのレシーバを表しており、これが <code>nil</code> である場合は関数を、そうでない場合はメソッドを表します。</p>
 </div>
 <div class="paragraph">
 <p><code>Recv</code> の型である <a href="#ast.FieldList"><code>*ast.FieldList</code></a>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。<code>FieldList</code> はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。</p>
@@ -1251,7 +1253,7 @@ int</pre>
 <p><code>ast.Decl</code> インタフェースはGoソースコードにおける <a href="https://golang.org/ref/spec#Statements">文</a> に対応する構文木のノードを表します。文はプログラムの実行を制御するもので、<code>go/ast</code> パッケージの実装では以下のように分類されています：</p>
 </div>
 <div class="ulist">
-<div class="title">ast.Decl の分類</div>
+<div class="title">ast.Declの分類</div>
 <ul>
 <li>
 <p>宣言（<code>ast.DeclStmt</code>）</p>
@@ -1430,7 +1432,7 @@ int</pre>
 </div>
 </div>
 <div class="sect4">
-<h5 id="ast_structtype_と_ast_interfacetype"><a class="anchor" href="#ast_structtype_と_ast_interfacetype"></a>ast.StructType と ast.InterfaceType</h5>
+<h5 id="ast_structtypeとast_interfacetype"><a class="anchor" href="#ast_structtypeとast_interfacetype"></a>ast.StructTypeとast.InterfaceType</h5>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#StructType">go/ast.StructType</a></div>
 <div class="content">
@@ -1452,7 +1454,7 @@ int</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>これら2つの構造体は <code>Incomplete</code> フィールドを持っています。これは通常 <code>false</code> ですが、<a href="#ast.Filter">フィルタ</a>によってノードが書き換えられ、フィールドやメソッドの宣言が取り除かれた場合に <code>true</code> が設定され、ソースコードとノードに乖離があることを示します。<code>go doc</code> が出力する "// contains filtered or unexported fields" はこの値を参照しています。</p>
+<p>これら2つの構造体は <code>Incomplete</code> フィールドを持っています。これは通常 <code>false</code> ですが、<a href="#ast.Filter">フィルタ</a>によってノード中のフィールドやメソッドの宣言が取り除かれる際に <code>true</code> となり、ソースコードとノードに乖離があることを示します。<code>go doc</code> が出力する "// contains filtered or unexported fields" はこの値を参照しています。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 5. structtypeincomplete.go</div>
@@ -1489,8 +1491,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc820064140), (*ast.Field)(0xc8200641c0)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc820064140)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a600), (*ast.Field)(0xc82001a680)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc82001a600)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -1501,7 +1503,7 @@ fields=[]*ast.Field{(*ast.Field)(0xc820064140)} incomplete=true</pre>
 <p>以上の3種類に分類されないノードもいくつか存在します。</p>
 </div>
 <div class="sect4">
-<h5 id="ast_comment_と_ast_commentgroup"><a class="anchor" href="#ast_comment_と_ast_commentgroup"></a>ast.Comment と ast.CommentGroup</h5>
+<h5 id="ast_commentとast_commentgroup"><a class="anchor" href="#ast_commentとast_commentgroup"></a>ast.Commentとast.CommentGroup</h5>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Comment">go/ast.Comment</a></div>
 <div class="content">
@@ -1524,7 +1526,7 @@ fields=[]*ast.Field{(*ast.Field)(0xc820064140)} incomplete=true</pre>
 </div>
 </div>
 <div class="sect4">
-<h5 id="ast_field_と_ast_fieldlist"><a class="anchor" href="#ast_field_と_ast_fieldlist"></a>ast.Field と ast.FieldList</h5>
+<h5 id="ast_fieldとast_fieldlist"><a class="anchor" href="#ast_fieldとast_fieldlist"></a>ast.Fieldとast.FieldList</h5>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Field">go/ast.Field</a></div>
 <div class="content">
@@ -1575,7 +1577,7 @@ fields=[]*ast.Field{(*ast.Field)(0xc820064140)} incomplete=true</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="ast_node_の階層"><a class="anchor" href="#ast_node_の階層"></a>Appendix A: ast.Node の階層</h4>
+<h4 id="ast_nodeの階層"><a class="anchor" href="#ast_nodeの階層"></a>Appendix A: ast.Nodeの階層</h4>
 <div class="listingblock">
 <div class="content">
 <pre>ast.Node
@@ -1682,7 +1684,7 @@ exit status 1</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>オフセット値は <code>1</code> から始まるバイト単位の値です。特に、<code>token.Pos</code> の zero value （= <code>0</code>）には <code>token.NoPos</code> という特別な名前が与えられています。</p>
+<p>オフセット値は <code>1</code> から始まるバイト単位の値です。特に、<code>token.Pos</code> のzero value（= <code>0</code>）には <code>token.NoPos</code> という特別な名前が与えられています。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/token#NoPos">go/token.NoPos</a></div>
@@ -1790,7 +1792,7 @@ exit status 1</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>token.Position</code> 構造体はファイル名、行番号、カラム位置を持ち、ソースコード中の位置としては最も詳細な情報を含みます。<code>String()</code> メソッドによって human-readable な位置情報を得られます。</p>
+<p><code>token.Position</code> 構造体はファイル名、行番号、カラム位置を持ち、ソースコード中の位置としては最も詳細な情報を含みます。<code>String()</code> メソッドによってわかりやすい位置情報が得られます。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 6. positionstring.go</div>
@@ -1828,7 +1830,10 @@ Valid position with file name:      example.go:2:3</pre>
 <div class="sect3">
 <h4 id="構文解析だけでは不十分な例"><a class="anchor" href="#構文解析だけでは不十分な例"></a>1.5.1. 構文解析だけでは不十分な例</h4>
 <div class="paragraph">
-<p>ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。例えば以下のプログラムには <code>T{k: 0}</code> という同じ形をしたコードが出現しますが、ここで <code>k</code> が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（<a href="https://github.com/golang/example/tree/master/gotypes"><code>go/types</code>: The Go Type Checker</a> より）。</p>
+<p>ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。</p>
+</div>
+<div class="paragraph">
+<p>以下のプログラムには <code>T{k: 0}</code> という同じ形をしたコードが出現します。ここで <code>k</code> が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（<a href="https://github.com/golang/example/tree/master/gotypes"><code>go/types</code>: The Go Type Checker</a> より）。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 7. indeterminableident.go</div>
@@ -1875,7 +1880,7 @@ Valid position with file name:      example.go:2:3</pre>
 <div class="sect3">
 <h4 id="スコープ"><a class="anchor" href="#スコープ"></a>1.5.2. スコープ</h4>
 <div class="paragraph">
-<p>Go のスコープはブロックにもとづいて作られます。ブレース（<code>{&#8230;&#8203;}</code>）による明示的なブロックの他に作られるブロックもあります。<a href="https://golang.org/ref/spec#Declarations_and_scope">Declarations and scope - The Go Programming Language Specification</a> に述べられていますが、抄訳します:</p>
+<p>Goのスコープはブロックにもとづいて作られます。ブレース（<code>{&#8230;&#8203;}</code>）による明示的なブロックの他に作られるブロックもあります。<a href="https://golang.org/ref/spec#Declarations_and_scope">Declarations and scope - The Go Programming Language Specification</a> に述べられていますが、抄訳します：</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1883,7 +1888,7 @@ Valid position with file name:      example.go:2:3</pre>
 <p>あらかじめ定義されている名前（<code>nil</code> など）はユニバースブロック（universe block）に属します。</p>
 </li>
 <li>
-<p>トップレベルの定数、変数、関数（メソッドは除く）はパッケージブロック（package block）に属します。</p>
+<p>トップレベルの定数、変数、関数（メソッドを除く）はパッケージブロック（package block）に属します。</p>
 </li>
 <li>
 <p>インポートされたパッケージの名前は、それを含むファイルブロック（file block）に属します。</p>
@@ -1925,7 +1930,7 @@ Valid position with file name:      example.go:2:3</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>go/ast</code> や <code>go/types</code> では名前をつけられた言語上の実体（named language entity）をオブジェクト（object）と呼んでおり、構文上のオブジェクトはこの <code>ast.Object</code> によって表されています。</p>
+<p><code>go/ast</code> や <code>go/types</code> では名前をつけられた言語上の実体（<dfn>named language entity</dfn>）をオブジェクト（<dfn>object</dfn>）と呼んでおり、構文上のオブジェクトはこの <code>ast.Object</code> によって表されています。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Object">go/ast.Object</a></div>
@@ -1984,7 +1989,7 @@ Valid position with file name:      example.go:2:3</pre>
 <p>Goでは、複数のソースファイルが集まってひとつのパッケージを構成します。コンパイルの成果物はパッケージ単位で生成され、パッケージを構成するソースコード中の名前はすべて解決できなければなりません。</p>
 </div>
 <div class="sect4">
-<h5 id="ast_file_scope_と_ast_file_unresolved"><a class="anchor" href="#ast_file_scope_と_ast_file_unresolved"></a>ast.File.Scope と ast.File.Unresolved</h5>
+<h5 id="ast_file_scopeとast_file_unresolved"><a class="anchor" href="#ast_file_scopeとast_file_unresolved"></a>ast.File.Scopeとast.File.Unresolved</h5>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#File">go/ast.File</a></div>
 <div class="content">
@@ -2034,7 +2039,7 @@ Valid position with file name:      example.go:2:3</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>複数の <code>ast.File</code> をまとめたものが <code>ast.Package</code> です。先ほど触れたトップレベルの名前や外部から導入される名前が解決された結果が <code>Scope</code> や <code>Imports</code> フィールドに格納されます。</p>
+<p>複数の <code>ast.File</code> をまとめたものが <code>ast.Package</code> です。先ほど触れたトップレベルの名前や外部から導入される名前が解決され、<code>Scope</code> や <code>Imports</code> フィールドに格納されます。</p>
 </div>
 <div class="paragraph">
 <p><code>ast.Package</code> は <code>ast.NewPackage</code> で生成されます。</p>
@@ -2058,7 +2063,7 @@ Valid position with file name:      example.go:2:3</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>これらを正しく渡すことで完全な <code>ast.Package</code> を生成することができますが、（しつこいようですが）正しい情報が必要な場合には<a href="#型解析">型解析</a>を行うことを考えたほうがよいでしょう。</p>
+<p>これらを正しく渡すことで完全な <code>ast.Package</code> を生成することができますが、正しい情報が必要な場合には<a href="#型解析">型解析</a>を行うことを考えたほうがよいでしょう。</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -2207,7 +2212,7 @@ example.go:5:1: "Add adds two ints.\n"</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>コメントも <code>ast.Node</code> インタフェースを実装し、位置情報を保持しています。<a href="#ソースコードの文字列化">ソースコードの文字列化</a>の際は、この位置情報をもとにコメントが正しい位置に挿入されるようになっています。</p>
+<p>コメントも <code>ast.Node</code> インタフェースを実装し、位置情報を保持しています。<a href="#ソースコードの文字列化">ソースコードの文字列化</a>の際は、この位置情報にもとづいてコメントが正しく挿入されるようになっています。</p>
 </div>
 </div>
 <div class="sect2">
@@ -2288,7 +2293,7 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 </table>
 </div>
 <div class="sect3">
-<h4 id="doc_package_のレイアウト"><a class="anchor" href="#doc_package_のレイアウト"></a>2.3.1. doc.Package のレイアウト</h4>
+<h4 id="doc_packageのレイアウト"><a class="anchor" href="#doc_packageのレイアウト"></a>2.3.1. doc.Packageのレイアウト</h4>
 
 </div>
 </div>
@@ -2469,7 +2474,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-29 04:24:46 UTC
+Last updated 2016-03-29 10:33:48 UTC
 </div>
 </div>
 </body>
