@@ -6,7 +6,7 @@ Goのソースコードにおいて名前はレキシカルスコープを持ち
 
 == 構文解析だけでは不十分な例
 
-ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。例えば以下のプログラムには `T{k: 0}` という同じ形をしたコードが出現しますが、ここで `k` が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります。（link:https://github.com/golang/example/tree/master/gotypes[`go/types`: The Go Type Checker] より）
+ただし、構文解析だけでは全ての名前を正しく解決できるわけではありません。例えば以下のプログラムには `T{k: 0}` という同じ形をしたコードが出現しますが、ここで `k` が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（link:https://github.com/golang/example/tree/master/gotypes[`go/types`: The Go Type Checker] より）。
 
 goexample::indeterminableident[]
 
@@ -25,13 +25,13 @@ WARNING: このように、`go/ast` のAPIで得られるスコープの情報�
 
 Go のスコープはブロックにもとづいて作られます。ブレース（`{...}`）による明示的なブロックの他に作られるブロックもあります。link:https://golang.org/ref/spec#Declarations_and_scope[Declarations and scope - The Go Programming Language Specification] に述べられていますが、抄訳します:
 
-* あらかじめ定義されている名前（`nil` など）の属するユニバースブロック（universe block）に属します。
+* あらかじめ定義されている名前（`nil` など）はユニバースブロック（universe block）に属します。
 * トップレベルの定数、変数、関数（メソッドは除く）はパッケージブロック（package block）に属します。
 * インポートされたパッケージの名前は、それを含むファイルブロック（file block）に属します。
 
 `go/ast` のAPIを使用してアクセスできるのはファイルブロックのスコープとパッケージブロックのスコープ（<<パッケージ>>）のみです。
 
-構文解析によって得られたスコープは `ast.Scope` として表現されます:
+構文解析によって得られたスコープは `ast.Scope` として表現されます：
 
 godoc::go/ast.Scope[]
 

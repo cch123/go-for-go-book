@@ -1,4 +1,4 @@
-= Go のための Go
+= GoのためのGo
 :doctype: book
 :icons: font
 :listing-caption: リスト

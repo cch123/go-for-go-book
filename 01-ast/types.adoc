@@ -2,13 +2,13 @@
 
 == ast.Node
 
-抽象構文木のノードに対応する構造体は、すべて `ast.Node` インターフェースを実装しています。
+抽象構文木のノードに対応する構造体は、すべて `ast.Node` インタフェースを実装しています。
 
 godoc::go/ast.Node[]
 
-定義を見れば分かる通り、`ast.Node` インターフェース自身はその<<ソースコード中の位置>>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するには type assertion や type swtich による具体的な型への変換が必要になります。
+定義を見れば分かる通り、`ast.Node` インタフェース自身はその<<ソースコード中の位置>>を提供するだけであり、このままでは構文木に関する情報を得ることはできません。構文木を探索・操作するには type assertion や type swtich による具体的な型への変換が必要になります。
 
-構文木のノードを大別するため、`ast.Node` を実装するサブインターフェースが定義されています:
+構文木のノードを大別するため、`ast.Node` を実装するサブインタフェースが定義されています:
 
 `ast.Decl`:: 宣言（declaration）。`import` や `type` など
 `ast.Stmt`:: 文（statement）。`if` や `switch` など
@@ -20,14 +20,14 @@ NOTE: <<ast.Node の階層>>で `ast.Node` を実装する型の完全な一覧�
 
 == ast.Decl
 
-`ast.Decl` インターフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言には
+`ast.Decl` インタフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言には
 
 * パッケージのインポート（`import`）
 * 変数および定数（`var`、`const`）
 * 型（`type`）
 * 関数およびメソッド（`func`）
 
-といったものがありますが、`ast.Decl` インターフェースを実装している構造体は `*ast.GenDecl` と `*ast.FuncDecl` の2つのみです。後者は関数及びメソッドの宣言に相当し、前者が残りすべてをカバーします。
+といったものがありますが、`ast.Decl` インタフェースを実装している構造体は `*ast.GenDecl` と `*ast.FuncDecl` の2つのみです。後者は関数及びメソッドの宣言に相当し、前者が残りすべてをカバーします。
 
 === ast.FuncDecl
 
@@ -35,7 +35,9 @@ godoc::go/ast.FuncDecl[]
 
 `ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` か否かで関数の宣言かメソッドの宣言かを区別できます。
 
-`Recv` の型である <<ast.FieldList,`*ast.FieldList`>>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。（ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！）
+`Recv` の型である <<ast.FieldList,`*ast.FieldList`>>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。
+
+NOTE: ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！
 
 // Recv.NumFields() > 1 ありうえる？
 // src/go/parser/parser.go に書いてあった:
@@ -50,7 +52,7 @@ godoc::go/ast.FuncDecl[]
 
 godoc::go/ast.GenDecl[]
 
-`import`、`const`、`var`、`type` の宣言は `ast.GenDecl` がまとめて引き受けます。`Specs` フィールドは `ast.Spec` インターフェースのスライスと宣言されていますが、要素の型は `*ast.ImportSpec`、`*ast.ValueSpec`、`*ast.TypeSpec` のいずれかひとつであり、`Tok` フィールドの値によって決まります。`*ast.ValueSpec` は `const` と `var` の場合両方をカバーします。
+`import`、`const`、`var`、`type` の宣言は `ast.GenDecl` がまとめて引き受けます。`Specs` フィールドは `ast.Spec` インタフェースのスライスと宣言されていますが、要素の型は `*ast.ImportSpec`、`*ast.ValueSpec`、`*ast.TypeSpec` のいずれかひとつであり、`Tok` フィールドの値によって決まります。`*ast.ValueSpec` は `const` と `var` の場合両方をカバーします。
 
 // TODO: 一応正しいかソース読む
 
@@ -81,7 +83,7 @@ type (
 
 == ast.Stmt
 
-`ast.Decl` インターフェースはGoソースコードにおける https://golang.org/ref/spec#Statements[文] に対応する構文木のノードを表します。文はプログラムの実行を制御するもので、`go/ast` パッケージの実装では以下のように分類されています:
+`ast.Decl` インタフェースはGoソースコードにおける https://golang.org/ref/spec#Statements[文] に対応する構文木のノードを表します。文はプログラムの実行を制御するもので、`go/ast` パッケージの実装では以下のように分類されています：
 
 // ast.go 内の順番
 
@@ -113,7 +115,7 @@ type (
 
 == ast.Expr
 
-`ast.Expr` インターフェースはおもにGoソースコードにおける https://golang.org/ref/spec#Expressions[式] および https://golang.org/ref/spec#Types[型] に対応する構文木のノードを表します。`go/ast` パッケージの実装では以下のように分類されています:
+`ast.Expr` インタフェースはおもにGoソースコードにおける https://golang.org/ref/spec#Expressions[式] および https://golang.org/ref/spec#Types[型] に対応する構文木のノードを表します。`go/ast` パッケージの実装では以下のように分類されています：
 
 NOTE: `ast.Ellipsis` や `ast.KeyValueExpr` のように、それ単体では式となり得ないノードも `ast.Expr` を実装していますが、このおかげでこれらを含むノードの実装が簡単になっているようです。
 
@@ -135,7 +137,7 @@ NOTE: `ast.Ellipsis` や `ast.KeyValueExpr` のように、それ単体では式
 * 配列またはスライス型（`ast.ArrayType`）
 * 構造体型（`ast.StructType`）
 * 関数型（`ast.FuncType`）
-* インターフェース型（`ast.InterfaceType`）
+* インタフェース型（`ast.InterfaceType`）
 * マップ型（`ast.MapType`）
 * チャンネル型（`ast.ChanType`）
 
@@ -178,10 +180,10 @@ godoc::go/ast.FieldList[]
 
 それぞれ、識別子と型の組ひとつと、そのリストに対応します。
 
-`ast.FieldList` は以下の構造体に含まれています:
+`ast.FieldList` は以下の構造体に含まれています：
 
 * `ast.StructType`    ...... 構造体のフィールドのリストとして
-* `ast.InterfaceType` ...... インターフェースのメソッドのリストとして
+* `ast.InterfaceType` ...... インタフェースのメソッドのリストとして
 * `ast.FuncType`      ...... 関数のパラメータおよび返り値として
 * `ast.FuncDecl`      ...... メソッドのレシーバとして
 

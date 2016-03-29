@@ -13,7 +13,7 @@ exit status 1
 
 == token.Pos
 
-さて、すべての抽象構文木のノードは<<ast.Node>>インターフェースを実装しているのでした。`ast.Node` は `token.Pos` を返す `Pos()` と `End()` の2つのメソッドで構成されます。
+さて、すべての抽象構文木のノードは<<ast.Node>>インタフェースを実装しているのでした。`ast.Node` は `token.Pos` を返す `Pos()` と `End()` の2つのメソッドで構成されます。
 
 godoc::go/ast.Node[]
 
