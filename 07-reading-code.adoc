@@ -12,6 +12,7 @@
 ソースは `src/cmd/doc/` 以下にあります。
 
 // TODO: godoc との関係
+// TODO: 概要
 
 === 引数の解決（`parseArgs`）
 
@@ -38,9 +39,17 @@ c. 指定されたパスの一部からパッケージを探しだす（例：`g
 pkgs, err := parser.ParseDir(fs, pkg.Dir, include, parser.ParseComments)
 ----
 
-その後 `doc.New` した結果を利用して `Package` 構造体を生成します。
+その後 `doc.New` して得られた `doc.Package` から `Package` 構造体を生成します。
 
 === ドキュメントの表示（`Pacakge.packageDoc` など）
+
+`Package` 構造体の以下のメソッドがモードに応じて選ばれ、ユーザに表示される内容を生成します。
+
+* `packageDoc` ... パッケージのドキュメントを表示
+* `symbolDoc`  ... シンボル（型、関数、メソッドなど）のドキュメントを表示
+* `methodDoc`  ... ある型のメソッドのドキュメントを表示
+
+ドキュメントを表示するなかで対象のソースコードにおける定義が必要になった場合（`go doc go/ast File` など）、`format.Node` で生成されます。`ast.FuncDecl` を表示する際は `Body` フィールドに `nil` を代入することで、宣言のみが表示されるようにしています。
 
 == go fmt
 
