@@ -41,16 +41,7 @@ WARNING: WIP
 
 - tools/go/loader
 
-== 標準コマンドを読む
-
-WARNING: WIP
-
-- go doc
-- go fmt
-- stringer
-- gorename
-- guru
-- goimports
+include::07-reading-code.adoc[leveloffset=+1]
 
 == フロー解析
 
