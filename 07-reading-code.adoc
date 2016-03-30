@@ -29,10 +29,25 @@ c. 指定されたパスの一部からパッケージを探しだす（例：`g
 
 そうでない場合（c）、パスの一部が一致するパッケージを発見する必要があります。ここでも `go/build` のAPIを利用し、`build.Default.GOROOT` と `build.Default.GOPATH` 以下のディレクトリを探索します。`go doc` コマンドが実行された時点でこの探索のためのgoroutineが起動していて、すばやく結果を返せるようになっています。
 
-=== ドキュメントの表示
+=== ソースコードの解析（`parsePackage`）
+
+ドキュメント情報を得るためには、ソースコードを解析する必要があります。パッケージの情報が手元にあるので `parser.ParseDir` でディレクトリ内のファイルを一度に解析できますが、その際第3引数の `filter` を指定して `GoFiles` や `CgoFiles` に含まれないものを除去します。こうすることで、実行環境（`GOOS` や `GOARCH`）に合わせたソースコードのみを解析対象としています。
+
+[source,go]
+----
+pkgs, err := parser.ParseDir(fs, pkg.Dir, include, parser.ParseComments)
+----
+
+その後 `doc.New` した結果を利用して `Package` 構造体を生成します。
+
+=== ドキュメントの表示（`Pacakge.packageDoc` など）
 
 == go fmt
+
 == stringer
+
 == guru
+
 == goimports
+
 == gddo
