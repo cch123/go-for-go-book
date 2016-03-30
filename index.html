@@ -562,7 +562,21 @@ body{word-break:break-word;}
 <li><a href="#型解析">4. 型解析</a></li>
 <li><a href="#ビルド情報">5. ビルド情報</a></li>
 <li><a href="#高レベルのapi">6. 高レベルのAPI</a></li>
-<li><a href="#標準コマンドを読む">7. 標準コマンドを読む</a></li>
+<li><a href="#ソースコードを読む">7. ソースコードを読む</a>
+<ul class="sectlevel2">
+<li><a href="#go_doc">7.1. go doc</a>
+<ul class="sectlevel3">
+<li><a href="#引数の解決_code_parseargs_code">7.1.1. 引数の解決（<code>parseArgs</code>）</a></li>
+<li><a href="#ドキュメントの表示">7.1.2. ドキュメントの表示</a></li>
+</ul>
+</li>
+<li><a href="#go_fmt">7.2. go fmt</a></li>
+<li><a href="#stringer">7.3. stringer</a></li>
+<li><a href="#guru">7.4. guru</a></li>
+<li><a href="#goimports">7.5. goimports</a></li>
+<li><a href="#gddo">7.6. gddo</a></li>
+</ul>
+</li>
 <li><a href="#フロー解析">8. フロー解析</a></li>
 </ul>
 </div>
@@ -1138,7 +1152,7 @@ int</pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<a href="#ast.Node の階層">[ast.Node の階層]</a>で <code>ast.Node</code> を実装する型の完全な一覧を確認できます。
+<a href="#ast_nodeの階層">ast.Nodeの階層</a>で <code>ast.Node</code> を実装する型の完全な一覧を確認できます。
 </td>
 </tr>
 </table>
@@ -1188,14 +1202,14 @@ int</pre>
 <div class="paragraph">
 <p><code>Recv</code> の型である <a href="#ast.FieldList"><code>*ast.FieldList</code></a>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。<code>FieldList</code> はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。</p>
 </div>
-<div class="admonitionblock note">
+<div class="admonitionblock warning">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-ただし、<code>go/parser</code> は複数の組からなるレシーバをエラーなく解析します！
+ただし、<code>go/parser</code> は複数の組からなるレシーバをエラーなく解析します！ コメントによると、シンプルさとロバスト性のためだということです。
 </td>
 </tr>
 </table>
@@ -1491,8 +1505,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a600), (*ast.Field)(0xc82001a680)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc82001a600)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0), (*ast.Field)(0xc82001a640)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2409,41 +2423,78 @@ WIP
 </div>
 </div>
 <div class="sect1">
-<h2 id="標準コマンドを読む"><a class="anchor" href="#標準コマンドを読む"></a>7. 標準コマンドを読む</h2>
+<h2 id="ソースコードを読む"><a class="anchor" href="#ソースコードを読む"></a>7. ソースコードを読む</h2>
 <div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>ここではGoプログラマに広く使われているツール類のソースコードを読むことで、実戦でどのようにAPIが利用されているかを見ていきます。</p>
 </div>
-<div class="ulist">
-<ul>
+<div class="sect2">
+<h3 id="go_doc"><a class="anchor" href="#go_doc"></a>7.1. go doc</h3>
+<div class="paragraph">
+<p>パッケージのAPIのドキュメントを閲覧する機能を提供するサブコマンドです。
+<code>go doc go/ast Node</code> のようにパッケージやシンボルを指定すると、そのドキュメントを表示します。</p>
+</div>
+<div class="paragraph">
+<p>パッケージ名は完全なパスでなくてもよく、その場合はGOPATH以下からマッチするものを探してきます。</p>
+</div>
+<div class="paragraph">
+<p>ソースは <code>src/cmd/doc/</code> 以下にあります。</p>
+</div>
+<div class="sect3">
+<h4 id="引数の解決_code_parseargs_code"><a class="anchor" href="#引数の解決_code_parseargs_code"></a>7.1.1. 引数の解決（<code>parseArgs</code>）</h4>
+<div class="paragraph">
+<p>最初に、引数で指定された要件にしたがってドキュメントの元となるソースコードを取得します。</p>
+</div>
+<div class="paragraph">
+<p><code>go doc</code> への引数の与え方はさまざまで、パッケージを指定する方法には次の3パターンがあります：</p>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
 <li>
-<p>go doc</p>
+<p>カレントディレクトリのソースコードを対象にする（例：<code>go doc</code>）。</p>
 </li>
 <li>
-<p>go fmt</p>
+<p>完全なパスで指定されたパッケージを対象にする（例：<code>go doc encoding/json</code>）。</p>
 </li>
 <li>
-<p>stringer</p>
+<p>指定されたパスの一部からパッケージを探しだす（例：<code>go doc json</code>）。</p>
 </li>
-<li>
-<p>gorename</p>
-</li>
-<li>
-<p>guru</p>
-</li>
-<li>
-<p>goimports</p>
-</li>
-</ul>
+</ol>
+</div>
+<div class="paragraph">
+<p>これに加えて、パッケージ内のシンボルおよびそのメソッドも指定されることがあります。</p>
+</div>
+<div class="paragraph">
+<p>カレントディレクトリを対象にする場合およびパッケージが指定されている場合（aおよびb）は、<code>go/build</code> のAPI <code>build.Import</code> を使って簡単にソースコードの所在を示す <code>build.Package</code> が得られます。</p>
+</div>
+<div class="paragraph">
+<p>そうでない場合（c）、パスの一部が一致するパッケージを発見する必要があります。ここでも <code>go/build</code> のAPIを利用し、<code>build.Default.GOROOT</code> と <code>build.Default.GOPATH</code> 以下のディレクトリを探索します。<code>go doc</code> コマンドが実行された時点でこの探索のためのgoroutineが起動していて、すばやく結果を返せるようになっています。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ドキュメントの表示"><a class="anchor" href="#ドキュメントの表示"></a>7.1.2. ドキュメントの表示</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="go_fmt"><a class="anchor" href="#go_fmt"></a>7.2. go fmt</h3>
+
+</div>
+<div class="sect2">
+<h3 id="stringer"><a class="anchor" href="#stringer"></a>7.3. stringer</h3>
+
+</div>
+<div class="sect2">
+<h3 id="guru"><a class="anchor" href="#guru"></a>7.4. guru</h3>
+
+</div>
+<div class="sect2">
+<h3 id="goimports"><a class="anchor" href="#goimports"></a>7.5. goimports</h3>
+
+</div>
+<div class="sect2">
+<h3 id="gddo"><a class="anchor" href="#gddo"></a>7.6. gddo</h3>
+
 </div>
 </div>
 </div>
@@ -2474,7 +2525,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-29 10:33:48 UTC
+Last updated 2016-03-30 00:41:47 UTC
 </div>
 </div>
 </body>
