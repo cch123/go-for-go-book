@@ -2,7 +2,7 @@
   "name": "go-for-go-book",
   "scripts": {
     "start": "npm-run-all -p serve watch:build",
-    "serve": "browser-sync start --server --files='build/*.html' --index=build/index.html --no-open --no-ui --reload-delay=500",
+    "serve": "browser-sync start --server --files='build/*.html' --index=build/index.html --no-open --no-ui --reload-delay=500 --port=9999",
     "lint": "bundle exec ./scripts/lint",
     "test": "npm run lint",
     "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go",
