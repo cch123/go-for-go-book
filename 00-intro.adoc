@@ -23,4 +23,8 @@ WARNING: WIP
 
 WARNING: WIP
 
+== 対象バージョン
+
+この本では、Goバージョン1.6とそのソースコードを対象とします。
+
 :sectnums:

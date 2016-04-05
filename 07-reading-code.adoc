@@ -73,9 +73,7 @@ WARNING: WIP
 
 このオプションが指定された場合、ソースコードの印字の前に `simplify(f *ast.File)` が呼び出されます。
 
-最初に `const ()` のような空の宣言が取り除かれます。これは `ast.File.Decls` を書き換えることで実現できます（link:https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/simplify.go#L137-146[`removeEmptyDeclGroups`]）。
-
-// TODO: gosource:src/cmd/gofmt/simplify.go#L137-146[go1.6] みたいにしたい
+最初に `const ()` のような空の宣言が取り除かれます。これは `ast.File.Decls` を書き換えることで実現できます（gosource:src/cmd/gofmt/simplify.go#L137-146[go1.6,removeEmptyDeclGroups]）。
 
 それから、構文木を辿って単純化が行われます。適用されるのは以下のルールになります。
 
@@ -84,9 +82,19 @@ WARNING: WIP
 * スライスの単純化（`s[a:len(s)]` → `s[a:]`）
 * for/range文の単純化（`for _ = range` → `for range`）
 
-スライスとfor/range文の単純化はどちらかというと単純な作業で、type assertionを利用しながら構文木を探索し、求める構造に合致するノードを発見します。合致した場合、消し去りたい部分を表すフィールドに `nil` を代入することで結果のソースコードから削除しています。
+スライスとfor/range文の単純化は比較的単純な作業で、type assertionを利用しながら構文木を探索し、求める構造に合致するノードを発見します。合致した場合、消し去りたい部分を表すフィールドに `nil` を代入することで結果のソースコードから削除しています。
 
-TODO: match()
+// simplify -> simplifier.Visit -> match
+
+複合リテラルの単純化の内部で使用されているのが `match(m map[string]reflect.Value, pattern, val reflect.Value) bool` 関数です（gosource:src/cmd/gofmt/rewrite.go#L160[go1.6]）。`match()` は構文ノードの `reflect.Value` を2つ引数に取り、それらが一致するかをチェックします。
+
+`match()` には2種類のモードがあり、
+
+* 引数 `m` が `nil` の場合は、2つの `reflect.Value` の表す `ast.Node` が同じ値であるかを再帰的にチェックします。
+  * この際、<<ソースコード中の位置>>などの値が異なっていても無視します。
+* 引数 `m` が非 `nil` の場合には、`pattern` 引数の表すパターンに `val` が一致するかを見ます（後述）。
+
+ここでは前者の場合のみが起こり、複合リテラルの外側と内側の型（を表す構文ノード）が等しい場合には内側の型を消去する、という処理を行っています。
 
 === `-r`: ソースを書き換える
 
