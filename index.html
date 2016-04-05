@@ -418,7 +418,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .show-for-print{display:inherit!important}}
 body{word-break:break-word;}
 </style>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
 <style>
 .listingblock .pygments .hll { background-color: #ffffcc }
@@ -485,6 +484,11 @@ body{word-break:break-word;}
 .listingblock .pygments .tok-vi { color: #19177C } /* Name.Variable.Instance */
 .listingblock .pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
 </style>
+<script>
+if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
+  location.protocol = 'https:';
+}
+</script>
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
@@ -741,7 +745,7 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820066040), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820066080)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d20), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d60)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1520,8 +1524,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc820068140), (*ast.Field)(0xc8200681c0)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc820068140)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0), (*ast.Field)(0xc82001a640)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2681,7 +2685,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-05 15:37:00 UTC
+Last updated 2016-04-05 17:07:35 UTC
 </div>
 </div>
 </body>
