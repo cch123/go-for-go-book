@@ -67,11 +67,11 @@ Goにおいて特徴的なコマンドで、ソースコードを標準的なス
 
 WARNING: WIP
 
-=== `-s`: ソースをシンプルにする
+=== `gofmt -s`: ソースをシンプルにする
 
 通常gofmtが行うのはソースコードの整形のみで、抽象構文木の構造が変わるような変更を行いませんが、`-s`や`-r`を指定することでより積極的なフォーマットが可能です。
 
-このオプションが指定された場合、ソースコードの印字の前に `simplify(f *ast.File)` が呼び出されます。
+このオプションが指定された場合、ソースコードの印字の前に `simplify(f *ast.File)` が呼び出され、構文木の書き換えが行われます。以下でその流れを見ていきましょう。
 
 最初に `const ()` のような空の宣言が取り除かれます。これは `ast.File.Decls` を書き換えることで実現できます（gosource:src/cmd/gofmt/simplify.go#L137-146[go1.6,removeEmptyDeclGroups]）。
 
@@ -96,7 +96,20 @@ WARNING: WIP
 
 ここでは前者の場合のみが起こり、複合リテラルの外側と内側の型（を表す構文ノード）が等しい場合には内側の型を消去する、という処理を行っています。
 
-=== `-r`: ソースを書き換える
+=== `gofmt -r`: ソースを書き換える
+
+さらに高度な機能として、引数に指定されたパターンに従ってソースコードを書き換えることもできます。以下のように `->` を2つのGoの式で挟んだ形式によってコードの書き換え規則を指定します。
+
+....
+gofmt -r 'a[b:len(a)] -> a[b:]' ...
+....
+
+書き換え規則の入力は、まず2つの`ast.Expr`として解釈されます（gosource:src/cmd/gofmt/rewrite.go#L19-32[go1.6,initRewrite]）。
+
+実際の処理は `rewriteFile`（gosource:src/cmd/gofmt/rewrite.go#L57-82[go1.6,rewriteFile]）です。
+
+* `subst`（gosource:src/cmd/gofmt/rewrite.go#L244-303[go1.6,subst]）
+* `apply`（gosource:src/cmd/gofmt/rewrite.go#L115-150[go1.6,subst]）
 
 == stringer
 
