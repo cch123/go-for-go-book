@@ -133,7 +133,15 @@ Asciidoctor::Extensions.register do
     postprocessor do
       process do |doc, output|
         output
-          .sub('</style>', <<-STYLE)
+          .sub('</head>', <<-JAVASCRIPT.chomp)
+<script>
+if (/\.github\.io$/.test(location.host) && location.protocol === 'http:') {
+  location.protocol = 'https:';
+}
+</script>
+</head>
+          JAVASCRIPT
+          .sub('</style>', <<-STYLE.chomp)
 body{word-break:break-word;}
 </style>
           STYLE
