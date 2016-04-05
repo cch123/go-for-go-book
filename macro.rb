@@ -82,6 +82,18 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
   end
 end
 
+class GoSourceMacro < Asciidoctor::Extensions::InlineMacroProcessor
+  use_dsl
+
+  named :gosource
+
+  def process(parent, target, attrs)
+    ref = attrs.delete(1)
+    text = target.sub(%r(^.+/), '').sub('#L', ':')
+    create_anchor(parent, text, { type: :link, target: %(https://github.com/golang/go/blob/#{ref}/#{target}) }.merge(attrs)).convert
+  end
+end
+
 class TermMacro < Asciidoctor::Extensions::InlineMacroProcessor
   use_dsl
 
@@ -95,6 +107,7 @@ end
 Asciidoctor::Extensions.register do
   block_macro  GoExampleMacro
   block_macro  GoDocMacro
+  inline_macro GoSourceMacro
   inline_macro TermMacro
 
   if @document.basebackend?('html') && ENV['PRODUCTION']

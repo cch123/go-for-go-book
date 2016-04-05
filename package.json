@@ -5,7 +5,7 @@
     "serve": "browser-sync start --server --files='build/*.html' --index=build/index.html --no-open --no-ui --reload-delay=500 --port=9999",
     "lint": "bundle exec ./scripts/lint",
     "test": "npm run lint",
-    "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go",
+    "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go macro.rb",
     "build:html": "bundle exec asciidoctor -r ./macro.rb index.adoc -D build",
     "build:pdf": "bundle exec asciidoctor-pdf -r asciidoctor-pdf-cjk -r ./macro.rb index.adoc -D build",
     "build:mobi": "bundle exec asciidoctor-epub3 -a ebook-format=kf8 -r ./macro.rb index.adoc -D build",
