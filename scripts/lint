@@ -44,7 +44,7 @@ f = Tempfile.open([ 'textlint', '.txt' ]) do |f|
   f
 end
 
-has_error = false
+success = true
 
 result = JSON.parse(%x(node_modules/.bin/textlint --format json #{f.path}))
 result.flat_map do |r|
@@ -56,9 +56,9 @@ end.each do |m|
   if m['message'].index(%(don't repeat "#{CODE_PLACEHOLDER}))
     # nop
   else
-    has_error = true
+    success = false
     puts "#{loc[:path]}:#{loc[:lineno]}:#{m['message']} (#{m['ruleId']})"
   end
 end
 
-exit(1) if has_error
+exit success
