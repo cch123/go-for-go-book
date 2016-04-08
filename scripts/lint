@@ -14,19 +14,23 @@ doc.delete_attribute 'toc'
 
 lines = []
 
-doc.find_by do |node|
+doc.query do |node|
   node.context == :section || node.context == :paragraph || node.context == :ulist || node.context == :olist || node.context == :dlist
 end.map do |node|
   s = if node.context == :section
     node.title
+  elsif node.context == :ulist
+    node.items.map do |i|
+      i.text
+    end.join("\n")
   else
     node.render
-      .gsub(%r( ?<code\b.*?>.*?</code> ?), CODE_PLACEHOLDER)
-      .gsub(%r(（<dfn[^>]*>[a-z ]+?</dfn>）)i, '') # TermMacro。日本語じゃないので除く
-      .gsub(/ ?<[^>]*> ?/, '')
-      .gsub(/\n+/, "\n")
-      .strip
   end
+    .gsub(%r( ?<code\b.*?>.*?</code> ?), CODE_PLACEHOLDER)
+    .gsub(%r(（<dfn[^>]*>[a-z ]+?</dfn>）)i, '') # TermMacro。日本語じゃないので除く
+    .gsub(/ ?<[^>]*> ?/, '')
+    .gsub(/\n+/, "\n")
+    .strip
 
   lines += CGI::unescape_html(s).lines.map do |line|
     {
@@ -40,7 +44,9 @@ end.map do |node|
 end
 
 f = Tempfile.open([ 'textlint', '.txt' ]) do |f|
-  f.puts lines.map { |l| l[:line] }.join("\n")
+  lines.each do |l|
+    f.puts l[:line]
+  end
   f
 end
 
