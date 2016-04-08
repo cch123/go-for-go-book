@@ -15,29 +15,29 @@ doc.delete_attribute 'toc'
 lines = []
 
 doc.query do |node|
-  node.context == :section || node.context == :paragraph || node.context == :ulist || node.context == :olist || node.context == :dlist
+  node.context == :section || node.context == :paragraph || node.context == :list_item
 end.map do |node|
   s = if node.context == :section
     node.title
-  elsif node.context == :ulist
-    node.items.map do |i|
-      i.text
-    end.join("\n")
+  elsif node.context == :list_item
+    node.text
   else
     node.render
   end
-    .gsub(%r( ?<code\b.*?>.*?</code> ?), CODE_PLACEHOLDER)
-    .gsub(%r(（<dfn[^>]*>[a-z ]+?</dfn>）)i, '') # TermMacro。日本語じゃないので除く
-    .gsub(/ ?<[^>]*> ?/, '')
-    .gsub(/\n+/, "\n")
-    .strip
 
+  s.gsub!(%r( ?<code\b.*?>.*?</code> ?), CODE_PLACEHOLDER)
+  s.gsub!(%r(（<dfn[^>]*>[a-z ]+?</dfn>）)i, '') # TermMacro。日本語じゃないので除く
+  s.gsub!(/ ?<[^>]*> ?/, '')
+  s.gsub!(/\n+/, "\n")
+  s.strip!
+
+  loc = node.source_location || node.parent.source_location
   lines += CGI::unescape_html(s).lines.map do |line|
     {
       line: line.chomp,
       loc:  {
-        path:   node.source_location.path,
-        lineno: node.source_location.lineno
+        path:   loc.path,
+        lineno: loc.lineno
       }
     }
   end
