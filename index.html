@@ -745,7 +745,7 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d20), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d60)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1524,8 +1524,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0), (*ast.Field)(0xc82001a640)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc820068140), (*ast.Field)(0xc8200681c0)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc820068140)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2562,7 +2562,7 @@ WIP
 <div class="sect3">
 <h4 id="code_gofmt_s_code_ソースをシンプルにする"><a class="anchor" href="#code_gofmt_s_code_ソースをシンプルにする"></a>7.2.3. <code>gofmt -s</code>: ソースをシンプルにする</h4>
 <div class="paragraph">
-<p>通常gofmtが行うのはソースコードの整形のみで、抽象構文木の構造が変わるような変更を行いませんが、<code>-s`や</code>-r`を指定することでより積極的なフォーマットが可能です。</p>
+<p>通常gofmtが行うのはソースコードの整形のみで、抽象構文木の構造が変わるような変更を行いませんが、<code>-s</code> や  <code>-r</code> を指定することでより積極的なフォーマットが可能です。</p>
 </div>
 <div class="paragraph">
 <p>このオプションが指定された場合、ソースコードの印字の前に <code>simplify(f *ast.File)</code> が呼び出され、構文木の書き換えが行われます。以下でその流れを見ていきましょう。</p>
@@ -2590,7 +2590,7 @@ WIP
 <p>スライスとfor/range文の単純化は比較的単純な作業で、type assertionを利用しながら構文木を探索し、求める構造に合致するノードを発見します。合致した場合、消し去りたい部分を表すフィールドに <code>nil</code> を代入することで結果のソースコードから削除しています。</p>
 </div>
 <div class="paragraph">
-<p>複合リテラルの単純化の内部で使用されているのが <code>match(m map[string]reflect.Value, pattern, val reflect.Value) bool</code> 関数です（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L160">rewrite.go:160</a>）。<code>match()</code> は構文ノードの <code>reflect.Value</code> を2つ引数に取り、それらが一致するかをチェックします。</p>
+<p>複合リテラルの単純化の内部で使用されているのが <code>func match(m map[string]reflect.Value, pattern, val reflect.Value) bool</code> 関数です（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L160">rewrite.go:160</a>）。<code>match()</code> は構文ノード（<code>ast.Node</code>）への <code>reflect.Value</code> を2つ引数に取り、それらが一致するかをチェックします。</p>
 </div>
 <div class="paragraph">
 <p><code>match()</code> には2種類のモードがあり、</p>
@@ -2599,9 +2599,13 @@ WIP
 <ul>
 <li>
 <p>引数 <code>m</code> が <code>nil</code> の場合は、2つの <code>reflect.Value</code> の表す <code>ast.Node</code> が同じ値であるかを再帰的にチェックします。</p>
-</li>
+<div class="ulist">
+<ul>
 <li>
-<p>この際、<a href="#ソースコード中の位置">ソースコード中の位置</a>などの値が異なっていても無視します。</p>
+<p>この際、<a href="#ソースコード中の位置">ソースコード中の位置</a>などの値が異なっていても基本的に無視します。</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>引数 <code>m</code> が非 <code>nil</code> の場合には、<code>pattern</code> 引数の表すパターンに <code>val</code> が一致するかを見ます（後述）。</p>
@@ -2615,7 +2619,7 @@ WIP
 <div class="sect3">
 <h4 id="code_gofmt_r_code_ソースを書き換える"><a class="anchor" href="#code_gofmt_r_code_ソースを書き換える"></a>7.2.4. <code>gofmt -r</code>: ソースを書き換える</h4>
 <div class="paragraph">
-<p>さらに高度な機能として、引数に指定されたパターンに従ってソースコードを書き換えることもできます。以下のように <code>&#8594;</code> を2つのGoの式で挟んだ形式によってコードの書き換え規則を指定します。</p>
+<p>さらに高度な機能として、引数に指定されたパターンに従ってソースコードを書き換えることもできます。以下のように <code>-&gt;</code> を2つのGoの式で挟んだ形式によってコードの書き換え規則を指定します。</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -2623,20 +2627,22 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p>書き換え規則の入力は、まず2つの`ast.Expr`として解釈されます（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L19-32">rewrite.go:19-32</a>）。</p>
+<p>書き換え規則の入力は、まず2つの <code>ast.Expr</code> として解釈されます（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L19-32">rewrite.go:19-32</a>）。</p>
 </div>
 <div class="paragraph">
-<p>実際の処理は <code>rewriteFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L57-82">rewrite.go:57-82</a>）です。</p>
+<p>実際の処理は <code>rewriteFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L57-82">rewrite.go:57-82</a>）です。内部では、構文木を表すデータ構造を <code>reflect</code> APIによって探索しながら <code>rewriteVal</code> で書き換えを行います（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L64-77">rewrite.go:64-77</a>）。探索中に出現した構文ノードがパターンに一致した場合、マッチ結果とユーザの入力にしたがってノードを置き換えます。</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>subst</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L244-303">rewrite.go:244-303</a>）</p>
-</li>
-<li>
-<p><code>apply</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L115-150">rewrite.go:115-150</a>）</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>前述のように、書き換えは書き換え元のパターン（<code>a[b:len(a)]</code>）と書き換え先（<code>a[b:]</code>）の組によって指定されます。パターンはGoの式になっていて、中でも小文字1文字からなる識別子は「ワイルドカード」として扱われ、任意の式にマッチします。例えば <code>a + b</code> というパターンは、以下のような式にマッチします。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">f</span><span class="tok-p">.</span><span class="tok-nx">g</span><span class="tok-p">(</span><span class="tok-nx">x</span><span class="tok-p">)</span> <span class="tok-o">+</span> <span class="tok-s">&quot;y&quot;</span>       <span class="tok-c1">// a=f.g(x), b=&quot;y&quot;</span>
+<span class="tok-p">(</span><span class="tok-mi">1</span> <span class="tok-o">/</span> <span class="tok-mi">2</span><span class="tok-p">)</span> <span class="tok-o">+</span> <span class="tok-p">(</span><span class="tok-mi">3</span> <span class="tok-o">+</span> <span class="tok-mi">4</span><span class="tok-p">)</span>  <span class="tok-c1">// a=(1 / 2), b=(3 + 4) および a=3, b=4</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>2番目の例のように、パターンの探索は再帰的に行われます。パターンとの一致のチェックには、前述の <code>match</code> 関数を用います。ワイルドカードに一致した構文ノードは引数 <code>m</code> に格納され、その後のチェックと書き換え後のノードの生成に利用されます。</p>
 </div>
 </div>
 </div>
@@ -2685,7 +2691,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-05 17:07:35 UTC
+Last updated 2016-04-08 16:56:14 UTC
 </div>
 </div>
 </body>
