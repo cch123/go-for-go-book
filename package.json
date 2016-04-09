@@ -3,7 +3,7 @@
   "scripts": {
     "start": "npm-run-all -p serve watch:build",
     "serve": "browser-sync start --server --files='build/*.html' --index=build/index.html --no-open --no-ui --reload-delay=500 --port=9999",
-    "lint": "bundle exec ./scripts/lint",
+    "lint": "bundle exec ./scripts/textlint-asciidoctor -r ./macro.rb -T code,dfn index.adoc",
     "test": "npm run lint",
     "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go macro.rb",
     "build:html": "bundle exec asciidoctor -r ./macro.rb index.adoc -D build",

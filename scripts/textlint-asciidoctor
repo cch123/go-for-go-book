@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+# textlint-asciidoctor -r ./macro.rb -T code,dfn index.adoc
+
+require 'asciidoctor'
+require 'cgi'
+require 'json'
+require 'optparse'
+require 'tempfile'
+
+ERASED_TEXT = '◆◆'
+erase_tags = []
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: #$0 [options] FILE"
+
+  opts.on('-r LIBRARY', '--require LIBRARY') do |lib|
+    require lib
+  end
+
+  opts.on('-T TAG', '--erase TAG') do |tags|
+    erase_tags += tags.split(/,/)
+  end
+end
+opts.parse!
+
+file = ARGV.shift or abort opts.help
+
+lines = []
+
+doc = Asciidoctor.load_file(file, safe: Asciidoctor::SafeMode::UNSAFE, sourcemap: true)
+doc.query do |node|
+  node.context == :section || node.context == :paragraph || node.context == :list_item
+end.map do |node|
+  s = if node.context == :section
+    node.title
+  elsif node.context == :list_item
+    node.text
+  else
+    node.render
+  end
+
+  erase_tags.each do |tag|
+    s.gsub!(%r( ?<#{tag}\b.*?>.*?</#{tag}> ?), ERASED_TEXT)
+  end
+  s.gsub!(/ *<.+?> */, '')
+  s.strip!
+
+  loc = node.source_location || node.parent.source_location
+  lines += CGI::unescape_html(s).lines.map do |line|
+    {
+      line: line.chomp,
+      loc:  {
+        path:   loc.path,
+        lineno: loc.lineno
+      }
+    }
+  end
+end
+
+f = Tempfile.open([ 'textlint', '.txt' ]) do |f|
+  lines.each do |l|
+    f.puts l[:line]
+  end
+  f
+end
+
+success = true
+
+result = JSON.parse(%x(node_modules/.bin/textlint --format json #{f.path}))
+result.flat_map do |item|
+  item['messages']
+end.sort_by do |msg|
+  msg['line']
+end.each do |msg|
+  loc = lines[msg['line']-1][:loc]
+  if msg['message'].index(%(don't repeat "#{ERASED_TEXT}))
+    next
+  end
+
+  success = false
+  puts "#{loc[:path]}:#{loc[:lineno]}:#{m['message']} (#{m['ruleId']})"
+end
+
+exit success
