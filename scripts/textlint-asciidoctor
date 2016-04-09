@@ -78,7 +78,7 @@ end.each do |msg|
   end
 
   success = false
-  puts "#{loc[:path]}:#{loc[:lineno]}:#{m['message']} (#{m['ruleId']})"
+  puts "#{loc[:path]}:#{loc[:lineno]}:#{msg['message']} (#{msg['ruleId']})"
 end
 
 exit success
