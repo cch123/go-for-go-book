@@ -1524,8 +1524,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc820068140), (*ast.Field)(0xc8200681c0)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc820068140)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc820070100), (*ast.Field)(0xc820070180)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc820070100)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2546,17 +2546,14 @@ WIP
 </div>
 <div class="sect3">
 <h4 id="ソースコードの印字"><a class="anchor" href="#ソースコードの印字"></a>7.2.2. ソースコードの印字</h4>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>gofmtのメインの処理はソースコードの整形と印字です。これを担当するのが <code>processFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L75">internal.go:75</a>）関数です。この関数は <code>go/source</code> パッケージの <code>format.Source</code> 関数とよく似ていて、違いは次以降の項で触れるソースコードの書き換えや標準入力の扱いなどです。</p>
+</div>
+<div class="paragraph">
+<p>入力をソースコードとして解析するのが <code>parse</code> 関数（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L23">internal.go:23</a>）で、内部では <code>parser.ParseFile</code> を利用しています。<code>fragmentOk</code> 引数が <code>true</code> である場合、宣言のリストや式などファイルとしては不完全なソースコードも解析できるよう、ソースコードの先頭に <code>package p;</code> を追加したり、ソースを <code>func _() { &#8230;&#8203; }</code> で囲んだりという処理がなされます。<code>gofmt</code> では標準入力からソースコードが与えられた場合にこのモードを使います。</p>
+</div>
+<div class="paragraph">
+<p>こうやって得られた抽象構文木は <code>format</code> 関数（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L94">internal.go:94</a>）により整形されます。実際の整形処理は <code>printer.printer</code> によって行われ、ノードの持つ<a href="#ソースコード中の位置">ソースコード中の位置</a>を利用して、入力を尊重しつつ標準のフォーマットにしたがってソースコードが文字列化されます。抽象構文木とは別に得られたコメントも、ここでソースコードに織り込まれます。</p>
 </div>
 </div>
 <div class="sect3">
@@ -2691,7 +2688,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-08 16:56:14 UTC
+Last updated 2016-04-09 16:16:46 UTC
 </div>
 </div>
 </body>
