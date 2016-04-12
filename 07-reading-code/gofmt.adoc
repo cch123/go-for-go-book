@@ -1,0 +1,96 @@
+= gofmt
+
+Goにおいて特徴的なコマンドで、ソースコードを標準的なスタイルにフォーマットします。ほとんどのGoプログラマが利用しているコマンドです（たぶん）。
+
+== gofmtの主なインタフェース
+
+何もオプションを指定しない場合、gofmtは引数のファイルまたは標準入力をフォーマットして、標準出力に印字します。
+
+よく利用されるのは `-w` で、これが指定された場合結果は引数のファイルを上書きするのに使われます。また `-d` では、入力の内容と結果の `diff` が表示されます。
+
+ソースコードは `src/cmd/gofmt` 以下にあります。
+
+== ソースコードの印字
+
+gofmtのメインの処理はソースコードの整形と印字です。これを担当するのが `processFile`（gosource:src/cmd/gofmt/internal.go#L75[go1.6,processFile]）関数です。この関数は `go/source` パッケージの `format.Source` 関数とよく似ていて、違いは次以降の項で触れるソースコードの書き換えや標準入力の扱いなどです。
+
+入力をソースコードとして解析するのが `parse` 関数（gosource:src/cmd/gofmt/internal.go#L23[go1.6,parser]）で、内部では `parser.ParseFile` を利用しています。`fragmentOk` 引数が `true` である場合、宣言のリストや式などファイルとしては不完全なソースコードも解析できるよう、ソースコードの先頭に `package p;` を追加したり、ソースを `func _() { ... }` で囲んだりという処理がなされます。`gofmt` では標準入力からソースコードが与えられた場合にこのモードを使います。
+
+こうやって得られた抽象構文木は `format` 関数（gosource:src/cmd/gofmt/internal.go#L94[go1.6,format]）により整形されます。実際の整形処理は `printer.printer` によって行われ、ノードの持つ<<ソースコード中の位置>>を利用して、入力を尊重しつつ標準のフォーマットにしたがってソースコードが文字列化されます。抽象構文木とは別に得られたコメントも、ここでソースコードに織り込まれます。
+
+////
+ソースコードのフォーマットは `format()`（gosource:src/cmd/gofmt/internal.go#L94[go1.6,format]）。これは `go/format` と同じソースになっていて、`processFile`（gosource:src/cmd/gofmt/internal.go#L75[go1.6,processFile]）は `format.Source` で呼ばれるものとほとんど一緒。ソースコードの書き換え処理などが追加されている。内部で `parse()`（gosource:src/cmd/gofmt/internal.go#L23[go1.6,parser]）が呼ばれてる。`fragmentOk` が `true` であったらファイル全体でなくても解析できるようになってる。`gofmt` に標準入力から読み込むときはそのようになる。
+////
+
+== `gofmt -s`: ソースをシンプルにする
+
+通常gofmtが行うのはソースコードの整形のみで、抽象構文木の構造が変わるような変更を行いませんが、`-s` や  `-r` を指定することでより積極的なフォーマットが可能です。
+
+このオプションが指定された場合、ソースコードの印字の前に `simplify(f *ast.File)` が呼び出され、構文木の書き換えが行われます。以下でその流れを見ていきましょう。
+
+最初に `const ()` のような空の宣言が取り除かれます。これは `ast.File.Decls` を書き換えることで実現できます（gosource:src/cmd/gofmt/simplify.go#L137-146[go1.6,removeEmptyDeclGroups]）。
+
+それから、構文木を辿って単純化が行われます。適用されるのは以下のルールになります。
+
+// TODO 例
+* 複合リテラルの単純化
+* スライスの単純化（`s[a:len(s)]` → `s[a:]`）
+* for/range文の単純化（`for _ = range` → `for range`）
+
+スライスとfor/range文の単純化は比較的単純な作業で、type assertionを利用しながら構文木を探索し、求める構造に合致するノードを発見します。合致した場合、消し去りたい部分を表すフィールドに `nil` を代入することで結果のソースコードから削除しています。
+
+// simplify -> simplifier.Visit -> match
+
+複合リテラルの単純化の内部で使用されているのが `func match(m map[string]reflect.Value, pattern, val reflect.Value) bool` 関数です（gosource:src/cmd/gofmt/rewrite.go#L160[go1.6]）。`match()` は構文ノード（`ast.Node`）への `reflect.Value` を2つ引数に取り、それらが一致するかをチェックします。
+
+`match()` には2種類のモードがあり、
+
+* 引数 `m` が `nil` の場合は、2つの `reflect.Value` の表す `ast.Node` が同じ値であるかを再帰的にチェックします。
+** この際、<<ソースコード中の位置>>などの値が異なっていても基本的に無視します。
+* 引数 `m` が非 `nil` の場合には、`pattern` 引数の表すパターンに `val` が一致するかを見ます（後述）。
+
+ここでは前者の場合のみが起こり、複合リテラルの外側と内側の型（を表す構文ノード）が等しい場合には内側の型を消去する、という処理を行っています。
+
+== `gofmt -r`: ソースを書き換える
+
+さらに高度な機能として、引数に指定されたパターンに従ってソースコードを書き換えることもできます。以下のように `\->` を2つのGoの式で挟んだ形式によってコードの書き換え規則を指定します。
+
+....
+gofmt -r 'a[b:len(a)] -> a[b:]' ...
+....
+
+書き換え規則の入力は、まず2つの `ast.Expr` として解釈されます（gosource:src/cmd/gofmt/rewrite.go#L19-32[go1.6,initRewrite]）。
+
+実際の処理は `rewriteFile`（gosource:src/cmd/gofmt/rewrite.go#L57-82[go1.6,rewriteFile]）です。内部では、構文木を表すデータ構造を `reflect` APIによって探索しながら `rewriteVal` で書き換えを行います（gosource:src/cmd/gofmt/rewrite.go#L64-77[go1.6,rewriteVal]）。探索中に出現した構文ノードがパターンに一致した場合、マッチ結果とユーザの入力にしたがってノードを置き換えます。
+
+前述のように、書き換えは書き換え元のパターン（`a[b:len(a)]`）と書き換え先（`a[b:]`）の組によって指定されます。パターンはGoの式になっていて、中でも小文字1文字からなる識別子は「ワイルドカード」として扱われ、任意の式にマッチします。例えば `a + b` というパターンは、以下のような式にマッチします。
+
+[source,go]
+----
+f.g(x) + "y"       // a=f.g(x), b="y"
+(1 / 2) + (3 + 4)  // a=(1 / 2), b=(3 + 4) および a=3, b=4
+----
+
+2番目の例のように、パターンの探索は再帰的に行われます。パターンとの一致のチェックには、前述の `match` 関数を用います。ワイルドカードに一致した構文ノードは引数 `m` に格納され、その後のチェックと書き換え後のノードの生成に利用されます。
+
+// TODO: もっと詳しくわかりやすく
+
+/////
+
+* 抽象構文木を表現するデータ構造を `reflect` によって再帰的に探索する `apply`、
+* そこで発見した値が `pattern` にマッチした場合、マッチ結果を利用してデータ構造を書き換えます
+
+* `func subst(m map[string]reflect.Value, pattern reflect.Value, pos reflect.Value) reflect.Value`（gosource:src/cmd/gofmt/rewrite.go#L244-303[go1.6,subst]）
+** `pattern` には `repl` が渡る。`pat` を `val` にマッチさせた結果の `m` と `repl` でもって新しい値を作る
+** `pattern` が `token.Pos` の `reflect.Value` であることもあるっぽい
+** `pos` がポイントっぽい
+** L263 の `pattern.Type() == positionType` は使われてなさそう
+*** そんなことないか。`pattern` には ast.Node の各フィールドの reflect.Value が入る？ match() しないから無理筋?
+*** かと思ったけど `apply` の中で ast.StarExpr.Star とかを下るか
+* `func apply(f func(reflect.Value) reflect.Value, val reflect.Value) reflect.Value`（gosource:src/cmd/gofmt/rewrite.go#L115-150[go1.6,subst]）
+** フィールドを `f` で書き換える
+** `apply` でフィールドを辿って下っていく
+
+/////
+
+

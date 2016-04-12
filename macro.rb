@@ -19,7 +19,8 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
   named :goexample
 
   def process(parent, target, attrs)
-    file = Pathname.new("examples/#{target}/#{target}.go")
+    filename = attrs['file'] || "#{target}.go"
+    file = Pathname.new("examples/#{target}/#{filename}")
     style = attrs.delete(1)
 
     if style === 'output'
@@ -46,7 +47,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
         attrs.merge({
           'style'    => 'source',
           'language' => 'go',
-          'title'    => "#{target}.go",
+          'title'    => filename,
         })
       )
       block.title = "#{target}.go"
