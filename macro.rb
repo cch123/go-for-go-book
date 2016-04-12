@@ -50,7 +50,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
           'title'    => filename,
         })
       )
-      block.title = "#{target}.go"
+      block.title = filename
       block.assign_caption
       block
     end
