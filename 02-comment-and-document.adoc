@@ -71,10 +71,14 @@ godoc::go/doc.Package[]
 
 godoc::go/doc.New[]
 
-NOTE: ドキュメントに ``New takes ownership of the AST pkg and may edit or overwrite it.'' とある通り、`doc.New` は与えられた `pkg` を書き換えることがあります。
+NOTE: ドキュメントに "`New takes ownership of the AST pkg and may edit or overwrite it.`" とある通り、`doc.New` は与えられた `pkg` を書き換えることがあります。
 
 === doc.Packageのレイアウト
 
+WARNING: WIP
+
 == 例示のためのテスト
+
+WARNING: WIP
 
 * doc.Examples
