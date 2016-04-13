@@ -101,7 +101,11 @@ class TermMacro < Asciidoctor::Extensions::InlineMacroProcessor
   named :term
 
   def process parent, target, attrs
-    %(#{target}（<dfn>#{attrs[1]}</dfn>）)
+    if parent.document.attributes['backend'] == 'pdf'
+      %(#{target}（#{attrs[1]}）)
+    else
+      %(#{target}（<dfn>#{attrs[1]}</dfn>）)
+    end
   end
 end
 
@@ -111,7 +115,7 @@ Asciidoctor::Extensions.register do
   inline_macro GoSourceMacro
   inline_macro TermMacro
 
-  if @document.basebackend?('html') && ENV['PRODUCTION']
+  if @document.basebackend?('html') && @document.attributes['backend'] != 'pdf' && ENV['PRODUCTION']
     postprocessor do
       process do |doc, output|
         output
@@ -130,7 +134,7 @@ Asciidoctor::Extensions.register do
     end
   end
 
-  if @document.basebackend?('html')
+  if @document.basebackend?('html') && @document.attributes['backend'] != 'pdf'
     postprocessor do
       process do |doc, output|
         output
