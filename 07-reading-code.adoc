@@ -15,17 +15,17 @@ $ go get golang.org/x/tools/cmd/stringer
 
 `go doc golang.org/x/tools/cmd/stringer` にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため `fmt.Print(Placebo)` などとしても、`0` と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。
 
-goexample::stringerpill[file=pill.go]
+goexample::stringersushi[file=sushi.go]
 
-`fmt` パッケージのメソッドは、値が `fmt.Stringer` インタフェースを満たしていればその `String()` メソッドを利用するので、ここで `Pill.String()` が定数の名前を返すようにすればいいはずです。
+`fmt` パッケージのメソッドは、値が `fmt.Stringer` インタフェースを満たしていればその `String()` メソッドを利用するので、ここで `Sushi.String()` が定数の名前を返すようにすればいいはずです。
 
 godoc::fmt.Stringer[]
 
-見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで `stringer` の出番です。以上のような内容のソースコード `pill.go` に対して `stringer -type Pill pill.go` を実行すると、次のソースコードが `pill_string.go` として生成されます。
+見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで `stringer` の出番です。以上のような内容のソースコード `sushi.go` に対して `stringer -type Sushi sushi.go` を実行すると、次のソースコードが `pill_string.go` として生成されます。
 
-goexample::stringerpill[file=pill_string.go]
+goexample::stringersushi[file=sushi_string.go]
 
-これで `Pill` 型の値を文字列化したときの情報量が増しました。複雑なことをしているように見えますが、基本的に値に対応する定数名を返しているだけです。
+これで `Sushi` 型の値を文字列化したときの情報量が増しました。複雑なことをしているように見えますが、基本的に値に対応する定数名を返しているだけです。
 
 === 処理の流れ
 
