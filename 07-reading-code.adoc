@@ -13,7 +13,7 @@ include::07-reading-code/gofmt.adoc[leveloffset=+1]
 $ go get golang.org/x/tools/cmd/stringer
 ....
 
-`go doc golang.org/x/tools/cmd/stringer` にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため `fmt.Print(Placebo)` などとしても、`0` と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。
+`go doc golang.org/x/tools/cmd/stringer` にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため `fmt.Print(Uni)` などとしても、`2` と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。
 
 goexample::stringersushi[file=sushi.go]
 
@@ -23,17 +23,59 @@ godoc::fmt.Stringer[]
 
 見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで `stringer` の出番です。以上のような内容のソースコード `sushi.go` に対して `stringer -type Sushi sushi.go` を実行すると、次のソースコードが `pill_string.go` として生成されます。
 
+[[sushi_string.go]]
 goexample::stringersushi[file=sushi_string.go]
 
-これで `Sushi` 型の値を文字列化したときの情報量が増しました。複雑なことをしているように見えますが、基本的に値に対応する定数名を返しているだけです。
+これで `Sushi` 型の値を文字列化したときの情報量が増しました。`fmt.Print(Uni)` は `Uni` を印字します。コードは複雑なことをしているように見えますが、基本的に値に対応する定数名を返しているだけです。
 
 === 処理の流れ
 
+`stringer` は以下の流れでその仕事を行います。
+
+1. ディレクトリ名やファイル名の形で引数に指定されたソースコードを読み込む。
+2. コード中から指定された型を発見し、文字列化のために必要な情報を収集する。
+3. 文字列化のためのソースコードを生成する。
+
+主だった処理は `Generator` という型のメソッドになっています。`Generator` は中に `Package` 型の構造体を保持していて、コードを解析して得られた情報
+
 === ソースのロード
 
-=== 型の発見
+ソースコードとして引数には1つのディレクトリか複数のファイルが指定できますが、どちらの場合も `Generator.parsePackage`（gosource:x/tools/cmd/stringer/stringer.go#L231[]）を通ります。
+
+ソースコードファイルのリストは構文解析されたのち、`go/types` のAPIで型チェックされます。この際、型の定義の情報も収集するようになっており、これが後の工程で必要になってきます。定義の情報は `map[*ast.Ident]types.Object` の形で保持され、ソースコード中に出現する識別子の、その言語上の役割や型などの情報が得られます。
+
+godoc:go/types.Object[]
+
+// % gofind golang.org/x/tools/cmd/stringer.Package.defs golang.org/x/tools/cmd/stringer
+// /Users/motemen/dev/go/src/golang.org/x/tools/cmd/stringer/stringer.go:262:6:    pkg.defs = make(map[*ast.Ident]types.Object)
+// /Users/motemen/dev/go/src/golang.org/x/tools/cmd/stringer/stringer.go:265:13:           Defs: pkg.defs,
+// /Users/motemen/dev/go/src/golang.org/x/tools/cmd/stringer/stringer.go:433:21:                   obj, ok := f.pkg.defs[name]
+
+=== 型の発見（`Generator.generate()`）
+
+コマンドライン引数に指定された型名を、ソースコードから探し出します。
+
+構文解析されたソースコードを走査し、`Generator.genDecl` で指定された名前の型を持つ定数の宣言グループを発見します。Goにおいて定数の宣言はグループ化でき、値や型を指定しない場合には、直前の値や型と同内容の宣言をしたものとみなされます（link:https://golang.org/ref/spec#Constant_declarations[Constant declarations]）。特に `iota` というキーワードを使って値を宣言することで、連続する値を持つ定数を宣言できます。
+
+[source,go]
+----
+const (
+    Maguro Sushi = iota
+    Ikura
+    Uni
+    Tamago
+)
+----
+
+宣言された定数を発見したあと、前の段階で得られた型の定義を収集します。ここではその型が整数型であることをチェックし、その場合、名前や値を `Value` として登録します。
 
 === 文字列化処理の生成
+
+最後に、発見された定数の値と名前をもとに、定数の文字列化を提供するコードを生成します。
+
+戦略として、値が連続する定数の文字列表現をひとつの長い文字列に連結し、定数の文字列化の際にはそのスライスを返すようにします。この部分のコード生成は単純な文字列連結で実現されています。
+
+生成されるのは前述の <<sushi_string.go>> のようなコードです。このソースコード文字列に対して `go/format.Source` を行って得られた文字列が、出力先のファイルに書き込まれます。ファイル名は、対象の型の名前と入力であるソースコードのディレクトリを元に `sushi_string.go` といった名前に決まります。
 
 == guru
 
