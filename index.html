@@ -588,7 +588,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <ul class="sectlevel3">
 <li><a href="#処理の流れ">7.3.1. 処理の流れ</a></li>
 <li><a href="#ソースのロード">7.3.2. ソースのロード</a></li>
-<li><a href="#型の発見">7.3.3. 型の発見</a></li>
+<li><a href="#型の発見_code_generator_generate_code">7.3.3. 型の発見（<code>Generator.generate()</code>）</a></li>
 <li><a href="#文字列化処理の生成">7.3.4. 文字列化処理の生成</a></li>
 </ul>
 </li>
@@ -1951,7 +1951,7 @@ Valid position with file name:      example.go:2:3</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>スコープはその外側のスコープへの参照と、名前から<a href="#オブジェクト">オブジェクト</a>へのマッピングで構成されています。</p>
+<p>スコープはその外側のスコープへの参照と、名前から<a href="#オブジェクト">オブジェクト</a>へのマッピングで構成されています。あるスコープは内側のスコープの情報を保持していません。これは、スコープが識別子の解決のために使われるものだからです。あるスコープに出現した識別子がどんなオブジェクトであるかは、親スコープを辿ることで解決できます。</p>
 </div>
 </div>
 <div class="sect3">
@@ -2327,18 +2327,41 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-ドキュメントに <code>`New takes ownership of the AST pkg and may edit or overwrite it.'' とある通り、`doc.New</code> は与えられた <code>pkg</code> を書き換えることがあります。
+ドキュメントに &#8220;New takes ownership of the AST pkg and may edit or overwrite it.&#8221; とある通り、<code>doc.New</code> は与えられた <code>pkg</code> を書き換えることがあります。
 </td>
 </tr>
 </table>
 </div>
 <div class="sect3">
 <h4 id="doc_packageのレイアウト"><a class="anchor" href="#doc_packageのレイアウト"></a>2.3.1. doc.Packageのレイアウト</h4>
-
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+WIP
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="例示のためのテスト"><a class="anchor" href="#例示のためのテスト"></a>2.4. 例示のためのテスト</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+WIP
+</td>
+</tr>
+</table>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -2661,26 +2684,25 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Placebo)</code> などとしても、<code>0</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
+<p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 10. stringerpill.go</div>
+<div class="title">リスト 10. sushi.go</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">painkiller</span>
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
-<span class="tok-kd">type</span> <span class="tok-nx">Pill</span> <span class="tok-kt">int</span>
+<span class="tok-kd">type</span> <span class="tok-nx">Sushi</span> <span class="tok-kt">uint</span>
 
 <span class="tok-kd">const</span> <span class="tok-p">(</span>
-    <span class="tok-nx">Placebo</span> <span class="tok-nx">Pill</span> <span class="tok-p">=</span> <span class="tok-kc">iota</span>
-    <span class="tok-nx">Aspirin</span>
-    <span class="tok-nx">Ibuprofen</span>
-    <span class="tok-nx">Paracetamol</span>
-    <span class="tok-nx">Acetaminophen</span> <span class="tok-p">=</span> <span class="tok-nx">Paracetamol</span>
+    <span class="tok-nx">Maguro</span> <span class="tok-nx">Sushi</span> <span class="tok-p">=</span> <span class="tok-kc">iota</span>
+    <span class="tok-nx">Ikura</span>
+    <span class="tok-nx">Uni</span>
+    <span class="tok-nx">Tamago</span>
 <span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>fmt</code> パッケージのメソッドは、値が <code>fmt.Stringer</code> インタフェースを満たしていればその <code>String()</code> メソッドを利用するので、ここで <code>Pill.String()</code> が定数の名前を返すようにすればいいはずです。</p>
+<p><code>fmt</code> パッケージのメソッドは、値が <code>fmt.Stringer</code> インタフェースを満たしていればその <code>String()</code> メソッドを利用するので、ここで <code>Sushi.String()</code> が定数の名前を返すようにすればいいはずです。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/fmt#Stringer">fmt.Stringer</a></div>
@@ -2691,47 +2713,99 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>pill.go</code> に対して <code>stringer -type Pill pill.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
+<p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
-<div class="listingblock">
-<div class="title">リスト 11. stringerpill.go</div>
+<div id="sushi_string.go" class="listingblock">
+<div class="title">リスト 11. sushi_string.go</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Pill pill.go&quot;; DO NOT EDIT</span>
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
-<span class="tok-kn">package</span> <span class="tok-nx">painkiller</span>
+<span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
 <span class="tok-kn">import</span> <span class="tok-s">&quot;fmt&quot;</span>
 
-<span class="tok-kd">const</span> <span class="tok-nx">_Pill_name</span> <span class="tok-p">=</span> <span class="tok-s">&quot;PlaceboAspirinIbuprofenParacetamol&quot;</span>
+<span class="tok-kd">const</span> <span class="tok-nx">_Sushi_name</span> <span class="tok-p">=</span> <span class="tok-s">&quot;MaguroIkuraUniTamago&quot;</span>
 
-<span class="tok-kd">var</span> <span class="tok-nx">_Pill_index</span> <span class="tok-p">=</span> <span class="tok-p">[</span><span class="tok-o">...</span><span class="tok-p">]</span><span class="tok-kt">uint8</span><span class="tok-p">{</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-mi">7</span><span class="tok-p">,</span> <span class="tok-mi">14</span><span class="tok-p">,</span> <span class="tok-mi">23</span><span class="tok-p">,</span> <span class="tok-mi">34</span><span class="tok-p">}</span>
+<span class="tok-kd">var</span> <span class="tok-nx">_Sushi_index</span> <span class="tok-p">=</span> <span class="tok-p">[</span><span class="tok-o">...</span><span class="tok-p">]</span><span class="tok-kt">uint8</span><span class="tok-p">{</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-mi">6</span><span class="tok-p">,</span> <span class="tok-mi">11</span><span class="tok-p">,</span> <span class="tok-mi">14</span><span class="tok-p">,</span> <span class="tok-mi">20</span><span class="tok-p">}</span>
 
-<span class="tok-kd">func</span> <span class="tok-p">(</span><span class="tok-nx">i</span> <span class="tok-nx">Pill</span><span class="tok-p">)</span> <span class="tok-nx">String</span><span class="tok-p">()</span> <span class="tok-kt">string</span> <span class="tok-p">{</span>
-    <span class="tok-k">if</span> <span class="tok-nx">i</span> <span class="tok-p">&lt;</span> <span class="tok-mi">0</span> <span class="tok-o">||</span> <span class="tok-nx">i</span> <span class="tok-o">&gt;=</span> <span class="tok-nx">Pill</span><span class="tok-p">(</span><span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-nx">_Pill_index</span><span class="tok-p">)</span><span class="tok-o">-</span><span class="tok-mi">1</span><span class="tok-p">)</span> <span class="tok-p">{</span>
-        <span class="tok-k">return</span> <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Sprintf</span><span class="tok-p">(</span><span class="tok-s">&quot;Pill(%d)&quot;</span><span class="tok-p">,</span> <span class="tok-nx">i</span><span class="tok-p">)</span>
+<span class="tok-kd">func</span> <span class="tok-p">(</span><span class="tok-nx">i</span> <span class="tok-nx">Sushi</span><span class="tok-p">)</span> <span class="tok-nx">String</span><span class="tok-p">()</span> <span class="tok-kt">string</span> <span class="tok-p">{</span>
+    <span class="tok-k">if</span> <span class="tok-nx">i</span> <span class="tok-o">&gt;=</span> <span class="tok-nx">Sushi</span><span class="tok-p">(</span><span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-nx">_Sushi_index</span><span class="tok-p">)</span><span class="tok-o">-</span><span class="tok-mi">1</span><span class="tok-p">)</span> <span class="tok-p">{</span>
+        <span class="tok-k">return</span> <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Sprintf</span><span class="tok-p">(</span><span class="tok-s">&quot;Sushi(%d)&quot;</span><span class="tok-p">,</span> <span class="tok-nx">i</span><span class="tok-p">)</span>
     <span class="tok-p">}</span>
-    <span class="tok-k">return</span> <span class="tok-nx">_Pill_name</span><span class="tok-p">[</span><span class="tok-nx">_Pill_index</span><span class="tok-p">[</span><span class="tok-nx">i</span><span class="tok-p">]:</span><span class="tok-nx">_Pill_index</span><span class="tok-p">[</span><span class="tok-nx">i</span><span class="tok-o">+</span><span class="tok-mi">1</span><span class="tok-p">]]</span>
+    <span class="tok-k">return</span> <span class="tok-nx">_Sushi_name</span><span class="tok-p">[</span><span class="tok-nx">_Sushi_index</span><span class="tok-p">[</span><span class="tok-nx">i</span><span class="tok-p">]:</span><span class="tok-nx">_Sushi_index</span><span class="tok-p">[</span><span class="tok-nx">i</span><span class="tok-o">+</span><span class="tok-mi">1</span><span class="tok-p">]]</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>これで <code>Pill</code> 型の値を文字列化したときの情報量が増しました。複雑なことをしているように見えますが、基本的に値に対応する定数名を返しているだけです。</p>
+<p>これで <code>Sushi</code> 型の値を文字列化したときの情報量が増しました。<code>fmt.Print(Uni)</code> は <code>Uni</code> を印字します。コードは複雑なことをしているように見えますが、基本的に値に対応する定数名を返しているだけです。</p>
 </div>
 <div class="sect3">
 <h4 id="処理の流れ"><a class="anchor" href="#処理の流れ"></a>7.3.1. 処理の流れ</h4>
-
+<div class="paragraph">
+<p><code>stringer</code> は以下の流れでその仕事を行います。</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>ディレクトリ名やファイル名の形で引数に指定されたソースコードを読み込む。</p>
+</li>
+<li>
+<p>コード中から指定された型を発見し、文字列化のために必要な情報を収集する。</p>
+</li>
+<li>
+<p>文字列化のためのソースコードを生成する。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>主だった処理は <code>Generator</code> という型のメソッドになっています。<code>Generator</code> は中に <code>Package</code> 型の構造体を保持していて、コードを解析して得られた情報</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="ソースのロード"><a class="anchor" href="#ソースのロード"></a>7.3.2. ソースのロード</h4>
-
+<div class="paragraph">
+<p>ソースコードとして引数には1つのディレクトリか複数のファイルが指定できますが、どちらの場合も <code>Generator.parsePackage</code>（<a href="https://github.com/golang/go/blob//x/tools/cmd/stringer/stringer.go#L231">stringer.go:231</a>）を通ります。</p>
+</div>
+<div class="paragraph">
+<p>ソースコードファイルのリストは構文解析されたのち、<code>go/types</code> のAPIで型チェックされます。この際、型の定義の情報も収集するようになっており、これが後の工程で必要になってきます。定義の情報は <code>map[*ast.Ident]types.Object</code> の形で保持され、ソースコード中に出現する識別子の、その言語上の役割や型などの情報が得られます。</p>
+</div>
+<div class="paragraph">
+<p>godoc:go/types.Object[]</p>
+</div>
 </div>
 <div class="sect3">
-<h4 id="型の発見"><a class="anchor" href="#型の発見"></a>7.3.3. 型の発見</h4>
-
+<h4 id="型の発見_code_generator_generate_code"><a class="anchor" href="#型の発見_code_generator_generate_code"></a>7.3.3. 型の発見（<code>Generator.generate()</code>）</h4>
+<div class="paragraph">
+<p>コマンドライン引数に指定された型名を、ソースコードから探し出します。</p>
+</div>
+<div class="paragraph">
+<p>構文解析されたソースコードを走査し、<code>Generator.genDecl</code> で指定された名前の型を持つ定数の宣言グループを発見します。Goにおいて定数の宣言はグループ化でき、値や型を指定しない場合には、直前の値や型と同内容の宣言をしたものとみなされます（<a href="https://golang.org/ref/spec#Constant_declarations">Constant declarations</a>）。特に <code>iota</code> というキーワードを使って値を宣言することで、連続する値を持つ定数を宣言できます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">const</span> <span class="tok-p">(</span>
+    <span class="tok-nx">Maguro</span> <span class="tok-nx">Sushi</span> <span class="tok-p">=</span> <span class="tok-kc">iota</span>
+    <span class="tok-nx">Ikura</span>
+    <span class="tok-nx">Uni</span>
+    <span class="tok-nx">Tamago</span>
+<span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>宣言された定数を発見したあと、前の段階で得られた型の定義を収集します。ここではその型が整数型であることをチェックし、その場合、名前や値を <code>Value</code> として登録します。</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="文字列化処理の生成"><a class="anchor" href="#文字列化処理の生成"></a>7.3.4. 文字列化処理の生成</h4>
-
+<div class="paragraph">
+<p>最後に、発見された定数の値と名前をもとに、定数の文字列化を提供するコードを生成します。</p>
+</div>
+<div class="paragraph">
+<p>戦略として、値が連続する定数の文字列表現をひとつの長い文字列に連結し、定数の文字列化の際にはそのスライスを返すようにします。この部分のコード生成は単純な文字列連結で実現されています。</p>
+</div>
+<div class="paragraph">
+<p>生成されるのは前述の <a href="#sushi_string.go">sushi_string.go</a> のようなコードです。このソースコード文字列に対して <code>go/format.Source</code> を行って得られた文字列が、出力先のファイルに書き込まれます。ファイル名は、対象の型の名前と入力であるソースコードのディレクトリを元に <code>sushi_string.go</code> といった名前に決まります。</p>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -2775,7 +2849,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-12 16:04:04 UTC
+Last updated 2016-04-13 17:01:16 UTC
 </div>
 </div>
 </body>
