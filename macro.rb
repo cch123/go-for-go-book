@@ -66,10 +66,13 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
   named :godoc
 
   def process(parent, target, attrs)
-    m = %r<^((?:[\w.]+/)?\w+)\.([\w.]+)$>.match(target)
-    opts = attrs.delete(1)
+    m = %r<^((?:[\w.]+/)*\w+)\.([\w.]+)$>.match(target)
+    opts = attrs.delete(1) || ''
 
     pkg, entry = m[1], m[2]
+    if /^[a-z]/ === entry
+      opts += ' -u'
+    end
     decl = %x(go doc #{opts} #{target}).gsub(/^ {4}.*/m, '').gsub("\t", '    ').lines.map(&:chomp)
     create_listing_block(
       parent,

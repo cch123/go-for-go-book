@@ -44,7 +44,7 @@ goexample::stringersushi[file=sushi_string.go]
 
 ソースコードファイルのリストは構文解析されたのち、`go/types` のAPIで型チェックされます。この際、型の定義の情報も収集するようになっており、これが後の工程で必要になってきます。定義の情報は `map[*ast.Ident]types.Object` の形で保持され、ソースコード中に出現する識別子の、その言語上の役割や型などの情報が得られます。
 
-godoc:go/types.Object[]
+godoc::go/types.Object[]
 
 // % gofind golang.org/x/tools/cmd/stringer.Package.defs golang.org/x/tools/cmd/stringer
 // /Users/motemen/dev/go/src/golang.org/x/tools/cmd/stringer/stringer.go:262:6:    pkg.defs = make(map[*ast.Ident]types.Object)
@@ -82,3 +82,65 @@ const (
 == goimports
 
 == gddo
+
+https://godoc.org/[GoDoc.org]はサードパーティ製のものを含むGoライブラリのドキュメントを閲覧できるウェブサイトです。ここでは以下のようなURLでGitHubなどにホストされているGoライブラリにアクセスできます。
+
+http://godoc.org/github.com/motemen/go-gitconfig
+
+標準ライブラリのドキュメントも同じように閲覧できます。
+
+http://godoc.org/fmt
+
+ソースコードはlink:https://github.com/golang/gddo[]にホストされています（"`gddo`" は**G**o**D**oc**D**ot**O**rgの頭文字を取ったものです）。
+
+gddoはユーザから見るとドキュメントを表示するだけのサイトですが、裏側でソースコードのクロールを行うなど複雑な機能を持ち合わせています。ここでは指定されたドキュメントの表示機能のみに絞ってソースコードを読んでみます。
+
+HTTPリクエストにしたがってパッケージのドキュメントを返すのが `getDoc`（gosource:gddo-server/main.go#L74[717c3ed,gddo]）です。リクエストされたパッケージは `crawlDoc` から `github.com/golang/gddo/doc.Get` を経由して呼び出される `github.com/golang/gddo/gosrc.Get` によって、そのパッケージがホストされているリモートのVCSから取得されます。
+
+* `getStatic`
+  * "`getStatic gets a diretory from a statically known service`"
+  * github とか。gosrc/github.go
+  * Directory を得る newPackage
+* `getDynamic`
+  * getVCSDir（vcs.go）
+
+=== 外部サービスへの対応
+
+GitHubやBitBuckectなど有名どころでAPIも提供されているサービスに対しては、それぞれからソースコードを取得する処理が実装されています。
+
+各サービスは `gosrc.service` 構造体として表現されます：
+
+godoc::github.com/golang/gddo/gosrc.service[]
+
+`get`、`getPresentation`、`getProject` はそれぞれ `Directory`、`Presentation`、`Project` 型の値を返します。
+
+`Directory` が主に利用される型となります。これはパッケージのインポートパスやパッケージを構成するファイル名を保持しています。
+
+godoc::github.com/golang/gddo/gosrc.Directory[]
+
+`Presentation` はプレゼンテーション用の機能で、http://go-talks.appspot.com/[go-talks.appspot.org]でのみ利用されているものです。
+
+`Project` は `Description` だけを持つ構造体で、Goのドキュメントレベルでパッケージの説明が得られなかった場合に、サービスで設定されている説明を利用するためのものです。
+
+以下のサービスがあらかじめ実装されています。
+
+* BitBucket（bitbucket.go）
+* Launchpad（launchpad.go）
+* Google（google.go）
+* GitHubおよびGist（github.go）
+
+==== 例：GitHub
+
+.gosource::gddo/gosrc/github.go#L20[75e3d37]
+[source,go]
+----
+addService(&service{
+    pattern:         regexp.MustCompile(`^github\.com/(?P<owner>[a-z0-9A-Z_.\-]+)/(?P<repo>[a-z0-9A-Z_.\-]+)(?P<dir>/.*)?$`),
+    prefix:          "github.com/",
+    get:             getGitHubDir,
+    getPresentation: getGitHubPresentation,
+    getProject:      getGitHubProject,
+})
+----
+
+`getGitHubDir`（gosource:github.com/golang/gddo/gosrc/github.go#L51[75e3d37]）でわりとストレートにファイルを一覧してる。
