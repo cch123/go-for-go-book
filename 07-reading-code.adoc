@@ -77,9 +77,9 @@ const (
 
 生成されるのは前述の <<sushi_string.go>> のようなコードです。このソースコード文字列に対して `go/format.Source` を行って得られた文字列が、出力先のファイルに書き込まれます。ファイル名は、対象の型の名前と入力であるソースコードのディレクトリを元に `sushi_string.go` といった名前に決まります。
 
-== guru
+include::07-reading-code/goimports.adoc[leveloffset=+1]
 
-== goimports
+== guru
 
 == gddo
 

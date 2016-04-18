@@ -1,0 +1,77 @@
+= goimports
+
+`goimports` は与えられたソースコードを編集し、`import` 宣言の追加や削除忘れの面倒を見てくれるツールです。その際 `gofmt` 相当のことも行うので、`gofmt` 代わりに利用している人も多いのではないでしょうか。
+
+`goimports` は以下のコマンドで入手できます：
+
+....
+go get golang.org/x/tools/cmd/goimports
+....
+
+== `import` の解決
+
+`goimports` のメイン部分は `fixImports`（gosource:TODO）です。この関数は与えられた解析済みのソースコードから未解決の識別子を探しだし、必要なパッケージを `GOPATH` 以下から探しだして `import` 宣言を挿入します。
+
+具体的に行っていることは：
+
+1. 構文木を探索し、
+  * `x.y` の形の参照を収集する
+  * `import` 宣言によってファイルスコープに導入された名前を収集する
+    - `importPathToName`
+2. その後、
+  * 一度も参照されていない `import` 宣言を削除する
+  * 未解決の参照を修正できるパッケージを探し出す
+    - `findImport`
+  * 上記のパッケージに対応する `import` 宣言を挿入する
+
+という流れです。
+
+=== 構文木の探索
+
+構文木の探索は `ast.Walk` を使って実装されています。`goimports` 中では、 `ast.SelectorExpr` と `ast.ImportSpec` の2種類の構文要素が興味ある対象です。
+
+`ast.SelectorExpr` は `expr.sel` の形の式で、term::セレクタ[selector]と呼ばれています。`expr` には任意の式が入り得ますが、ここではインポートされたパッケージの呼び出しを発見したいだけなので `expr` が識別子（`ast.Ident`）であるかのチェックを行っています。こうして発見されたパッケージ名へのセレクタのうち、<<オブジェクト>>が未解決のものを収集します。
+
+`ast.ImportSpec` は `import` 宣言ひとつ分に対応します。例えば以下のような `import` 宣言には4つの `ImportSpec` が含まれています。
+
+[source,go]
+----
+import (
+    "fmt"
+    . "math"
+    _ "net/http/pprof"
+)
+
+import logPkg "log"
+----
+
+ここで注目すべきは名前なしの `import "fmt"` です。パッケージの `import` によってファイルに導入される名前は、そのインポートパスではなくパッケージ中の宣言に依ります：
+
+[source,go]
+----
+import "github.com/motemen/go-astutil" // "astutil" という名前が導入される
+----
+
+この解決を行うのが `importPathToName` です。ここでは `go/build.Import` を利用してパッケージに相当するソースコードを `GOPATH` 以下から発見します。
+
+`go/build` は、`go build` コマンドが行うように、`GOOS` や `GOARCH` 環境変数、ビルドタグに基づいてパッケージやソースコードを探しだすためのAPIを提供します。
+
+ロードに失敗した場合はインポートパスの末尾部分が代替として使用されます。
+
+=== `import` 宣言の挿入
+
+続いて、上記の過程で収集された未解決の識別子からパッケージを探し出し、`import` 宣言を挿入します。このメイン部分、パッケージを探索するのが `findImportGoPath` です。パッケージ名と、そのパッケージによって提供されているべき名前から、パッケージのインポートパスを探し出します。
+
+最初に標準パッケージのAPIとの一致がチェックされます。これはあらかじめテーブルが生成されているので高速にマッチします。
+
+その後、ユーザによってインストールされたパッケージが探索されます。パッケージは最初に `pkgIndexOnce.Do(loadPkgIndex)` でインデックスします。`go/build.Default.SrcDirs()` 以下の、Goのソースコードを格納しているディレクトリに対して先ほどの `importPathToName` でパッケージ名の解決を行ってテーブルを作ります。
+
+こうやって生成されたテーブルに対し、期待する識別子を公開しているパッケージを探し出します。`build.ImportDir` で得られたディレクトリ中のファイルを解析して（`loadExportsGoPath`）、エクスポートされてるものを発見して突き合わせます。
+
+==== `vendoring` の対応
+
+`vendor` ディレクトリまたは `internal` ディレクトリはその親ディレクトリからしかインポートできません。
+
+* TODO: `canUse`
+
+// https://go.googlesource.com/tools/+/bf084ef7580ee99a5efa3086138c942aca4aefd4
