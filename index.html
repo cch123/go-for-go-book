@@ -594,7 +594,11 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 </li>
 <li><a href="#guru">7.4. guru</a></li>
 <li><a href="#goimports">7.5. goimports</a></li>
-<li><a href="#gddo">7.6. gddo</a></li>
+<li><a href="#gddo">7.6. gddo</a>
+<ul class="sectlevel3">
+<li><a href="#外部サービスへの対応">7.6.1. 外部サービスへの対応</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#フロー解析">8. フロー解析</a></li>
@@ -1531,8 +1535,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a580), (*ast.Field)(0xc82001a600)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc82001a580)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0), (*ast.Field)(0xc82001a640)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2577,13 +2581,13 @@ WIP
 <div class="sect3">
 <h4 id="ソースコードの印字"><a class="anchor" href="#ソースコードの印字"></a>7.2.2. ソースコードの印字</h4>
 <div class="paragraph">
-<p>gofmtのメインの処理はソースコードの整形と印字です。これを担当するのが <code>processFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L75">internal.go:75</a>）関数です。この関数は <code>go/source</code> パッケージの <code>format.Source</code> 関数とよく似ていて、違いは次以降の項で触れるソースコードの書き換えや標準入力の扱いなどです。</p>
+<p>gofmtのメインの処理はソースコードの整形と印字です。これを担当するのが <code>processFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L75"><code>internal.go:75</code></a>）関数です。この関数は <code>go/source</code> パッケージの <code>format.Source</code> 関数とよく似ていて、違いは次以降の項で触れるソースコードの書き換えや標準入力の扱いなどです。</p>
 </div>
 <div class="paragraph">
-<p>入力をソースコードとして解析するのが <code>parse</code> 関数（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L23">internal.go:23</a>）で、内部では <code>parser.ParseFile</code> を利用しています。<code>fragmentOk</code> 引数が <code>true</code> である場合、宣言のリストや式などファイルとしては不完全なソースコードも解析できるよう、ソースコードの先頭に <code>package p;</code> を追加したり、ソースを <code>func _() { &#8230;&#8203; }</code> で囲んだりという処理がなされます。<code>gofmt</code> では標準入力からソースコードが与えられた場合にこのモードを使います。</p>
+<p>入力をソースコードとして解析するのが <code>parse</code> 関数（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L23"><code>internal.go:23</code></a>）で、内部では <code>parser.ParseFile</code> を利用しています。<code>fragmentOk</code> 引数が <code>true</code> である場合、宣言のリストや式などファイルとしては不完全なソースコードも解析できるよう、ソースコードの先頭に <code>package p;</code> を追加したり、ソースを <code>func _() { &#8230;&#8203; }</code> で囲んだりという処理がなされます。<code>gofmt</code> では標準入力からソースコードが与えられた場合にこのモードを使います。</p>
 </div>
 <div class="paragraph">
-<p>こうやって得られた抽象構文木は <code>format</code> 関数（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L94">internal.go:94</a>）により整形されます。実際の整形処理は <code>printer.printer</code> によって行われ、ノードの持つ<a href="#ソースコード中の位置">ソースコード中の位置</a>を利用して、入力を尊重しつつ標準のフォーマットにしたがってソースコードが文字列化されます。抽象構文木とは別に得られたコメントも、ここでソースコードに織り込まれます。</p>
+<p>こうやって得られた抽象構文木は <code>format</code> 関数（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/internal.go#L94"><code>internal.go:94</code></a>）により整形されます。実際の整形処理は <code>printer.printer</code> によって行われ、ノードの持つ<a href="#ソースコード中の位置">ソースコード中の位置</a>を利用して、入力を尊重しつつ標準のフォーマットにしたがってソースコードが文字列化されます。抽象構文木とは別に得られたコメントも、ここでソースコードに織り込まれます。</p>
 </div>
 </div>
 <div class="sect3">
@@ -2595,7 +2599,7 @@ WIP
 <p>このオプションが指定された場合、ソースコードの印字の前に <code>simplify(f *ast.File)</code> が呼び出され、構文木の書き換えが行われます。以下でその流れを見ていきましょう。</p>
 </div>
 <div class="paragraph">
-<p>最初に <code>const ()</code> のような空の宣言が取り除かれます。これは <code>ast.File.Decls</code> を書き換えることで実現できます（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/simplify.go#L137-146">simplify.go:137-146</a>）。</p>
+<p>最初に <code>const ()</code> のような空の宣言が取り除かれます。これは <code>ast.File.Decls</code> を書き換えることで実現できます（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/simplify.go#L137-146"><code>simplify.go:137-146</code></a>）。</p>
 </div>
 <div class="paragraph">
 <p>それから、構文木を辿って単純化が行われます。適用されるのは以下のルールになります。</p>
@@ -2617,7 +2621,7 @@ WIP
 <p>スライスとfor/range文の単純化は比較的単純な作業で、type assertionを利用しながら構文木を探索し、求める構造に合致するノードを発見します。合致した場合、消し去りたい部分を表すフィールドに <code>nil</code> を代入することで結果のソースコードから削除しています。</p>
 </div>
 <div class="paragraph">
-<p>複合リテラルの単純化の内部で使用されているのが <code>func match(m map[string]reflect.Value, pattern, val reflect.Value) bool</code> 関数です（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L160">rewrite.go:160</a>）。<code>match()</code> は構文ノード（<code>ast.Node</code>）への <code>reflect.Value</code> を2つ引数に取り、それらが一致するかをチェックします。</p>
+<p>複合リテラルの単純化の内部で使用されているのが <code>func match(m map[string]reflect.Value, pattern, val reflect.Value) bool</code> 関数です（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L160"><code>rewrite.go:160</code></a>）。<code>match()</code> は構文ノード（<code>ast.Node</code>）への <code>reflect.Value</code> を2つ引数に取り、それらが一致するかをチェックします。</p>
 </div>
 <div class="paragraph">
 <p><code>match()</code> には2種類のモードがあり、</p>
@@ -2654,10 +2658,10 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p>書き換え規則の入力は、まず2つの <code>ast.Expr</code> として解釈されます（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L19-32">rewrite.go:19-32</a>）。</p>
+<p>書き換え規則の入力は、まず2つの <code>ast.Expr</code> として解釈されます（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L19-32"><code>rewrite.go:19-32</code></a>）。</p>
 </div>
 <div class="paragraph">
-<p>実際の処理は <code>rewriteFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L57-82">rewrite.go:57-82</a>）です。内部では、構文木を表すデータ構造を <code>reflect</code> APIによって探索しながら <code>rewriteVal</code> で書き換えを行います（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L64-77">rewrite.go:64-77</a>）。探索中に出現した構文ノードがパターンに一致した場合、マッチ結果とユーザの入力にしたがってノードを置き換えます。</p>
+<p>実際の処理は <code>rewriteFile</code>（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L57-82"><code>rewrite.go:57-82</code></a>）です。内部では、構文木を表すデータ構造を <code>reflect</code> APIによって探索しながら <code>rewriteVal</code> で書き換えを行います（<a href="https://github.com/golang/go/blob/go1.6/src/cmd/gofmt/rewrite.go#L64-77"><code>rewrite.go:64-77</code></a>）。探索中に出現した構文ノードがパターンに一致した場合、マッチ結果とユーザの入力にしたがってノードを置き換えます。</p>
 </div>
 <div class="paragraph">
 <p>前述のように、書き換えは書き換え元のパターン（<code>a[b:len(a)]</code>）と書き換え先（<code>a[b:]</code>）の組によって指定されます。パターンはGoの式になっていて、中でも小文字1文字からなる識別子は「ワイルドカード」として扱われ、任意の式にマッチします。例えば <code>a + b</code> というパターンは、以下のような式にマッチします。</p>
@@ -2764,13 +2768,28 @@ WIP
 <div class="sect3">
 <h4 id="ソースのロード"><a class="anchor" href="#ソースのロード"></a>7.3.2. ソースのロード</h4>
 <div class="paragraph">
-<p>ソースコードとして引数には1つのディレクトリか複数のファイルが指定できますが、どちらの場合も <code>Generator.parsePackage</code>（<a href="https://github.com/golang/go/blob//x/tools/cmd/stringer/stringer.go#L231">stringer.go:231</a>）を通ります。</p>
+<p>ソースコードとして引数には1つのディレクトリか複数のファイルが指定できますが、どちらの場合も <code>Generator.parsePackage</code>（<a href="https://github.com/golang/go/blob//x/tools/cmd/stringer/stringer.go#L231"><code>stringer.go:231</code></a>）を通ります。</p>
 </div>
 <div class="paragraph">
 <p>ソースコードファイルのリストは構文解析されたのち、<code>go/types</code> のAPIで型チェックされます。この際、型の定義の情報も収集するようになっており、これが後の工程で必要になってきます。定義の情報は <code>map[*ast.Ident]types.Object</code> の形で保持され、ソースコード中に出現する識別子の、その言語上の役割や型などの情報が得られます。</p>
 </div>
-<div class="paragraph">
-<p>godoc:go/types.Object[]</p>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Object">go/types.Object</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Object</span> <span class="tok-kd">interface</span> <span class="tok-p">{</span>
+    <span class="tok-nx">Parent</span><span class="tok-p">()</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span> <span class="tok-c1">// scope in which this object is declared</span>
+    <span class="tok-nx">Pos</span><span class="tok-p">()</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">Pos</span> <span class="tok-c1">// position of object identifier in declaration</span>
+    <span class="tok-nx">Pkg</span><span class="tok-p">()</span> <span class="tok-o">*</span><span class="tok-nx">Package</span>  <span class="tok-c1">// nil for objects in the Universe scope and labels</span>
+    <span class="tok-nx">Name</span><span class="tok-p">()</span> <span class="tok-kt">string</span>   <span class="tok-c1">// package local object name</span>
+    <span class="tok-nx">Type</span><span class="tok-p">()</span> <span class="tok-nx">Type</span>     <span class="tok-c1">// object type</span>
+    <span class="tok-nx">Exported</span><span class="tok-p">()</span> <span class="tok-kt">bool</span> <span class="tok-c1">// reports whether the name starts with a capital letter</span>
+    <span class="tok-nx">Id</span><span class="tok-p">()</span> <span class="tok-kt">string</span>     <span class="tok-c1">// object id (see Id below)</span>
+
+    <span class="tok-c1">// String returns a human-readable string of the object.</span>
+    <span class="tok-nx">String</span><span class="tok-p">()</span> <span class="tok-kt">string</span>
+    <span class="tok-c1">// Has unexported methods.</span>
+<span class="tok-p">}</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -2818,7 +2837,119 @@ WIP
 </div>
 <div class="sect2">
 <h3 id="gddo"><a class="anchor" href="#gddo"></a>7.6. gddo</h3>
-
+<div class="paragraph">
+<p><a href="https://godoc.org/">GoDoc.org</a>はサードパーティ製のものを含むGoライブラリのドキュメントを閲覧できるウェブサイトです。ここでは以下のようなURLでGitHubなどにホストされているGoライブラリにアクセスできます。</p>
+</div>
+<div class="paragraph">
+<p><a href="http://godoc.org/github.com/motemen/go-gitconfig" class="bare">http://godoc.org/github.com/motemen/go-gitconfig</a></p>
+</div>
+<div class="paragraph">
+<p>標準ライブラリのドキュメントも同じように閲覧できます。</p>
+</div>
+<div class="paragraph">
+<p><a href="http://godoc.org/fmt" class="bare">http://godoc.org/fmt</a></p>
+</div>
+<div class="paragraph">
+<p>ソースコードは<a href="https://github.com/golang/gddo" class="bare">https://github.com/golang/gddo</a>にホストされています（&#8220;gddo&#8221; は<strong>G</strong>o<strong>D</strong>oc<strong>D</strong>ot<strong>O</strong>rgの頭文字を取ったものです）。</p>
+</div>
+<div class="paragraph">
+<p>gddoはユーザから見るとドキュメントを表示するだけのサイトですが、裏側でソースコードのクロールを行うなど複雑な機能を持ち合わせています。ここでは指定されたドキュメントの表示機能のみに絞ってソースコードを読んでみます。</p>
+</div>
+<div class="paragraph">
+<p>HTTPリクエストにしたがってパッケージのドキュメントを返すのが <code>getDoc</code>（<a href="https://github.com/golang/go/blob/717c3ed/gddo-server/main.go#L74"><code>main.go:74</code></a>）です。リクエストされたパッケージは <code>crawlDoc</code> から <code>github.com/golang/gddo/doc.Get</code> を経由して呼び出される <code>github.com/golang/gddo/gosrc.Get</code> によって、そのパッケージがホストされているリモートのVCSから取得されます。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>getStatic</code></p>
+</li>
+<li>
+<p>&#8220;getStatic gets a diretory from a statically known service&#8221;</p>
+</li>
+<li>
+<p>githubとか。gosrc/github.go</p>
+</li>
+<li>
+<p>Directoryを得るnewPackage</p>
+</li>
+<li>
+<p><code>getDynamic</code></p>
+</li>
+<li>
+<p>getVCSDir（vcs.go）</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="外部サービスへの対応"><a class="anchor" href="#外部サービスへの対応"></a>7.6.1. 外部サービスへの対応</h4>
+<div class="paragraph">
+<p>GitHubやBitBuckectなど有名どころでAPIも提供されているサービスに対しては、それぞれからソースコードを取得する処理が実装されています。</p>
+</div>
+<div class="paragraph">
+<p>各サービスは <code>gosrc.service</code> 構造体として表現されます：</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/github.com/golang/gddo/gosrc#service">github.com/golang/gddo/gosrc.service</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>get</code>、<code>getPresentation</code>、<code>getProject</code> はそれぞれ <code>Directory</code>、<code>Presentation</code>、<code>Project</code> 型の値を返します。</p>
+</div>
+<div class="paragraph">
+<p><code>Directory</code> が主に利用される型となります。これはパッケージのインポートパスやパッケージを構成するファイル名を保持しています。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/github.com/golang/gddo/gosrc#Directory">github.com/golang/gddo/gosrc.Directory</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Presentation</code> はプレゼンテーション用の機能で、http://go-talks.appspot.com/[go-talks.appspot.org]でのみ利用されているものです。</p>
+</div>
+<div class="paragraph">
+<p><code>Project</code> は <code>Description</code> だけを持つ構造体で、Goのドキュメントレベルでパッケージの説明が得られなかった場合に、サービスで設定されている説明を利用するためのものです。</p>
+</div>
+<div class="paragraph">
+<p>以下のサービスがあらかじめ実装されています。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>BitBucket（<code>bitbucket.go</code>）</p>
+</li>
+<li>
+<p>Launchpad（<code>launchpad.go</code>）</p>
+</li>
+<li>
+<p>Google（<code>google.go</code>）</p>
+</li>
+<li>
+<p>GitHubおよびGist（<code>github.go</code>）</p>
+</li>
+</ul>
+</div>
+<div class="sect4">
+<h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
+<div class="listingblock">
+<div class="title">リスト 12. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
+    <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
+    <span class="tok-nx">prefix</span><span class="tok-p">:</span>          <span class="tok-s">&quot;github.com/&quot;</span><span class="tok-p">,</span>
+    <span class="tok-nx">get</span><span class="tok-p">:</span>             <span class="tok-nx">getGitHubDir</span><span class="tok-p">,</span>
+    <span class="tok-nx">getPresentation</span><span class="tok-p">:</span> <span class="tok-nx">getGitHubPresentation</span><span class="tok-p">,</span>
+    <span class="tok-nx">getProject</span><span class="tok-p">:</span>      <span class="tok-nx">getGitHubProject</span><span class="tok-p">,</span>
+<span class="tok-p">})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>getGitHubDir</code>（<a href="https://github.com/golang/go/blob/75e3d37/:github.com/golang/gddo/gosrc/github.go#L51"><code>github.go:51</code></a>）でわりとストレートにファイルを一覧してる。</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -2849,7 +2980,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-13 17:01:16 UTC
+Last updated 2016-04-18 10:56:52 UTC
 </div>
 </div>
 </body>
