@@ -99,8 +99,8 @@ HTTPリクエストにしたがってパッケージのドキュメントを返�
 
 * `getStatic`
   * "`getStatic gets a diretory from a statically known service`"
-  * github とか。gosrc/github.go
-  * Directory を得る newPackage
+  * githubとか。gosrc/github.go
+  * Directoryを得るnewPackage
 * `getDynamic`
   * getVCSDir（vcs.go）
 
@@ -124,10 +124,10 @@ godoc::github.com/golang/gddo/gosrc.Directory[]
 
 以下のサービスがあらかじめ実装されています。
 
-* BitBucket（bitbucket.go）
-* Launchpad（launchpad.go）
-* Google（google.go）
-* GitHubおよびGist（github.go）
+* BitBucket（`bitbucket.go`）
+* Launchpad（`launchpad.go`）
+* Google（`google.go`）
+* GitHubおよびGist（`github.go`）
 
 ==== 例：GitHub
 
@@ -143,4 +143,4 @@ addService(&service{
 })
 ----
 
-`getGitHubDir`（gosource:github.com/golang/gddo/gosrc/github.go#L51[75e3d37]）でわりとストレートにファイルを一覧してる。
+`getGitHubDir`（gosource::github.com/golang/gddo/gosrc/github.go#L51[75e3d37]）でわりとストレートにファイルを一覧してる。

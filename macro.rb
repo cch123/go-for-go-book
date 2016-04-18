@@ -94,7 +94,7 @@ class GoSourceMacro < Asciidoctor::Extensions::InlineMacroProcessor
   def process(parent, target, attrs)
     ref = attrs.delete(1)
     text = target.sub(%r(^.+/), '').sub('#L', ':')
-    create_anchor(parent, text, { type: :link, target: %(https://github.com/golang/go/blob/#{ref}/#{target}) }.merge(attrs)).convert
+    create_anchor(parent, "<code>#{text}</code>", { type: :link, target: %(https://github.com/golang/go/blob/#{ref}/#{target}) }.merge(attrs)).convert
   end
 end
 
