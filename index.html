@@ -592,8 +592,12 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <li><a href="#文字列化処理の生成">7.3.4. 文字列化処理の生成</a></li>
 </ul>
 </li>
-<li><a href="#guru">7.4. guru</a></li>
-<li><a href="#goimports">7.5. goimports</a></li>
+<li><a href="#goimports">7.4. goimports</a>
+<ul class="sectlevel3">
+<li><a href="#code_import_code_の解決">7.4.1. <code>import</code> の解決</a></li>
+</ul>
+</li>
+<li><a href="#guru">7.5. guru</a></li>
 <li><a href="#gddo">7.6. gddo</a>
 <ul class="sectlevel3">
 <li><a href="#外部サービスへの対応">7.6.1. 外部サービスへの対応</a></li>
@@ -756,7 +760,7 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d20), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d60)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820066040), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820066080)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2828,11 +2832,148 @@ WIP
 </div>
 </div>
 <div class="sect2">
-<h3 id="guru"><a class="anchor" href="#guru"></a>7.4. guru</h3>
+<h3 id="goimports"><a class="anchor" href="#goimports"></a>7.4. goimports</h3>
+<div class="paragraph">
+<p><code>goimports</code> は与えられたソースコードを編集し、<code>import</code> 宣言の追加や削除忘れの面倒を見てくれるツールです。その際 <code>gofmt</code> 相当のことも行うので、<code>gofmt</code> 代わりに利用している人も多いのではないでしょうか。</p>
+</div>
+<div class="paragraph">
+<p><code>goimports</code> は以下のコマンドで入手できます：</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>go get golang.org/x/tools/cmd/goimports</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="code_import_code_の解決"><a class="anchor" href="#code_import_code_の解決"></a>7.4.1. <code>import</code> の解決</h4>
+<div class="paragraph">
+<p><code>goimports</code> のメイン部分は <code>fixImports</code>（gosource:TODO）です。この関数は与えられた解析済みのソースコードから未解決の識別子を探しだし、必要なパッケージを <code>GOPATH</code> 以下から探しだして <code>import</code> 宣言を挿入します。</p>
+</div>
+<div class="paragraph">
+<p>具体的に行っていることは：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>構文木を探索し、</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>x.y</code> の形の参照を収集する</p>
+</li>
+<li>
+<p><code>import</code> 宣言によってファイルスコープに導入された名前を収集する</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>importPathToName</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>その後、</p>
+<div class="ulist">
+<ul>
+<li>
+<p>一度も参照されていない <code>import</code> 宣言を削除する</p>
+</li>
+<li>
+<p>未解決の参照を修正できるパッケージを探し出す</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>findImport</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>上記のパッケージに対応する <code>import</code> 宣言を挿入する</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>という流れです。</p>
+</div>
+<div class="sect4">
+<h5 id="構文木の探索_2"><a class="anchor" href="#構文木の探索_2"></a>構文木の探索</h5>
+<div class="paragraph">
+<p>構文木の探索は <code>ast.Walk</code> を使って実装されています。<code>goimports</code> 中では、 <code>ast.SelectorExpr</code> と <code>ast.ImportSpec</code> の2種類の構文要素が興味ある対象です。</p>
+</div>
+<div class="paragraph">
+<p><code>ast.SelectorExpr</code> は <code>expr.sel</code> の形の式で、:セレクタ（<dfn>selector</dfn>）と呼ばれています。<code>expr</code> には任意の式が入り得ますが、ここではインポートされたパッケージの呼び出しを発見したいだけなので <code>expr</code> が識別子（<code>ast.Ident</code>）であるかのチェックを行っています。こうして発見されたパッケージ名へのセレクタのうち、<a href="#オブジェクト">オブジェクト</a>が未解決のものを収集します。</p>
+</div>
+<div class="paragraph">
+<p><code>ast.ImportSpec</code> は <code>import</code> 宣言ひとつ分に対応します。例えば以下のような <code>import</code> 宣言には4つの <code>ImportSpec</code> が含まれています。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-p">.</span> <span class="tok-s">&quot;math&quot;</span>
+    <span class="tok-nx">_</span> <span class="tok-s">&quot;net/http/pprof&quot;</span>
+<span class="tok-p">)</span>
 
+<span class="tok-kn">import</span> <span class="tok-nx">logPkg</span> <span class="tok-s">&quot;log&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ここで注目すべきは名前なしの <code>import "fmt"</code> です。パッケージの <code>import</code> によってファイルに導入される名前は、そのインポートパスではなくパッケージ中の宣言に依ります：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">import</span> <span class="tok-s">&quot;github.com/motemen/go-astutil&quot;</span> <span class="tok-c1">// &quot;astutil&quot; という名前が導入される</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>この解決を行うのが <code>importPathToName</code> です。ここでは <code>go/build.Import</code> を利用してパッケージに相当するソースコードを <code>GOPATH</code> 以下から発見します。</p>
+</div>
+<div class="paragraph">
+<p><code>go/build</code> は、<code>go build</code> コマンドが行うように、<code>GOOS</code> や <code>GOARCH</code> 環境変数、ビルドタグに基づいてパッケージやソースコードを探しだすためのAPIを提供します。</p>
+</div>
+<div class="paragraph">
+<p>ロードに失敗した場合はインポートパスの末尾部分が代替として使用されます。</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="code_import_code_宣言の挿入"><a class="anchor" href="#code_import_code_宣言の挿入"></a><code>import</code> 宣言の挿入</h5>
+<div class="paragraph">
+<p>続いて、上記の過程で収集された未解決の識別子からパッケージを探し出し、<code>import</code> 宣言を挿入します。このメイン部分、パッケージを探索するのが <code>findImportGoPath</code> です。パッケージ名と、そのパッケージによって提供されているべき名前から、パッケージのインポートパスを探し出します。</p>
+</div>
+<div class="paragraph">
+<p>最初に標準パッケージのAPIとの一致がチェックされます。これはあらかじめテーブルが生成されているので高速にマッチします。</p>
+</div>
+<div class="paragraph">
+<p>その後、ユーザによってインストールされたパッケージが探索されます。パッケージは最初に <code>pkgIndexOnce.Do(loadPkgIndex)</code> でインデックスします。<code>go/build.Default.SrcDirs()</code> 以下の、Goのソースコードを格納しているディレクトリに対して先ほどの <code>importPathToName</code> でパッケージ名の解決を行ってテーブルを作ります。</p>
+</div>
+<div class="paragraph">
+<p>こうやって生成されたテーブルに対し、期待する識別子を公開しているパッケージを探し出します。<code>build.ImportDir</code> で得られたディレクトリ中のファイルを解析して（<code>loadExportsGoPath</code>）、エクスポートされてるものを発見して突き合わせます。</p>
+</div>
+<div class="sect5">
+<h6 id="code_vendoring_code_の対応"><a class="anchor" href="#code_vendoring_code_の対応"></a><code>vendoring</code> の対応</h6>
+<div class="paragraph">
+<p><code>vendor</code> ディレクトリまたは <code>internal</code> ディレクトリはその親ディレクトリからしかインポートできません。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>TODO: <code>canUse</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="goimports"><a class="anchor" href="#goimports"></a>7.5. goimports</h3>
+<h3 id="guru"><a class="anchor" href="#guru"></a>7.5. guru</h3>
 
 </div>
 <div class="sect2">
@@ -2980,7 +3121,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-18 10:56:52 UTC
+Last updated 2016-04-18 17:03:15 UTC
 </div>
 </div>
 </body>
