@@ -501,7 +501,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <ul class="sectlevel1">
 <li><a href="#はじめに">はじめに</a>
 <ul class="sectlevel2">
-<li><a href="#なぜgo_for_goなのか">なぜGo for Goなのか</a></li>
+<li><a href="#なぜ_goのためのgo_なのか">なぜ「GoのためのGo」なのか</a></li>
 <li><a href="#この本のねらい">この本のねらい</a></li>
 <li><a href="#対象読者">対象読者</a></li>
 <li><a href="#対象バージョン">対象バージョン</a></li>
@@ -601,6 +601,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <li><a href="#gddo">7.6. gddo</a>
 <ul class="sectlevel3">
 <li><a href="#外部サービスへの対応">7.6.1. 外部サービスへの対応</a></li>
+<li><a href="#仮想的なソースコードディレクトリからドキュメントを生成する">7.6.2. 仮想的なソースコードディレクトリからドキュメントを生成する</a></li>
 </ul>
 </li>
 </ul>
@@ -614,7 +615,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <h2 id="はじめに"><a class="anchor" href="#はじめに"></a>はじめに</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="なぜgo_for_goなのか"><a class="anchor" href="#なぜgo_for_goなのか"></a>なぜGo for Goなのか</h3>
+<h3 id="なぜ_goのためのgo_なのか"><a class="anchor" href="#なぜ_goのためのgo_なのか"></a>なぜ「GoのためのGo」なのか</h3>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -643,30 +644,8 @@ WIP
 </div>
 <div class="sect2">
 <h3 id="この本のねらい"><a class="anchor" href="#この本のねらい"></a>この本のねらい</h3>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>ドキュメントとソースコードの中間</p>
-</li>
-<li>
-<p>API同士の関連について書く</p>
-</li>
-<li>
-<p>すべてを網羅するのではなく、書きはじめるために必要な情報を提供する</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>この本では、Go標準パッケージのドキュメントとソースコードの中間を目指します。ドキュメントだけからはただちに知ることのできない、API同士の関連や、全体としての使い方に焦点を当てることをねらいとします。網羅的であることは目指しておらず、GoのためのGoを書きはじめるために最低限必要な情報を提供することを目的にしています。</p>
 </div>
 </div>
 <div class="sect2">
@@ -760,7 +739,7 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820066040), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820066080)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1539,8 +1518,8 @@ int</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0), (*ast.Field)(0xc82001a640)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc82001a5c0)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a540), (*ast.Field)(0xc82001a5c0)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc82001a540)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2320,7 +2299,7 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 </div>
 </div>
 <div class="paragraph">
-<p><code>doc.Package</code> は <code>doc.New</code> 関数によって <code>ast.Package</code>（<a href="#パッケージ">パッケージ</a>）から生成されます。<code>mode</code> パラメータはドキュメントとして抽出する対象をコントロールできます。</p>
+<p><code>doc.Package</code> は <code>doc.New</code> 関数によって <code>ast.Package</code>（<a href="#パッケージ">パッケージ</a>）から生成されます。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/doc#New">go/doc.New</a></div>
@@ -2340,19 +2319,27 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p><code>mode</code> パラメータの指定によって、非公開のAPIに関してもドキュメントを収集することができます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/doc#AllDecls">go/doc.AllDecls</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">const</span> <span class="tok-p">(</span>
+    <span class="tok-c1">// extract documentation for all package-level declarations,</span>
+    <span class="tok-c1">// not just exported ones</span>
+    <span class="tok-nx">AllDecls</span> <span class="tok-nx">Mode</span> <span class="tok-p">=</span> <span class="tok-mi">1</span> <span class="tok-o">&lt;&lt;</span> <span class="tok-kc">iota</span>
+
+    <span class="tok-c1">// show all embedded methods, not just the ones of</span>
+    <span class="tok-c1">// invisible (unexported) anonymous fields</span>
+    <span class="tok-nx">AllMethods</span>
+<span class="tok-p">)</span></code></pre>
+</div>
+</div>
 <div class="sect3">
 <h4 id="doc_packageのレイアウト"><a class="anchor" href="#doc_packageのレイアウト"></a>2.3.1. doc.Packageのレイアウト</h4>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p><code>doc.Package</code> 構造体はドキュメントの表示に都合のよいように、整理された状態で</p>
 </div>
 </div>
 </div>
@@ -2997,7 +2984,13 @@ WIP
 <p>gddoはユーザから見るとドキュメントを表示するだけのサイトですが、裏側でソースコードのクロールを行うなど複雑な機能を持ち合わせています。ここでは指定されたドキュメントの表示機能のみに絞ってソースコードを読んでみます。</p>
 </div>
 <div class="paragraph">
-<p>HTTPリクエストにしたがってパッケージのドキュメントを返すのが <code>getDoc</code>（<a href="https://github.com/golang/go/blob/717c3ed/gddo-server/main.go#L74"><code>main.go:74</code></a>）です。リクエストされたパッケージは <code>crawlDoc</code> から <code>github.com/golang/gddo/doc.Get</code> を経由して呼び出される <code>github.com/golang/gddo/gosrc.Get</code> によって、そのパッケージがホストされているリモートのVCSから取得されます。</p>
+<p>この機能を受け持つのが <code>servePackage</code> です。HTTPリクエストにしたがってパッケージのドキュメントを返すのが <code>getDoc</code>（<a href="https://github.com/golang/go/blob/717c3ed/gddo-server/main.go#L74"><code>main.go:74</code></a>）で、<code>gddo/doc.Package</code> を返します。<code>gddo/doc.Package</code> はあるパッケージのドキュメントに相当し、パッケージの提供する関数や型とそのドキュメントなど、godoc.orgで閲覧できるドキュメントのHTMLを生成するのに必要な主要な情報を保持しています。インポートパスに基づいてRedisからパッケージのドキュメントを取り出しますが、データが存在しないか古い場合、外部にホストされているソースコードからドキュメントの生成に必要な情報を取得します。</p>
+</div>
+<div class="paragraph">
+<p>リクエストされたパッケージは <code>crawlDoc</code> から <code>github.com/golang/gddo/doc.Get</code> を経由して呼び出される <code>github.com/golang/gddo/gosrc.Get</code> によって、そのパッケージがホストされているリモートのVCSから取得されます。</p>
+</div>
+<div class="paragraph">
+<p><code>doc.Get</code> は解析済みのパッケージのドキュメントを返す。<code>gosrc.Get</code> は <code>gosrc.Directory</code> という仮想的なソースコードディレクトリを返します。それを変換するのが <code>newPackage</code>。</p>
 </div>
 <div class="ulist">
 <ul>
@@ -3091,6 +3084,86 @@ WIP
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="仮想的なソースコードディレクトリからドキュメントを生成する"><a class="anchor" href="#仮想的なソースコードディレクトリからドキュメントを生成する"></a>7.6.2. 仮想的なソースコードディレクトリからドキュメントを生成する</h4>
+<div class="paragraph">
+<p>メソッド <code>gddo/doc.newPackage</code> が、仮想的なソースコードディレクトリである <code>gosrc.Directory</code> からドキュメントである <code>gddo/doc.Package</code> を生成します。<code>gosrc.Directory</code> はインポートパスや、ファイル名とそのデータを全て保持しています。</p>
+</div>
+<div class="paragraph">
+<p>ディレクトリに含まれるファイルは、すべてが必要なファイルであるとは限りません。例えば <code>spec_linux.go</code> と <code>spec_windows.go</code> は共存し得ないし、<code>_test.go</code> で終わるファイルはテスト用なのでドキュメントには不要です。また、ソースコード中のビルドタグもコンパイルやドキュメント生成にあたって留意しなくてはなりません。そこで <code>go/build</code> のAPIを利用します。</p>
+</div>
+<div class="paragraph">
+<p><code>go/build</code> のAPIは、特定の <code>GOOS</code> や <code>GOARCH</code> 下で、あるパッケージを構成するソースコードを一覧するものでした。</p>
+</div>
+<div class="paragraph">
+<p>通常はローカルのファイルシステムに対してファイルの探索を行うのですが、<code>build.Context</code> のファイルシステムへのアクセスに相当するフィールドを書き換えることで</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/build#Context">go/build.Context</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Context</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-nx">GOARCH</span>      <span class="tok-kt">string</span> <span class="tok-c1">// target architecture</span>
+    <span class="tok-nx">GOOS</span>        <span class="tok-kt">string</span> <span class="tok-c1">// target operating system</span>
+    <span class="tok-nx">GOROOT</span>      <span class="tok-kt">string</span> <span class="tok-c1">// Go root</span>
+    <span class="tok-nx">GOPATH</span>      <span class="tok-kt">string</span> <span class="tok-c1">// Go path</span>
+    <span class="tok-nx">CgoEnabled</span>  <span class="tok-kt">bool</span>   <span class="tok-c1">// whether cgo can be used</span>
+    <span class="tok-nx">UseAllFiles</span> <span class="tok-kt">bool</span>   <span class="tok-c1">// use files regardless of +build lines, file names</span>
+    <span class="tok-nx">Compiler</span>    <span class="tok-kt">string</span> <span class="tok-c1">// compiler to assume when computing target paths</span>
+
+    <span class="tok-c1">// The build and release tags specify build constraints</span>
+    <span class="tok-c1">// that should be considered satisfied when processing +build lines.</span>
+    <span class="tok-c1">// Clients creating a new context may customize BuildTags, which</span>
+    <span class="tok-c1">// defaults to empty, but it is usually an error to customize ReleaseTags,</span>
+    <span class="tok-c1">// which defaults to the list of Go releases the current release is compatible with.</span>
+    <span class="tok-c1">// In addition to the BuildTags and ReleaseTags, build constraints</span>
+    <span class="tok-c1">// consider the values of GOARCH and GOOS as satisfied tags.</span>
+    <span class="tok-nx">BuildTags</span>   <span class="tok-p">[]</span><span class="tok-kt">string</span>
+    <span class="tok-nx">ReleaseTags</span> <span class="tok-p">[]</span><span class="tok-kt">string</span>
+
+    <span class="tok-c1">// The install suffix specifies a suffix to use in the name of the installation</span>
+    <span class="tok-c1">// directory. By default it is empty, but custom builds that need to keep</span>
+    <span class="tok-c1">// their outputs separate can set InstallSuffix to do so. For example, when</span>
+    <span class="tok-c1">// using the race detector, the go command uses InstallSuffix = &quot;race&quot;, so</span>
+    <span class="tok-c1">// that on a Linux/386 system, packages are written to a directory named</span>
+    <span class="tok-c1">// &quot;linux_386_race&quot; instead of the usual &quot;linux_386&quot;.</span>
+    <span class="tok-nx">InstallSuffix</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// JoinPath joins the sequence of path fragments into a single path.</span>
+    <span class="tok-c1">// If JoinPath is nil, Import uses filepath.Join.</span>
+    <span class="tok-nx">JoinPath</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">elem</span> <span class="tok-o">...</span><span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// SplitPathList splits the path list into a slice of individual paths.</span>
+    <span class="tok-c1">// If SplitPathList is nil, Import uses filepath.SplitList.</span>
+    <span class="tok-nx">SplitPathList</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">list</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">[]</span><span class="tok-kt">string</span>
+
+    <span class="tok-c1">// IsAbsPath reports whether path is an absolute path.</span>
+    <span class="tok-c1">// If IsAbsPath is nil, Import uses filepath.IsAbs.</span>
+    <span class="tok-nx">IsAbsPath</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-kt">bool</span>
+
+    <span class="tok-c1">// IsDir reports whether the path names a directory.</span>
+    <span class="tok-c1">// If IsDir is nil, Import calls os.Stat and uses the result&#39;s IsDir method.</span>
+    <span class="tok-nx">IsDir</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-kt">bool</span>
+
+    <span class="tok-c1">// HasSubdir reports whether dir is a subdirectory of</span>
+    <span class="tok-c1">// (perhaps multiple levels below) root.</span>
+    <span class="tok-c1">// If so, HasSubdir sets rel to a slash-separated path that</span>
+    <span class="tok-c1">// can be joined to root to produce a path equivalent to dir.</span>
+    <span class="tok-c1">// If HasSubdir is nil, Import uses an implementation built on</span>
+    <span class="tok-c1">// filepath.EvalSymlinks.</span>
+    <span class="tok-nx">HasSubdir</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">root</span><span class="tok-p">,</span> <span class="tok-nx">dir</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">rel</span> <span class="tok-kt">string</span><span class="tok-p">,</span> <span class="tok-nx">ok</span> <span class="tok-kt">bool</span><span class="tok-p">)</span>
+
+    <span class="tok-c1">// ReadDir returns a slice of os.FileInfo, sorted by Name,</span>
+    <span class="tok-c1">// describing the content of the named directory.</span>
+    <span class="tok-c1">// If ReadDir is nil, Import uses ioutil.ReadDir.</span>
+    <span class="tok-nx">ReadDir</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">dir</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">fi</span> <span class="tok-p">[]</span><span class="tok-nx">os</span><span class="tok-p">.</span><span class="tok-nx">FileInfo</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+
+    <span class="tok-c1">// OpenFile opens a file (not a directory) for reading.</span>
+    <span class="tok-c1">// If OpenFile is nil, Import uses os.Open.</span>
+    <span class="tok-nx">OpenFile</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">r</span> <span class="tok-nx">io</span><span class="tok-p">.</span><span class="tok-nx">ReadCloser</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -3121,7 +3194,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-18 17:03:15 UTC
+Last updated 2016-04-25 11:50:41 UTC
 </div>
 </div>
 </body>
