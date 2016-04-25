@@ -95,7 +95,11 @@ http://godoc.org/fmt
 
 gddoはユーザから見るとドキュメントを表示するだけのサイトですが、裏側でソースコードのクロールを行うなど複雑な機能を持ち合わせています。ここでは指定されたドキュメントの表示機能のみに絞ってソースコードを読んでみます。
 
-HTTPリクエストにしたがってパッケージのドキュメントを返すのが `getDoc`（gosource:gddo-server/main.go#L74[717c3ed,gddo]）です。リクエストされたパッケージは `crawlDoc` から `github.com/golang/gddo/doc.Get` を経由して呼び出される `github.com/golang/gddo/gosrc.Get` によって、そのパッケージがホストされているリモートのVCSから取得されます。
+この機能を受け持つのが `servePackage` です。HTTPリクエストにしたがってパッケージのドキュメントを返すのが `getDoc`（gosource:gddo-server/main.go#L74[717c3ed,gddo]）で、`gddo/doc.Package` を返します。`gddo/doc.Package` はあるパッケージのドキュメントに相当し、パッケージの提供する関数や型とそのドキュメントなど、godoc.orgで閲覧できるドキュメントのHTMLを生成するのに必要な主要な情報を保持しています。インポートパスに基づいてRedisからパッケージのドキュメントを取り出しますが、データが存在しないか古い場合、外部にホストされているソースコードからドキュメントの生成に必要な情報を取得します。
+
+リクエストされたパッケージは `crawlDoc` から `github.com/golang/gddo/doc.Get` を経由して呼び出される `github.com/golang/gddo/gosrc.Get` によって、そのパッケージがホストされているリモートのVCSから取得されます。
+
+`doc.Get` は解析済みのパッケージのドキュメントを返す。`gosrc.Get` は `gosrc.Directory` という仮想的なソースコードディレクトリを返します。それを変換するのが `newPackage`。
 
 * `getStatic`
   * "`getStatic gets a diretory from a statically known service`"
@@ -144,3 +148,16 @@ addService(&service{
 ----
 
 `getGitHubDir`（gosource::github.com/golang/gddo/gosrc/github.go#L51[75e3d37]）でわりとストレートにファイルを一覧してる。
+
+=== 仮想的なソースコードディレクトリからドキュメントを生成する
+
+メソッド `gddo/doc.newPackage` が、仮想的なソースコードディレクトリである `gosrc.Directory` からドキュメントである `gddo/doc.Package` を生成します。`gosrc.Directory` はインポートパスや、ファイル名とそのデータを全て保持しています。
+
+ディレクトリに含まれるファイルは、すべてが必要なファイルであるとは限りません。例えば `spec_linux.go` と `spec_windows.go` は共存し得ないし、`_test.go` で終わるファイルはテスト用なのでドキュメントには不要です。また、ソースコード中のビルドタグもコンパイルやドキュメント生成にあたって留意しなくてはなりません。そこで `go/build` のAPIを利用します。
+
+`go/build` のAPIは、特定の `GOOS` や `GOARCH` 下で、あるパッケージを構成するソースコードを一覧するものでした。
+
+通常はローカルのファイルシステムに対してファイルの探索を行うのですが、`build.Context` のファイルシステムへのアクセスに相当するフィールドを書き換えることで
+
+godoc::go/build.Context[]
+
