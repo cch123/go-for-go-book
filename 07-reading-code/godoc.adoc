@@ -1,16 +1,65 @@
 = go doc
 
-パッケージのAPIのドキュメントを閲覧する機能を提供するサブコマンドです。
+"go doc" はパッケージのAPIのドキュメントを閲覧する機能を提供するサブコマンドです。
 `go doc go/ast Node` のようにパッケージやシンボルを指定すると、そのドキュメントを表示します。
 
+....
+% go doc go/ast Node
+type Node interface {
+        Pos() token.Pos // position of first character belonging to the node
+        End() token.Pos // position of first character immediately after the node
+}
+    All node types implement the Node interface.
+....
+
 パッケージ名は完全なパスでなくてもよく、その場合はGOPATH以下からマッチするものを探してきます。
+
+....
+% go doc template
+package template // import "html/template"
+
+Package template (html/template) implements data-driven templates for
+...
+
+% go doc ast.Node
+package ast // import "go/ast"
+
+type Node interface {
+        Pos() token.Pos // position of first character belonging to the node
+        End() token.Pos // position of first character immediately after the node
+}
+    All node types implement the Node interface.
+....
 
 ソースは `src/cmd/doc/` 以下にあります。
 
 // TODO: godoc との関係
 // TODO: 概要
 
+`go doc` が行う処理は以下のように分解できます。
+
+* コマンドライン引数の解決
+* ソースコードの解析
+* ドキュメントの表示
+
+これから、それぞれの処理について詳しく見ていきます。
+
 == 引数の解決（`parseArgs`）
+
+`go doc` サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。
+
+.go doc -h
+----
+% go doc -h
+Usage of [go] doc:
+        go doc
+        go doc <pkg>
+        go doc <sym>[.<method>]
+        go doc [<pkg>].<sym>[.<method>]
+        go doc <pkg> <sym>[.<method>]
+----
+
+さまざまな形式がありますが、大きく
 
 最初に、引数で指定された要件にしたがってドキュメントの元となるソースコードを取得します。
 
