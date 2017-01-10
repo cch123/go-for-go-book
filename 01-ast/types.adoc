@@ -14,49 +14,68 @@ godoc::go/ast.Node[]
 `ast.Stmt`:: 文（statement）。`if` や `switch` など
 `ast.Expr`:: 式（expression）。識別子や演算、型など
 
-以下でこれらのうち主要なものを見て行きます。
+ファイルやコメントなど、これらに分類されない構文ノードも存在します。
+
+以下でこれらサブインターフェースと、その実装のうち主要なものを見ていきます。
 
 NOTE: <<ast.Nodeの階層>>で `ast.Node` を実装する型の完全な一覧を確認できます。
 
 == ast.Decl
 
-`ast.Decl` インタフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言には
+`ast.Decl` インタフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言は
 
 * パッケージのインポート（`import`）
 * 変数および定数（`var`、`const`）
 * 型（`type`）
 * 関数およびメソッド（`func`）
 
-といったものがありますが、`ast.Decl` インタフェースを実装している構造体は `*ast.GenDecl` と `*ast.FuncDecl` の2つのみです。後者は関数及びメソッドの宣言に相当し、前者が残りすべてをカバーします。
+と4種類に分けられますが、`ast.Decl` インタフェースを実装している構造体は `*ast.FuncDecl` と `*ast.GenDecl` の2つのみです。前者は名前どおり関数及びメソッドの宣言に相当し、後者が残りすべてをカバーします。
 
 === ast.FuncDecl
 
 godoc::go/ast.FuncDecl[]
 
-`ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` である場合は関数を、そうでない場合はメソッドを表します。
+`ast.FuncDecl` 構造体は関数の宣言に対応します。`Recv` フィールドはそのレシーバを表しており、これが `nil` である場合は関数を、そうでない場合はメソッドの宣言を表します。
 
-`Recv` の型である <<ast.FieldList,`*ast.FieldList`>>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。`FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。
+`Recv` の型である <<ast.FieldList,`*ast.FieldList`>>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。
 
-WARNING: ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！ コメントによると、シンプルさとロバスト性のためだということです。
+NOTE: `FieldList` はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。`FieldList` が構造体のフィールド宣言の表現などにも使われるためこのような構造になっています。
 
-// Recv.NumFields() > 1 ありうえる？
-// src/go/parser/parser.go に書いてあった:
-// > The parser accepts a larger language than is syntactically permitted by
-// > the Go spec, for simplicity, and for improved robustness in the presence
-// > of syntax errors. For instance, in method declarations, the receiver is
-// > treated like an ordinary parameter list and thus may contain multiple
-// > entries where the spec permits exactly one. Consequently, the corresponding
-// > field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.
+[WARNING]
+====
+ただし、`go/parser` は複数の組からなるレシーバをエラーなく解析します！ コメントによると、シンプルさとロバスト性のためだということです。
+
+TODO: なんかいい感じに引用スタイル
+
+.src/go/parser/parser.go
+----
+The parser accepts a larger language than is syntactically permitted by
+the Go spec, for simplicity, and for improved robustness in the presence
+of syntax errors. For instance, in method declarations, the receiver is
+treated like an ordinary parameter list and thus may contain multiple
+entries where the spec permits exactly one. Consequently, the corresponding
+field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.
+----
+====
 
 === ast.GenDecl
 
+関数以外の宣言、`import`、`const`、`var`、`type` は `ast.GenDecl` がまとめて引き受けます。
+
 godoc::go/ast.GenDecl[]
 
-`import`、`const`、`var`、`type` の宣言は `ast.GenDecl` がまとめて引き受けます。`Specs` フィールドは `ast.Spec` インタフェースのスライスと宣言されていますが、要素の型は `*ast.ImportSpec`、`*ast.ValueSpec`、`*ast.TypeSpec` のいずれかひとつであり、`Tok` フィールドの値によって決まります。`*ast.ValueSpec` は `const` と `var` の場合両方をカバーします。
+`Specs` フィールドはその要素が `ast.Spec` インタフェースであるスライスと宣言されていますが、要素の具体的な型はバラバラではなく、`Tok` フィールドによってひとつの型に決まります。
 
-// TODO: 一応正しいかソース読む
+|===
+|`Tok` の値|`Specs` の要素の型|表す構文
 
-これらの宣言は、以下のようにグループ化できるという共通点があります。グループ化された宣言のひとつが `Specs` のひとつの要素に対応します。
+|`token.IMPORT`|`*ast.ImportSpec`|`import` 宣言
+|`token.CONST`|`*ast.ValueSpec`|`const` 宣言
+|`token.TYPE`|`*ast.TypeSpec`|`type` 宣言
+|`token.VAR`|`*ast.ValueSpec`|`var` 宣言
+|===
+
+これらの宣言には、以下のようにグループ化できるという共通点があります。グループ化された宣言のひとつが `Specs` スライスのひとつの要素に対応します。
 
 [source,go]
 ----
@@ -76,8 +95,8 @@ var (
 )
 
 type (
-    t struct{}
-    y interface{}
+    s struct{}
+    t interface{}
 )
 ----
 
@@ -109,9 +128,30 @@ type (
 * `range` を含まない `for`（`ast.ForStmt`）
 * `range` を含む `for`（`ast.RangeStmt`）
 
+=== ast.SwitchStmt
+
+[WARNING]
+====
+TODO
+
+https://golang.org/ref/spec#ExprSwitchStmt
+
+* `Init` は `switch *x := 1*; t {`
+* `Tag` は `switch x := 1; *t* {`
+====
+
 === ast.TypeSwitchStmt
 
-* Assign
+[WARNING]
+====
+TODO
+
+https://golang.org/ref/spec#TypeSwitchStmt
+
+* `Init`
+* `Assign`
+
+====
 
 == ast.Expr
 
