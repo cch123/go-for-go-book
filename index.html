@@ -675,7 +675,16 @@ WIP
 <h2 id="構文解析"><a class="anchor" href="#構文解析"></a>1. 構文解析</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>そのままではただの文字列であるだけのGoのソースコードをプログラムにとって意味のある操作可能な対象とするには、まずソースコードを構文解析して抽象構文木に変換する必要があります。いったん抽象構文木を手元に得てしまえば、任意のソースコードをプログラムから扱うのはとても簡単です。ここでは、</p>
+<p>Goに限らず、プログラムのソースコードは、与えられた状態ではただの文字列でしかありません。</p>
+</div>
+<div class="paragraph">
+<p>ソースコードをプログラムにとって意味のある操作可能な対象とするには、まずソースを構文解析して抽象構文木に変換し、Goのデータ構造として表現する必要があります。</p>
+</div>
+<div class="paragraph">
+<p>いったん抽象構文木を手元に得てしまえば、任意のソースコードをプログラムから扱うのはとても簡単です。</p>
+</div>
+<div class="paragraph">
+<p>以下では、</p>
 </div>
 <div class="ulist">
 <ul>
@@ -683,12 +692,12 @@ WIP
 <p>Goのソースコードの抽象構文木がどのようにして得られるのか、</p>
 </li>
 <li>
-<p>構文要素がどのように表現されているのか</p>
+<p>抽象構文木において、それぞれの構文要素がどのように表現されているのか</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>といったことについて見ていきます。</p>
+<p>といったことを見ていきます。</p>
 </div>
 <div class="sect2">
 <h3 id="式の構文解析"><a class="anchor" href="#式の構文解析"></a>1.1. 式の構文解析</h3>
@@ -739,16 +748,16 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d60), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012da0)}</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>二項演算子 <code>*</code> の左の項である <code>a</code> が <code>X</code>（<code>*ast.Ident</code>）として、右の項である <code>-1</code> が <code>Y</code>（<code>*ast.UnaryExpr</code>）として表現されていそうだ、ということが見て取れます。</p>
+<p>二項演算子 <code>*</code> の左の項である <code>a</code> が <code>X</code>（<code>*ast.Ident</code>）として、右の項である <code>-1</code> が <code>Y</code>（<code>*ast.UnaryExpr</code>）として表現されていそうだ、ということが見て取れると思います。</p>
 </div>
 <div class="sect3">
 <h4 id="ast_print"><a class="anchor" href="#ast_print"></a>1.1.1. ast.Print</h4>
 <div class="paragraph">
-<p><code>%#v</code> による表示でも大まかには構文木のノードの様子を知ることができますが、定数値の意味やさらに深いノードの情報には欠けています。構文木をさらに深く見ていくには、<code>ast.Print</code> 関数が便利です：</p>
+<p><code>%#v</code> による表示でも大まかには構文木のノードの様子を知ることができますが、定数値の意味やさらに深いノードの情報には欠けています。構文木をさらに詳細に見ていくには、<code>ast.Print</code> 関数が便利です：</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 2. parseexpr-print.go</div>
@@ -792,10 +801,10 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p><code>X.Name</code> が <code>"a"</code> であることや <code>Op</code> が <code>"*"</code> であることなど、先ほどの式 <code>a * -1</code> を表す抽象構文木の構造がより詳細に理解できます。</p>
+<p><code>X.Name</code> が <code>"a"</code> であることや <code>Op</code> が <code>*</code> であることなど、先ほどの式 <code>a * -1</code> を表す抽象構文木の構造がより詳細に掴めます。</p>
 </div>
 <div class="paragraph">
-<p><code>ast.Print</code> は抽象構文木を人間に読みやすい形で標準出力に印字します。便利な関数ですがあくまで開発中やデバッグに便利な関数であって、実際にコードを書いて何かを達成するために直接これを使うことはないでしょう。</p>
+<p><code>ast.Print</code> は抽象構文木を人間に読みやすい形で標準出力に印字します。便利な関数ですがあくまで開発中やデバッグ用途であって、実際にコードを書いて何かを達成するために直接これを使うことはないでしょう。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Print">go/ast.Print</a></div>
@@ -839,17 +848,17 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p><code>ast.Expr</code> は（埋め込まれている <code>ast.Node</code> を除けば）外部に公開されないメソッドで構成されています。そのため、これを実装する型は <code>ast</code> パッケージに定義されているものに限られます。</p>
+<p><code>ast.Expr</code> は（埋め込まれている <code>ast.Node</code> を除けば）外部に公開されないメソッドで構成されています。そのため、<code>ast</code> パッケージ外の型が <code>ast.Expr</code> を実装することはありません。</p>
 </div>
 <div class="paragraph">
-<p><code>exprNode()</code> は実際にはどこからも呼ばれないメソッドなので、<code>ast.Expr</code> はその振る舞いに関する情報を提供しない、分類用のインタフェースであるといえます。同様に、文や宣言に対応するインタフェース（<code>ast.Stmt</code> と <code>ast.Decl</code>）も定義されています。埋め込まれている <code>ast.Node</code> インタフェースも含め、これらについて詳しくは<a href="#構文ノードの実装">構文ノードの実装</a>で見ます。</p>
+<p><code>exprNode()</code> は実際にはどこからも呼ばれないメソッドです。そのため、<code>ast.Expr</code> はその振る舞いに関する情報を提供しない、分類用のインタフェースであるといえます。同様に、文や宣言に対応するインタフェース（<code>ast.Stmt</code> と <code>ast.Decl</code>）も定義されています。埋め込まれている <code>ast.Node</code> インタフェースも含め、これらについて詳しくは<a href="#構文ノードの実装">構文ノードの実装</a>で見ます。</p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="ファイルの構文解析"><a class="anchor" href="#ファイルの構文解析"></a>1.2. ファイルの構文解析</h3>
 <div class="paragraph">
-<p>実践においては、Goのソースコードはファイルかパッケージの単位で扱うことが普通です。ここからはファイル全体を構文解析する方法を見ていきます。</p>
+<p>ここまで式の構文解析を例にとって見てきましたが、実践においては、Goのソースコードはファイルやパッケージの単位で扱うことが普通です。ここからはファイル全体を構文解析する方法を見ていきます。</p>
 </div>
 <div class="sect3">
 <h4 id="ファイルの構造"><a class="anchor" href="#ファイルの構造"></a>1.2.1. ファイルの構造</h4>
@@ -873,7 +882,7 @@ WIP
 </ol>
 </div>
 <div class="paragraph">
-<p>の順番で現れることになっています。</p>
+<p>が、この順番で現れることになっています。</p>
 </div>
 </div>
 <div class="sect3">
@@ -888,10 +897,10 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p>第二引数の <code>filename</code> と第三引数の <code>src</code> はふたつで一組になっていて、構文解析するソースコードを指定します。<code>src != nil</code> であるときは <code>filename</code> に指定されたファイルを読み込み、それ以外の場合は <code>src</code> をソースコードとして読み込み、<code>filename</code> はソースコードの位置情報にだけ使われます。<code>src</code> に指定できるのは <code>string</code>、<code>[]byte</code>、<code>io.Reader</code> のいずれかのみです。</p>
+<p>第二引数の <code>filename</code> と第三引数の <code>src</code> はふたつで一組になっていて、構文解析するソースコードを指定します。<code>src == nil</code> であるときは <code>filename</code> に指定されたファイルの内容をソースコードとして読み込みます。それ以外の場合は <code>src</code> をソースコードとして読み込み、<code>filename</code> はソースコードの位置情報にだけ使われます。<code>src</code> は <code>interface{}</code> ですが、指定できるのは <code>string</code>、<code>[]byte</code>、<code>io.Reader</code> のいずれかのみです。</p>
 </div>
 <div class="paragraph">
-<p>第一引数の <code>fset</code> は構文解析によって得られた構文木のノードの詳細な位置情報を保持する <code>token.FileSet</code> 構造体へのポインタです。詳しくは<a href="#ソースコード中の位置">ソースコード中の位置</a>で説明しますが、基本的に、<code>token.NewFileSet()</code> で得られるものを渡せば十分です。</p>
+<p>第一引数の <code>fset</code> は構文解析によって得られた構文木のノードの詳細な位置情報を保持する <code>token.FileSet</code> 構造体へのポインタです。詳しくは<a href="#ソースコード中の位置">ソースコード中の位置</a>で説明しますが、基本的に <code>token.NewFileSet()</code> で得られるものを渡せば十分です。</p>
 </div>
 <div class="paragraph">
 <p>最後の引数 <code>mode</code> では構文解析する範囲の指定などが行えます。後で<a href="#コメントとドキュメント">コメントとドキュメント</a>を扱うときに少し触れます。</p>
@@ -1006,7 +1015,7 @@ WIP
 <div class="sect3">
 <h4 id="ast_file"><a class="anchor" href="#ast_file"></a>1.2.3. ast.File</h4>
 <div class="paragraph">
-<p>ファイルは <code>ast.File</code> 構造体で表現され、パッケージ名やトップレベルの宣言の情報を含んでいます。</p>
+<p>ソースファイルは <code>ast.File</code> 構造体で表現され、パッケージ名やトップレベルの宣言の情報を含んでいます。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#File">go/ast.File</a></div>
@@ -1046,7 +1055,7 @@ WIP
 <div class="sect3">
 <h4 id="構文木の探索"><a class="anchor" href="#構文木の探索"></a>1.2.4. 構文木の探索</h4>
 <div class="paragraph">
-<p><a href="#構文ノードのインタフェース">先</a>に述べたように構文木のノードは <code>ast</code> パッケージのインタフェースとして得られるので、具体的な内容を知るにはtype assertionやtype switchを用いなければなりません。これを手で書いていくのは大変で間違いも起きがちですが、<code>ast.Inspect</code> 関数を使えば構文ノードに対する深さ優先探索を行えます。</p>
+<p><a href="#構文ノードのインタフェース">構文ノードのインタフェース</a>で述べたように、構文木のノードは <code>ast</code> パッケージのインタフェースとして得られます。そのため、具体的な内容を知るにはtype assertionやtype switchを用いなければなりません。これを手で丁寧に書いていくのは大変で間違いも起きがちですが、<code>ast.Inspect</code> 関数で構文ノードに対する（深さ優先）探索を行えます。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#Inspect">go/ast.Inspect</a></div>
@@ -1055,10 +1064,10 @@ WIP
 </div>
 </div>
 <div class="paragraph">
-<p>各ノードを引数に呼ばれるコールバック関数 <code>f</code> が <code>true</code> を返すと、さらにその下のノードを探索していきます。</p>
+<p><code>node</code> から始まり、子ノードを再帰的に探索しつつにコールバック関数 <code>f</code> が呼ばれます。子ノードの探索を終えるごとに、引数 <code>nil</code> でコールバックが呼ばれます。コールバック関数では <code>false</code> を返すことで、そのノードの子供以下への探索を打ち切ることができます。</p>
 </div>
 <div class="paragraph">
-<p>以下は先ほどのソースコードファイル中の識別子を一覧する例です。<code>ast.Node</code> の具体的な型を知るために、type assertionをおこなっています。</p>
+<p>以下は先ほどのソースコードファイル中の識別子を一覧する例です。訪問したノードの具体的な型を知るために、type assertionをおこなっています。</p>
 </div>
 <div class="listingblock">
 <div class="title">リスト 4. listidents.go</div>
@@ -1101,7 +1110,7 @@ int</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>パッケージ名や変数名などの識別子が構文木に含まれていることが確認できます。</p>
+<p>パッケージ名（<code>p</code>）や変数名（<code>n</code>）などの識別子が構文木に含まれていることが確認できます。</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1156,7 +1165,10 @@ int</pre>
 </dl>
 </div>
 <div class="paragraph">
-<p>以下でこれらのうち主要なものを見て行きます。</p>
+<p>ファイルやコメントなど、これらに分類されない構文ノードも存在します。</p>
+</div>
+<div class="paragraph">
+<p>以下でこれらサブインタフェースと、その実装のうち主要なものを見ていきます。</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1174,7 +1186,7 @@ int</pre>
 <div class="sect3">
 <h4 id="ast_decl"><a class="anchor" href="#ast_decl"></a>1.3.2. ast.Decl</h4>
 <div class="paragraph">
-<p><code>ast.Decl</code> インタフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言には</p>
+<p><code>ast.Decl</code> インタフェースはGoソースコードにおける宣言（declaration）に対応する構文木のノードを表します。Goの宣言は</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1193,7 +1205,7 @@ int</pre>
 </ul>
 </div>
 <div class="paragraph">
-<p>といったものがありますが、<code>ast.Decl</code> インタフェースを実装している構造体は <code>*ast.GenDecl</code> と <code>*ast.FuncDecl</code> の2つのみです。後者は関数及びメソッドの宣言に相当し、前者が残りすべてをカバーします。</p>
+<p>と4種類に分けられますが、<code>ast.Decl</code> インタフェースを実装している構造体は <code>*ast.FuncDecl</code> と <code>*ast.GenDecl</code> の2つのみです。前者は名前どおり関数及びメソッドの宣言に相当し、後者が残りすべてをカバーします。</p>
 </div>
 <div class="sect4">
 <h5 id="ast_funcdecl"><a class="anchor" href="#ast_funcdecl"></a>ast.FuncDecl</h5>
@@ -1210,10 +1222,22 @@ int</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>ast.FuncDecl</code> 構造体は関数の宣言に対応します。<code>Recv</code> フィールドはそのレシーバを表しており、これが <code>nil</code> である場合は関数を、そうでない場合はメソッドを表します。</p>
+<p><code>ast.FuncDecl</code> 構造体は関数の宣言に対応します。<code>Recv</code> フィールドはそのレシーバを表しており、これが <code>nil</code> である場合は関数を、そうでない場合はメソッドの宣言を表します。</p>
 </div>
 <div class="paragraph">
-<p><code>Recv</code> の型である <a href="#ast.FieldList"><code>*ast.FieldList</code></a>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。<code>FieldList</code> はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。</p>
+<p><code>Recv</code> の型である <a href="#ast.FieldList"><code>*ast.FieldList</code></a>は識別子と型の組のリストで、関数のパラメータや構造体のフィールドを表すのに使われます。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>FieldList</code> はその名の通り複数の組を表すこともできますが、Goの文法上、レシーバとしてはただ1つの組のみが有効です。<code>FieldList</code> が構造体のフィールド宣言の表現などにも使われるためこのような構造になっています。
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1222,7 +1246,23 @@ int</pre>
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-ただし、<code>go/parser</code> は複数の組からなるレシーバをエラーなく解析します！ コメントによると、シンプルさとロバスト性のためだということです。
+<div class="paragraph">
+<p>ただし、<code>go/parser</code> は複数の組からなるレシーバをエラーなく解析します！ コメントによると、シンプルさとロバスト性のためだということです。</p>
+</div>
+<div class="paragraph">
+<p>TODO: なんかいい感じに引用スタイル</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 5. src/go/parser/parser.go</div>
+<div class="content">
+<pre>The parser accepts a larger language than is syntactically permitted by
+the Go spec, for simplicity, and for improved robustness in the presence
+of syntax errors. For instance, in method declarations, the receiver is
+treated like an ordinary parameter list and thus may contain multiple
+entries where the spec permits exactly one. Consequently, the corresponding
+field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.</pre>
+</div>
+</div>
 </td>
 </tr>
 </table>
@@ -1230,6 +1270,9 @@ int</pre>
 </div>
 <div class="sect4">
 <h5 id="ast_gendecl"><a class="anchor" href="#ast_gendecl"></a>ast.GenDecl</h5>
+<div class="paragraph">
+<p>関数以外の宣言、<code>import</code>、<code>const</code>、<code>var</code>、<code>type</code> は <code>ast.GenDecl</code> がまとめて引き受けます。</p>
+</div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/ast#GenDecl">go/ast.GenDecl</a></div>
 <div class="content">
@@ -1244,10 +1287,46 @@ int</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>import</code>、<code>const</code>、<code>var</code>、<code>type</code> の宣言は <code>ast.GenDecl</code> がまとめて引き受けます。<code>Specs</code> フィールドは <code>ast.Spec</code> インタフェースのスライスと宣言されていますが、要素の型は <code>*ast.ImportSpec</code>、<code>*ast.ValueSpec</code>、<code>*ast.TypeSpec</code> のいずれかひとつであり、<code>Tok</code> フィールドの値によって決まります。<code>*ast.ValueSpec</code> は <code>const</code> と <code>var</code> の場合両方をカバーします。</p>
+<p><code>Specs</code> フィールドはスライスであり、その要素がそれぞれ <code>ast.Spec</code> インタフェースであると定義されています。実際には、要素の具体的な型は <code>Tok</code> フィールドの値によってひとつに決まります。</p>
 </div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><code>Tok</code> の値</th>
+<th class="tableblock halign-left valign-top"><code>Specs</code> の要素の型</th>
+<th class="tableblock halign-left valign-top">表す構文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>token.IMPORT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>*ast.ImportSpec</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>import</code> 宣言</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>token.CONST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>*ast.ValueSpec</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>const</code> 宣言</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>token.TYPE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>*ast.TypeSpec</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code> 宣言</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>token.VAR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>*ast.ValueSpec</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>var</code> 宣言</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p>これらの宣言は、以下のようにグループ化できるという共通点があります。グループ化された宣言のひとつが <code>Specs</code> のひとつの要素に対応します。</p>
+<p>これらの宣言には、以下のようにグループ化できるという共通点があります。グループ化された宣言のひとつが <code>Specs</code> スライスのひとつの要素に対応します。</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1267,8 +1346,8 @@ int</pre>
 <span class="tok-p">)</span>
 
 <span class="tok-kd">type</span> <span class="tok-p">(</span>
-    <span class="tok-nx">t</span> <span class="tok-kd">struct</span><span class="tok-p">{}</span>
-    <span class="tok-nx">y</span> <span class="tok-kd">interface</span><span class="tok-p">{}</span>
+    <span class="tok-nx">s</span> <span class="tok-kd">struct</span><span class="tok-p">{}</span>
+    <span class="tok-nx">t</span> <span class="tok-kd">interface</span><span class="tok-p">{}</span>
 <span class="tok-p">)</span></code></pre>
 </div>
 </div>
@@ -1345,13 +1424,63 @@ int</pre>
 </ul>
 </div>
 <div class="sect4">
-<h5 id="ast_typeswitchstmt"><a class="anchor" href="#ast_typeswitchstmt"></a>ast.TypeSwitchStmt</h5>
+<h5 id="ast_switchstmt"><a class="anchor" href="#ast_switchstmt"></a>ast.SwitchStmt</h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>TODO</p>
+</div>
+<div class="paragraph">
+<p><a href="https://golang.org/ref/spec#ExprSwitchStmt" class="bare">https://golang.org/ref/spec#ExprSwitchStmt</a></p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>Assign</p>
+<p><code>Init</code> は <code>switch <strong>x := 1</strong>; t {</code></p>
+</li>
+<li>
+<p><code>Tag</code> は <code>switch x := 1; <strong>t</strong> {</code></p>
 </li>
 </ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="ast_typeswitchstmt"><a class="anchor" href="#ast_typeswitchstmt"></a>ast.TypeSwitchStmt</h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>TODO</p>
+</div>
+<div class="paragraph">
+<p><a href="https://golang.org/ref/spec#TypeSwitchStmt" class="bare">https://golang.org/ref/spec#TypeSwitchStmt</a></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Init</code></p>
+</li>
+<li>
+<p><code>Assign</code></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -1484,7 +1613,7 @@ int</pre>
 <p>これら2つの構造体は <code>Incomplete</code> フィールドを持っています。これは通常 <code>false</code> ですが、<a href="#ast.Filter">フィルタ</a>によってノード中のフィールドやメソッドの宣言が取り除かれる際に <code>true</code> となり、ソースコードとノードに乖離があることを示します。<code>go doc</code> が出力する "// contains filtered or unexported fields" はこの値を参照しています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 5. structtypeincomplete.go</div>
+<div class="title">リスト 6. structtypeincomplete.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -1822,7 +1951,7 @@ exit status 1</pre>
 <p><code>token.Position</code> 構造体はファイル名、行番号、カラム位置を持ち、ソースコード中の位置としては最も詳細な情報を含みます。<code>String()</code> メソッドによってわかりやすい位置情報が得られます。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 6. positionstring.go</div>
+<div class="title">リスト 7. positionstring.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -1863,7 +1992,7 @@ Valid position with file name:      example.go:2:3</pre>
 <p>以下のプログラムには <code>T{k: 0}</code> という同じ形をしたコードが出現します。ここで <code>k</code> が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（<a href="https://github.com/golang/example/tree/master/gotypes"><code>go/types</code>: The Go Type Checker</a> より）。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 7. indeterminableident.go</div>
+<div class="title">リスト 8. indeterminableident.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">p</span>
 
@@ -2157,7 +2286,7 @@ TODO: golang/gddo の例
 </div>
 </div>
 <div class="listingblock">
-<div class="title">リスト 8. parsecomment.go</div>
+<div class="title">リスト 9. parsecomment.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2259,7 +2388,7 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 </div>
 </div>
 <div class="listingblock">
-<div class="title">リスト 9. src/go/parser/interface.go</div>
+<div class="title">リスト 10. src/go/parser/interface.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// ParseFile parses the source code of a single Go source file and returns</span>
 <span class="tok-c1">// the corresponding ast.File node. The source code may be provided via</span>
@@ -2537,7 +2666,7 @@ type Node interface {
 <p><code>go doc</code> サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 10. go doc -h</div>
+<div class="title">リスト 11. go doc -h</div>
 <div class="content">
 <pre>% go doc -h
 Usage of [go] doc:
@@ -2747,7 +2876,7 @@ Usage of [go] doc:
 <p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 11. sushi.go</div>
+<div class="title">リスト 12. sushi.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
@@ -2776,7 +2905,7 @@ Usage of [go] doc:
 <p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
 <div id="sushi_string.go" class="listingblock">
-<div class="title">リスト 12. sushi_string.go</div>
+<div class="title">リスト 13. sushi_string.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
@@ -3133,7 +3262,7 @@ Usage of [go] doc:
 <div class="sect4">
 <h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
 <div class="listingblock">
-<div class="title">リスト 13. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="title">リスト 14. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
     <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
@@ -3259,7 +3388,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-05-24 15:35:06 UTC
+Last updated 2017-01-11 00:57:22 UTC
 </div>
 </div>
 </body>
