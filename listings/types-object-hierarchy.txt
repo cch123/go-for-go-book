@@ -1,0 +1,9 @@
+go/types.Object
+  *go/types.Builtin
+  *go/types.Const
+  *go/types.Func
+  *go/types.Label
+  *go/types.Nil
+  *go/types.PkgName
+  *go/types.TypeName
+  *go/types.Var

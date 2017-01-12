@@ -23,11 +23,7 @@ WARNING: WIP
 - go/printer
 - go/format
 
-== 型解析
-
-WARNING: WIP
-
-- go/types
+include::04-types.adoc[leveloffset=+1]
 
 == ビルド情報
 

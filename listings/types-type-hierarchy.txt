@@ -1,0 +1,12 @@
+go/types.Type
+  *go/types.Array
+  *go/types.Basic
+  *go/types.Chan
+  *go/types.Interface
+  *go/types.Map
+  *go/types.Named
+  *go/types.Pointer
+  *go/types.Signature
+  *go/types.Slice
+  *go/types.Struct
+  *go/types.Tuple

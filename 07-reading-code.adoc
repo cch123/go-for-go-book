@@ -2,6 +2,8 @@
 
 ここではGoプログラマに広く使われているツール類のソースコードを読むことで、実践においてどのようにAPIが利用されているかを見ていきます。ここで見るのはAPIの利用の仕方のベストプラクティスであるとともに、エンドユーザにどのようなインタフェースで機能を提供するべきかの実例でもあります。
 
+WARNING: FIXME: 全体的に雑
+
 include::07-reading-code/godoc.adoc[leveloffset=+1]
 include::07-reading-code/gofmt.adoc[leveloffset=+1]
 include::07-reading-code/stringer.adoc[leveloffset=+1]
@@ -88,4 +90,3 @@ addService(&service{
 通常はローカルのファイルシステムに対してファイルの探索を行うのですが、`build.Context` のファイルシステムへのアクセスに相当するフィールドを書き換えることで
 
 godoc::go/build.Context[]
-
