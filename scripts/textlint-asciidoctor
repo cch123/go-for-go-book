@@ -27,6 +27,10 @@ file = ARGV.shift or abort opts.help
 
 lines = []
 
+start = Time.now
+
+STDERR.print "--> asciidoctor ... "
+
 doc = Asciidoctor.load_file(file, safe: Asciidoctor::SafeMode::UNSAFE, sourcemap: true)
 doc.query do |node|
   node.context == :section || node.context == :paragraph || node.context == :list_item
@@ -66,6 +70,12 @@ end
 
 success = true
 
+STDERR.puts "%.3f s" % (Time.now - start)
+
+start = Time.now
+
+STDERR.print "--> textlint ... "
+
 result = JSON.parse(%x(node_modules/.bin/textlint --format json #{f.path}))
 result.flat_map do |item|
   item['messages']
@@ -80,5 +90,7 @@ end.each do |msg|
   success = false
   puts "#{loc[:path]}:#{loc[:lineno]}:#{msg['message']} (#{msg['ruleId']})"
 end
+
+STDERR.puts "%.3f s" % (Time.now - start)
 
 exit success
