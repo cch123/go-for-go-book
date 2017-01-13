@@ -53,7 +53,55 @@ goexample::importer[output]
 
 == types.Config
 
+`types.Config` 構造体が、`go/types` パッケージのエントリポイントとなります。
+
+godoc::go/types.Config[]
+
+各フィールドを調整することで、`Check()` による型チェックを行う際の挙動をカスタマイズできます。
+
+特に、`Error func(err error)` は型チェックの際に生じたエラーを全て受け取るコールバックとして便利です。
+
 == 型チェックのエラー
+
+型チェック時のエラーは `types.Error` 構造体によって表現されます。
+
+godoc::go/types.Error[]
+
+エラーの起きた位置情報に加え、`Soft` フィールドを持っています。このフィールドは、当該のエラーが「ソフト」であるかどうかを示します。ソフトなエラーは、型チェックそのものには影響を与えません。具体的には、以下のエラーです。
+
+* `import` されたパッケージが使用されていない
+* 定義された変数が使用されていない
+* ラベルが利用されていない・重複している
+* `:=` の左辺に新しい変数が登場していない
+* `init` 関数の本体が存在しない
+// 関数の本体については https://golang.org/ref/spec#Function_declarations
+* C形式の `for` 文の後処理部で変数を定義しようとしている
+// たぶん構文解析時点では通ってしまう。parseSimpleStmt
+
+// TODO: 型チェックだけでなくこういう言語的なチェックも行われること初めの方で言及
+
+////
+% pt --nogroup -w softErrorf src/go/types
+src/go/types/labels.go:38:			check.softErrorf(lbl.pos, "label %s declared but not used", lbl.name)
+src/go/types/labels.go:136:					check.softErrorf(lbl.pos, "label %s already declared", name)
+src/go/types/labels.go:151:							check.softErrorf(
+src/go/types/errors.go:89:func (check *Checker) softErrorf(pos token.Pos, format string, args ...interface{}) {
+src/go/types/resolver.go:356:							check.softErrorf(obj.pos, "missing function body")
+src/go/types/resolver.go:456:						check.softErrorf(obj.pos, "%q imported but not used", path)
+src/go/types/resolver.go:458:						check.softErrorf(obj.pos, "%q imported but not used as %s", path, obj.name)
+src/go/types/resolver.go:468:			check.softErrorf(pos, "%q imported but not used", pkg.path)
+src/go/types/assignments.go:329:		check.softErrorf(pos, "no new variables on left side of :=")
+src/go/types/stmt.go:62:			check.softErrorf(v.pos, "%s declared but not used", v.name)
+src/go/types/stmt.go:565:				check.softErrorf(lhs.Pos(), "no new variable on left side of :=")
+src/go/types/stmt.go:644:				check.softErrorf(lhs.Pos(), "%s declared but not used", lhs.Name)
+src/go/types/stmt.go:710:			check.softErrorf(s.Pos(), "cannot declare in post statement")
+////
+
+以下で、ソフトなエラーとそうでない重篤なエラーの例を確認できます。
+
+goexample::typecheckerrors[]
+
+goexample::typecheckerrors[output]
 
 == パッケージの型情報
 
