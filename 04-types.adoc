@@ -27,13 +27,47 @@ goexample::typechecksimple[]
 
 goexample::typechecksimple[output]
 
+パッケージのトップレベルに定義された `s` という変数の型が `string` であるという情報が得られました。
+
+このように、型チェックおよび型情報の取得は `Config` 構造体をエントリポイントとしてパッケージごとに行います。結果は <<types.Package>> 構造体と、ここでは登場しませんでしたが <<types.Info>> 構造体に格納されます。
+
+== パッケージのインポート
+
+先ほどの例では `Config.Importer` を設定していました。これは `types.Importer` という型を持つフィールドです。
+
+godoc::go/types.Importer[]
+
+`types.Importer` は、パッケージのパスを解決し、そのパッケージに関する型レベルの情報を返すインタフェースです。具体的には、コンパイルされたパッケージオブジェクトを `GOPATH` から探し出し、解析するのが仕事です。
+
+この具体的な実装を提供するのが `go/importer` パッケージです。`importer.Default()` は実行中のバイナリのコンパイラ（`runtime.Compiler`）に対応するインポートの実装を返します。
+
+godoc::go/importer.Default[]
+
+以下はパッケージを読み込み、そのパッケージが公開している名前および依存しているパッケージの情報を印字する例です。
+
+goexample::importer[]
+
+goexample::importer[output]
+
+プログラムの型チェックにはインポートしているパッケージがどんな名前と型を提供するのか知る必要があるため、`Config` 構造体の `Importer` フィールドという形でその実装を指定します。
+
 == types.Config
 
-== types.Importer
+== 型チェックのエラー
 
-== types.Type
+== パッケージの型情報
 
-== types.Object
+=== types.Package
+
+=== types.Info
+
+== スコープ
+
+== 型とオブジェクト
+
+=== types.Type
+
+=== types.Object
 
 [appendix]
 == types.Typeの階層

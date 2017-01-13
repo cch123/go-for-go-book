@@ -16,10 +16,11 @@ func main() {
 	conf := types.Config{Importer: importer.Default()}
 
 	pkg, _ := conf.Check("path/to/pkg", fset, []*ast.File{f}, nil)
-	fmt.Println(pkg, pkg.Imports())
+	fmt.Println(pkg)
+	fmt.Println(pkg.Scope().Lookup("s").Type())
 }
 
 var src = `package p
-import _ "log"
-func add(n, m int) {}
+
+var s = "Hello, world"
 `
