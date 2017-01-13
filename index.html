@@ -501,9 +501,8 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <ul class="sectlevel1">
 <li><a href="#はじめに">はじめに</a>
 <ul class="sectlevel2">
+<li><a href="#この本について">この本について</a></li>
 <li><a href="#なぜ_goのためのgo_なのか">なぜ「GoのためのGo」なのか</a></li>
-<li><a href="#この本のねらい">この本のねらい</a></li>
-<li><a href="#対象読者">対象読者</a></li>
 <li><a href="#対象バージョン">対象バージョン</a></li>
 </ul>
 </li>
@@ -567,10 +566,22 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <li><a href="#型解析">4. 型解析</a>
 <ul class="sectlevel2">
 <li><a href="#型チェックを行う">4.1. 型チェックを行う</a></li>
-<li><a href="#types_config">4.2. types.Config</a></li>
-<li><a href="#types_importer">4.3. types.Importer</a></li>
-<li><a href="#types_type">4.4. types.Type</a></li>
-<li><a href="#types_object">4.5. types.Object</a></li>
+<li><a href="#パッケージのインポート">4.2. パッケージのインポート</a></li>
+<li><a href="#types_config">4.3. types.Config</a></li>
+<li><a href="#型チェックのエラー">4.4. 型チェックのエラー</a></li>
+<li><a href="#パッケージの型情報">4.5. パッケージの型情報</a>
+<ul class="sectlevel3">
+<li><a href="#types_package">4.5.1. types.Package</a></li>
+<li><a href="#types_info">4.5.2. types.Info</a></li>
+</ul>
+</li>
+<li><a href="#スコープ_2">4.6. スコープ</a></li>
+<li><a href="#型とオブジェクト">4.7. 型とオブジェクト</a>
+<ul class="sectlevel3">
+<li><a href="#types_type">4.7.1. types.Type</a></li>
+<li><a href="#types_object">4.7.2. types.Object</a></li>
+</ul>
+</li>
 <li><a href="#types_typeの階層">Appendix B: types.Typeの階層</a></li>
 <li><a href="#types_objectの階層">Appendix C: types.Objectの階層</a></li>
 </ul>
@@ -625,58 +636,70 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <h2 id="はじめに"><a class="anchor" href="#はじめに"></a>はじめに</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="なぜ_goのためのgo_なのか"><a class="anchor" href="#なぜ_goのためのgo_なのか"></a>なぜ「GoのためのGo」なのか</h3>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
+<h3 id="この本について"><a class="anchor" href="#この本について"></a>この本について</h3>
+<div class="paragraph">
+<p>この本では、Go言語の標準パッケージである <code>go/*</code> について、実例を交えながら紹介します。以下のパッケージが対象です。</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Goの言語仕様そのままだと表現力は（設計により）貧弱</p>
+<p>go/ast</p>
 </li>
 <li>
-<p>一方でそれを補完するオフィシャルなエコシステムが充実している。例：<a href="https://blog.golang.org/generate">go generate</a></p>
+<p>go/build</p>
 </li>
 <li>
-<p>また、標準パッケージのAPIも。多くのツールが書かれ、提供されている。例：<code>goimports</code></p>
+<p>go/constant</p>
+</li>
+<li>
+<p>go/doc</p>
+</li>
+<li>
+<p>go/format</p>
+</li>
+<li>
+<p>go/importer</p>
+</li>
+<li>
+<p>go/parser</p>
+</li>
+<li>
+<p>go/printer</p>
+</li>
+<li>
+<p>go/scanner</p>
+</li>
+<li>
+<p>go/token</p>
+</li>
+<li>
+<p>go/types</p>
 </li>
 </ul>
 </div>
-</div>
-<div class="sect2">
-<h3 id="この本のねらい"><a class="anchor" href="#この本のねらい"></a>この本のねらい</h3>
 <div class="paragraph">
-<p>この本では、Go標準パッケージのドキュメントとソースコードの中間となることを目指します。ドキュメントだけからはただちに知ることのできない、API同士の関連や、全体としての使い方に焦点を当てることをねらいとします。網羅的でなくとも、GoのためのGoを書きはじめるために必要十分な情報を提供することを目的にしています。</p>
+<p>この本は、ドキュメントとソースコードの中間となることを目指します。ドキュメントだけからはただちに知ることのできない、API同士の関連や、全体としての使い方に焦点を当てています。</p>
+</div>
+<div class="paragraph">
+<p>この本が、Goにおけるコード解析や生成のためのツールを書く際の助けになると幸いです。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="対象読者"><a class="anchor" href="#対象読者"></a>対象読者</h3>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-WIP
-</td>
-</tr>
-</table>
+<h3 id="なぜ_goのためのgo_なのか"><a class="anchor" href="#なぜ_goのためのgo_なのか"></a>なぜ「GoのためのGo」なのか</h3>
+<div class="paragraph">
+<p>Go言語はシンプルさを念頭にデザインされた言語です。仕様は単純明瞭さのために小さく収められていますが、そのため表現力に欠けているとか、コードが冗長になるという印象を持つ人も多いでしょう。有名なところでは、ジェネリクスや例外といった機能が（今のところ）存在しないことが問題にされることが多いようです。</p>
+</div>
+<div class="paragraph">
+<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げ、Goを取りまくツール群を含めて見てみると、<code>go fmt</code> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、人間のプログラミングを機械によってさまざまな面から補助しようという態度がGoという言語にはあります。</p>
+</div>
+<div class="paragraph">
+<p><code>go/*</code> 標準パッケージは、Goのプログラムを対象とし、解析や操作を行うためのAPIを提供します。これらのAPIを利用し、一種のメタプログラミングを行うことで、Goプログラミングの力をより引き出せるようになるはずです。</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="対象バージョン"><a class="anchor" href="#対象バージョン"></a>対象バージョン</h3>
 <div class="paragraph">
-<p>この本では、Goバージョン1.7.4の実装を対象とします。</p>
+<p>この本の内容は、Goバージョン1.7.4に基いています。</p>
 </div>
 </div>
 </div>
@@ -722,7 +745,6 @@ WIP
 
 <span class="tok-kn">import</span> <span class="tok-p">(</span>
     <span class="tok-s">&quot;fmt&quot;</span>
-
     <span class="tok-s">&quot;go/parser&quot;</span>
 <span class="tok-p">)</span>
 
@@ -758,7 +780,7 @@ WIP
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc82008a020), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc82008a060)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1758,66 +1780,66 @@ TODO Names のふるまい方; nil と複数
 <h4 id="ast_nodeの階層"><a class="anchor" href="#ast_nodeの階層"></a>Appendix A: ast.Nodeの階層</h4>
 <div class="listingblock">
 <div class="content">
-<pre>ast.Node
-  ast.Decl
-    *ast.BadDecl
-    *ast.FuncDecl
-    *ast.GenDecl
-  ast.Expr
-    *ast.ArrayType
-    *ast.BadExpr
-    *ast.BasicLit
-    *ast.BinaryExpr
-    *ast.CallExpr
-    *ast.ChanType
-    *ast.CompositeLit
-    *ast.Ellipsis
-    *ast.FuncLit
-    *ast.FuncType
-    *ast.Ident
-    *ast.IndexExpr
-    *ast.InterfaceType
-    *ast.KeyValueExpr
-    *ast.MapType
-    *ast.ParenExpr
-    *ast.SelectorExpr
-    *ast.SliceExpr
-    *ast.StarExpr
-    *ast.StructType
-    *ast.TypeAssertExpr
-    *ast.UnaryExpr
-  ast.Spec
-    *ast.ImportSpec
-    *ast.TypeSpec
-    *ast.ValueSpec
-  ast.Stmt
-    *ast.AssignStmt
-    *ast.BadStmt
-    *ast.BlockStmt
-    *ast.BranchStmt
-    *ast.CaseClause
-    *ast.CommClause
-    *ast.DeclStmt
-    *ast.DeferStmt
-    *ast.EmptyStmt
-    *ast.ExprStmt
-    *ast.ForStmt
-    *ast.GoStmt
-    *ast.IfStmt
-    *ast.IncDecStmt
-    *ast.LabeledStmt
-    *ast.RangeStmt
-    *ast.ReturnStmt
-    *ast.SelectStmt
-    *ast.SendStmt
-    *ast.SwitchStmt
-    *ast.TypeSwitchStmt
-  *ast.Comment
-  *ast.CommentGroup
-  *ast.Field
-  *ast.FieldList
-  *ast.File
-  *ast.Package</pre>
+<pre>Node
+  Decl
+    *BadDecl
+    *FuncDecl
+    *GenDecl
+  Expr
+    *ArrayType
+    *BadExpr
+    *BasicLit
+    *BinaryExpr
+    *CallExpr
+    *ChanType
+    *CompositeLit
+    *Ellipsis
+    *FuncLit
+    *FuncType
+    *Ident
+    *IndexExpr
+    *InterfaceType
+    *KeyValueExpr
+    *MapType
+    *ParenExpr
+    *SelectorExpr
+    *SliceExpr
+    *StarExpr
+    *StructType
+    *TypeAssertExpr
+    *UnaryExpr
+  Spec
+    *ImportSpec
+    *TypeSpec
+    *ValueSpec
+  Stmt
+    *AssignStmt
+    *BadStmt
+    *BlockStmt
+    *BranchStmt
+    *CaseClause
+    *CommClause
+    *DeclStmt
+    *DeferStmt
+    *EmptyStmt
+    *ExprStmt
+    *ForStmt
+    *GoStmt
+    *IfStmt
+    *IncDecStmt
+    *LabeledStmt
+    *RangeStmt
+    *ReturnStmt
+    *SelectStmt
+    *SendStmt
+    *SwitchStmt
+    *TypeSwitchStmt
+  *Comment
+  *CommentGroup
+  *Field
+  *FieldList
+  *File
+  *Package</pre>
 </div>
 </div>
 </div>
@@ -2683,36 +2705,121 @@ WIP
     <span class="tok-nx">conf</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Config</span><span class="tok-p">{</span><span class="tok-nx">Importer</span><span class="tok-p">:</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">()}</span>
 
     <span class="tok-nx">pkg</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">conf</span><span class="tok-p">.</span><span class="tok-nx">Check</span><span class="tok-p">(</span><span class="tok-s">&quot;path/to/pkg&quot;</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">{</span><span class="tok-nx">f</span><span class="tok-p">},</span> <span class="tok-kc">nil</span><span class="tok-p">)</span>
-    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">pkg</span><span class="tok-p">,</span> <span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Imports</span><span class="tok-p">())</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">pkg</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;s&quot;</span><span class="tok-p">).</span><span class="tok-nx">Type</span><span class="tok-p">())</span>
 <span class="tok-p">}</span>
 
 <span class="tok-kd">var</span> <span class="tok-nx">src</span> <span class="tok-p">=</span> <span class="tok-s">`package p</span>
-<span class="tok-s">import _ &quot;log&quot;</span>
-<span class="tok-s">func add(n, m int) {}</span>
+
+<span class="tok-s">var s = &quot;Hello, world&quot;</span>
 <span class="tok-s">`</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>package p ("path/to/pkg") [package log ("log")]</pre>
+<pre>package p ("path/to/pkg")
+string</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>パッケージのトップレベルに定義された <code>s</code> という変数の型が <code>string</code> であるという情報が得られました。</p>
+</div>
+<div class="paragraph">
+<p>このように、型チェックおよび型情報の取得は <code>Config</code> 構造体をエントリポイントとしてパッケージごとに行います。結果は <a href="#types_package">types.Package</a> 構造体と、ここでは登場しませんでしたが <a href="#types_info">types.Info</a> 構造体に格納されます。</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="types_config"><a class="anchor" href="#types_config"></a>4.2. types.Config</h3>
+<h3 id="パッケージのインポート"><a class="anchor" href="#パッケージのインポート"></a>4.2. パッケージのインポート</h3>
+<div class="paragraph">
+<p>先ほどの例では <code>Config.Importer</code> を設定していました。これは <code>types.Importer</code> という型を持つフィールドです。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Importer">go/types.Importer</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Importer</span> <span class="tok-kd">interface</span> <span class="tok-p">{</span>
+    <span class="tok-c1">// Import returns the imported package for the given import</span>
+    <span class="tok-c1">// path, or an error if the package couldn&#39;t be imported.</span>
+    <span class="tok-c1">// Import is responsible for returning the same package for</span>
+    <span class="tok-c1">// matching import paths.</span>
+    <span class="tok-nx">Import</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">Package</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>types.Importer</code> は、パッケージのパスを解決し、そのパッケージに関する型レベルの情報を返すインタフェースです。具体的には、コンパイルされたパッケージオブジェクトを <code>GOPATH</code> から探し出し、解析するのが仕事です。</p>
+</div>
+<div class="paragraph">
+<p>この具体的な実装を提供するのが <code>go/importer</code> パッケージです。<code>importer.Default()</code> は実行中のバイナリのコンパイラ（<code>runtime.Compiler</code>）に対応するインポートの実装を返します。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/importer#Default">go/importer.Default</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-nx">Default</span><span class="tok-p">()</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Importer</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>以下はパッケージを読み込み、そのパッケージが公開している名前および依存しているパッケージの情報を印字する例です。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 13. importer.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
+
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/importer&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">pkg</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">().</span><span class="tok-nx">Import</span><span class="tok-p">(</span><span class="tok-s">&quot;log&quot;</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Names</span><span class="tok-p">())</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Imports</span><span class="tok-p">())</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[Fatal Fatalf Fatalln Flags LUTC Ldate Llongfile Lmicroseconds Logger Lshortfile LstdFlags Ltime New Output Panic Panicf Panicln Prefix Print Printf Println SetFlags SetOutput SetPrefix init]
+[package fmt ("fmt") package io ("io") package os ("os") package runtime ("runtime") package sync ("sync") package time ("time")]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>プログラムの型チェックにはインポートしているパッケージがどんな名前と型を提供するのか知る必要があるため、<code>Config</code> 構造体の <code>Importer</code> フィールドという形でその実装を指定します。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="types_config"><a class="anchor" href="#types_config"></a>4.3. types.Config</h3>
 
 </div>
 <div class="sect2">
-<h3 id="types_importer"><a class="anchor" href="#types_importer"></a>4.3. types.Importer</h3>
+<h3 id="型チェックのエラー"><a class="anchor" href="#型チェックのエラー"></a>4.4. 型チェックのエラー</h3>
 
 </div>
 <div class="sect2">
-<h3 id="types_type"><a class="anchor" href="#types_type"></a>4.4. types.Type</h3>
+<h3 id="パッケージの型情報"><a class="anchor" href="#パッケージの型情報"></a>4.5. パッケージの型情報</h3>
+<div class="sect3">
+<h4 id="types_package"><a class="anchor" href="#types_package"></a>4.5.1. types.Package</h4>
+
+</div>
+<div class="sect3">
+<h4 id="types_info"><a class="anchor" href="#types_info"></a>4.5.2. types.Info</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="スコープ_2"><a class="anchor" href="#スコープ_2"></a>4.6. スコープ</h3>
 
 </div>
 <div class="sect2">
-<h3 id="types_object"><a class="anchor" href="#types_object"></a>4.5. types.Object</h3>
+<h3 id="型とオブジェクト"><a class="anchor" href="#型とオブジェクト"></a>4.7. 型とオブジェクト</h3>
+<div class="sect3">
+<h4 id="types_type"><a class="anchor" href="#types_type"></a>4.7.1. types.Type</h4>
 
+</div>
+<div class="sect3">
+<h4 id="types_object"><a class="anchor" href="#types_object"></a>4.7.2. types.Object</h4>
+
+</div>
 </div>
 <div class="sect2">
 <h3 id="types_typeの階層"><a class="anchor" href="#types_typeの階層"></a>Appendix B: types.Typeの階層</h3>
@@ -2882,7 +2989,7 @@ type Node interface {
 <p><code>go doc</code> サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 13. go doc -h</div>
+<div class="title">リスト 14. go doc -h</div>
 <div class="content">
 <pre>% go doc -h
 Usage of [go] doc:
@@ -3092,7 +3199,7 @@ Usage of [go] doc:
 <p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 14. sushi.go</div>
+<div class="title">リスト 15. sushi.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
@@ -3121,7 +3228,7 @@ Usage of [go] doc:
 <p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
 <div id="sushi_string.go" class="listingblock">
-<div class="title">リスト 15. sushi_string.go</div>
+<div class="title">リスト 16. sushi_string.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
@@ -3478,7 +3585,7 @@ Usage of [go] doc:
 <div class="sect4">
 <h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
 <div class="listingblock">
-<div class="title">リスト 16. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="title">リスト 17. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
     <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
@@ -3604,7 +3711,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-01-12 13:57:11 UTC
+Last updated 2017-01-13 14:22:44 UTC
 </div>
 </div>
 </body>
