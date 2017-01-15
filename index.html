@@ -780,7 +780,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820066040), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820066080)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2789,11 +2789,151 @@ string</pre>
 </div>
 <div class="sect2">
 <h3 id="types_config"><a class="anchor" href="#types_config"></a>4.3. types.Config</h3>
+<div class="paragraph">
+<p><code>types.Config</code> 構造体が、<code>go/types</code> パッケージのエントリポイントとなります。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Config">go/types.Config</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Config</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-c1">// If IgnoreFuncBodies is set, function bodies are not</span>
+    <span class="tok-c1">// type-checked.</span>
+    <span class="tok-nx">IgnoreFuncBodies</span> <span class="tok-kt">bool</span>
 
+    <span class="tok-c1">// If FakeImportC is set, `import &quot;C&quot;` (for packages requiring Cgo)</span>
+    <span class="tok-c1">// declares an empty &quot;C&quot; package and errors are omitted for qualified</span>
+    <span class="tok-c1">// identifiers referring to package C (which won&#39;t find an object).</span>
+    <span class="tok-c1">// This feature is intended for the standard library cmd/api tool.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// Caution: Effects may be unpredictable due to follow-up errors.</span>
+    <span class="tok-c1">//          Do not use casually!</span>
+    <span class="tok-nx">FakeImportC</span> <span class="tok-kt">bool</span>
+
+    <span class="tok-c1">// If Error != nil, it is called with each error found</span>
+    <span class="tok-c1">// during type checking; err has dynamic type Error.</span>
+    <span class="tok-c1">// Secondary errors (for instance, to enumerate all types</span>
+    <span class="tok-c1">// involved in an invalid recursive type declaration) have</span>
+    <span class="tok-c1">// error strings that start with a &#39;\t&#39; character.</span>
+    <span class="tok-c1">// If Error == nil, type-checking stops with the first</span>
+    <span class="tok-c1">// error found.</span>
+    <span class="tok-nx">Error</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+
+    <span class="tok-c1">// Importer is called for each import declaration except when</span>
+    <span class="tok-c1">// importing package &quot;unsafe&quot;. An error is reported if an</span>
+    <span class="tok-c1">// importer is needed but none was installed.</span>
+    <span class="tok-nx">Importer</span> <span class="tok-nx">Importer</span>
+
+    <span class="tok-c1">// If Sizes != nil, it provides the sizing functions for package unsafe.</span>
+    <span class="tok-c1">// Otherwise &amp;StdSizes{WordSize: 8, MaxAlign: 8} is used instead.</span>
+    <span class="tok-nx">Sizes</span> <span class="tok-nx">Sizes</span>
+
+    <span class="tok-c1">// If DisableUnusedImportCheck is set, packages are not checked</span>
+    <span class="tok-c1">// for unused imports.</span>
+    <span class="tok-nx">DisableUnusedImportCheck</span> <span class="tok-kt">bool</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>各フィールドを調整することで、<code>Check()</code> による型チェックを行う際の挙動をカスタマイズできます。</p>
+</div>
+<div class="paragraph">
+<p>特に、<code>Error func(err error)</code> は型チェックの際に生じたエラーを全て受け取るコールバックとして便利です。</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="型チェックのエラー"><a class="anchor" href="#型チェックのエラー"></a>4.4. 型チェックのエラー</h3>
+<div class="paragraph">
+<p>型チェック時のエラーは <code>types.Error</code> 構造体によって表現されます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Error">go/types.Error</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Error</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-nx">Fset</span> <span class="tok-o">*</span><span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">FileSet</span> <span class="tok-c1">// file set for interpretation of Pos</span>
+    <span class="tok-nx">Pos</span>  <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">Pos</span>      <span class="tok-c1">// error position</span>
+    <span class="tok-nx">Msg</span>  <span class="tok-kt">string</span>         <span class="tok-c1">// error message</span>
+    <span class="tok-nx">Soft</span> <span class="tok-kt">bool</span>           <span class="tok-c1">// if set, error is &quot;soft&quot;</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>エラーの起きた位置情報に加え、<code>Soft</code> フィールドを持っています。このフィールドは、当該のエラーが「ソフト」であるかどうかを示します。ソフトなエラーは、型チェックそのものには影響を与えません。具体的には、以下のエラーです。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>import</code> されたパッケージが使用されていない</p>
+</li>
+<li>
+<p>定義された変数が使用されていない</p>
+</li>
+<li>
+<p>ラベルが利用されていない・重複している</p>
+</li>
+<li>
+<p><code>:=</code> の左辺に新しい変数が登場していない</p>
+</li>
+<li>
+<p><code>init</code> 関数の本体が存在しない</p>
+</li>
+<li>
+<p>C形式の <code>for</code> 文の後処理部で変数を定義しようとしている</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>以下で、ソフトなエラーとそうでない重篤なエラーの例を確認できます。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 14. typecheckerrors.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/ast&quot;</span>
+    <span class="tok-s">&quot;go/importer&quot;</span>
+    <span class="tok-s">&quot;go/parser&quot;</span>
+    <span class="tok-s">&quot;go/token&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">fset</span> <span class="tok-o">:=</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">NewFileSet</span><span class="tok-p">()</span>
+    <span class="tok-nx">f</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-s">&quot;example.go&quot;</span><span class="tok-p">,</span> <span class="tok-nx">src</span><span class="tok-p">,</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">Mode</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span>
+
+    <span class="tok-nx">conf</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Config</span><span class="tok-p">{</span>
+        <span class="tok-nx">Importer</span><span class="tok-p">:</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">(),</span>
+        <span class="tok-nx">Error</span><span class="tok-p">:</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span> <span class="tok-p">{</span>
+            <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Printf</span><span class="tok-p">(</span><span class="tok-s">&quot;soft=%-5v %s\n&quot;</span><span class="tok-p">,</span> <span class="tok-nx">err</span><span class="tok-p">.(</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Error</span><span class="tok-p">).</span><span class="tok-nx">Soft</span><span class="tok-p">,</span> <span class="tok-nx">err</span><span class="tok-p">)</span>
+        <span class="tok-p">},</span>
+    <span class="tok-p">}</span>
+
+    <span class="tok-nx">_</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-o">:=</span> <span class="tok-nx">conf</span><span class="tok-p">.</span><span class="tok-nx">Check</span><span class="tok-p">(</span><span class="tok-s">&quot;path/to/pkg&quot;</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">{</span><span class="tok-nx">f</span><span class="tok-p">},</span> <span class="tok-kc">nil</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">err</span><span class="tok-p">)</span>
+<span class="tok-p">}</span>
+
+<span class="tok-kd">var</span> <span class="tok-nx">src</span> <span class="tok-p">=</span> <span class="tok-s">`package p</span>
+
+<span class="tok-s">import &quot;log&quot;</span>
+
+<span class="tok-s">func main() {</span>
+<span class="tok-s">    var s, t string</span>
+<span class="tok-s">    s + 1</span>
+<span class="tok-s">    foo = 42</span>
+<span class="tok-s">}</span>
+<span class="tok-s">`</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>soft=false example.go:7:6: cannot convert 1 (untyped int constant) to string
+soft=false example.go:8:2: undeclared name: foo
+soft=true  example.go:6:9: t declared but not used
+soft=true  example.go:3:8: "log" imported but not used
+example.go:7:6: cannot convert 1 (untyped int constant) to string</pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="パッケージの型情報"><a class="anchor" href="#パッケージの型情報"></a>4.5. パッケージの型情報</h3>
@@ -2989,7 +3129,7 @@ type Node interface {
 <p><code>go doc</code> サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 14. go doc -h</div>
+<div class="title">リスト 15. go doc -h</div>
 <div class="content">
 <pre>% go doc -h
 Usage of [go] doc:
@@ -3199,7 +3339,7 @@ Usage of [go] doc:
 <p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 15. sushi.go</div>
+<div class="title">リスト 16. sushi.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
@@ -3228,7 +3368,7 @@ Usage of [go] doc:
 <p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
 <div id="sushi_string.go" class="listingblock">
-<div class="title">リスト 16. sushi_string.go</div>
+<div class="title">リスト 17. sushi_string.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
@@ -3585,7 +3725,7 @@ Usage of [go] doc:
 <div class="sect4">
 <h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
 <div class="listingblock">
-<div class="title">リスト 17. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="title">リスト 18. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
     <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
@@ -3711,7 +3851,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-01-13 14:22:44 UTC
+Last updated 2017-01-15 02:46:27 UTC
 </div>
 </div>
 </body>
