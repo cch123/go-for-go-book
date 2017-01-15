@@ -6,6 +6,9 @@
             },
             "max-ten": {
                 "max": 4
+            },
+            "no-doubled-joshi": {
+                "allow": ["か"]
             }
         },
         "preset-jtf-style": {
