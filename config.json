@@ -1,5 +1,8 @@
 {
     "versions": {
         "go": "1.7.4"
+    },
+    "sources": {
+        "github.com/golang/gddo": "26f13a8e63ecb3c404fef90d9e32157c604faec0"
     }
 }

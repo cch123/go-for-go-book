@@ -20,6 +20,11 @@ dependencies:
     - ~/downloads
   post:
     - test "$(node -p "require('./config.json').versions.go")" = "$GO_VERSION"
+    - |
+      for pkg in $(node -p 'Object.keys(require("./config.json").sources).join("\n")'); do
+        go get -u -v "$pkg"
+        ( cd "$(go list -f '{{.Dir}}' "$pkg")" && git checkout $(node -p 'require("./config.json").sources["'"$pkg"'"]') )
+      done
 deployment:
   production:
     branch: master
