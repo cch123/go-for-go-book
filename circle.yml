@@ -19,11 +19,11 @@ dependencies:
   cache_directories:
     - ~/downloads
   post:
-    - test "$(node -p "require('./config.json').versions.go")" = "$GO_VERSION"
+    - test $(go run ./scripts/ci/readconfig.go version Go < config.json) = "$GO_VERSION"
     - |
-      for pkg in $(node -p 'Object.keys(require("./config.json").sources).join("\n")'); do
-        go get -u -v "$pkg"
-        ( cd "$(go list -f '{{.Dir}}' "$pkg")" && git checkout $(node -p 'require("./config.json").sources["'"$pkg"'"]') )
+      go run "scripts/ci/readconfig.go" sources < config.json | while read -r pkg rev; do
+        go get -d -u -v "$pkg"
+        ( cd "$(go list -f '{{.Dir}}' "$pkg")" && git checkout "$rev" )
       done
 deployment:
   production:
