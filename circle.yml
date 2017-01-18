@@ -15,6 +15,9 @@ machine:
     - sudo rm -rf /usr/local/go
     - sudo tar -C /usr/local -xzf ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
     - go version
+dependencies:
+  post:
+    - test "$(node -p "require('./config.json').versions.go")" = "$GO_VERSION"
 deployment:
   production:
     branch: master
