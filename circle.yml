@@ -10,10 +10,11 @@ machine:
   environment:
     GO_VERSION: $(node -p 'require("./config.json").versions.go')
   post:
+    - env
     - mkdir -p ~/downloads
-    - curl https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz -o ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
+    - curl --fail https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz -o ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
     - sudo rm -rf /usr/local/go
-    - sudo tar xvzf -C /usr/local ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
+    - sudo tar -C /usr/local xzf ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
 deployment:
   production:
     branch: master
