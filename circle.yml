@@ -8,7 +8,7 @@ machine:
   ruby:
     version: 2.2.3
   environment:
-    GO_VERSION: $(node -p 'require("./config.json").versions.go')
+    GO_VERSION: $(node -p 'require("./go-for-go-book/config.json").versions.go')
   post:
     - env
     - mkdir -p ~/downloads
