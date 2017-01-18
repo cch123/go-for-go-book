@@ -13,7 +13,7 @@ machine:
     - mkdir -p ~/downloads
     - test -e ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz || curl --fail https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz -o ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
     - sudo rm -rf /usr/local/go
-    - sudo tar -C /usr/local xzf ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
+    - sudo tar -C /usr/local -xzf ~/downloads/go${GO_VERSION}.linux-amd64.tar.gz
     - go version
 deployment:
   production:
