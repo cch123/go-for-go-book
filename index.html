@@ -501,7 +501,6 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <ul class="sectlevel1">
 <li><a href="#はじめに">はじめに</a>
 <ul class="sectlevel2">
-<li><a href="#この本について">この本について</a></li>
 <li><a href="#なぜ_goのためのgo_なのか">なぜ「GoのためのGo」なのか</a></li>
 <li><a href="#対象バージョン">対象バージョン</a></li>
 </ul>
@@ -632,65 +631,23 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>『GoのためのGo』は、Go言語の標準パッケージのうち <code>go/</code> で始まるものについて、実例を交えながら紹介します。それぞれのAPIは詳細にドキュメントされているので、ドキュメントとソースコードの中間となることを目指します。ドキュメントだけからはただちに知ることのできないAPI同士の関連や、全体としての使い方に焦点を当てます。</p>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="はじめに"><a class="anchor" href="#はじめに"></a>はじめに</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="この本について"><a class="anchor" href="#この本について"></a>この本について</h3>
-<div class="paragraph">
-<p>この本では、Go言語の標準パッケージである <code>go/*</code> について、実例を交えながら紹介します。以下のパッケージが対象です。</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>go/ast</p>
-</li>
-<li>
-<p>go/build</p>
-</li>
-<li>
-<p>go/constant</p>
-</li>
-<li>
-<p>go/doc</p>
-</li>
-<li>
-<p>go/format</p>
-</li>
-<li>
-<p>go/importer</p>
-</li>
-<li>
-<p>go/parser</p>
-</li>
-<li>
-<p>go/printer</p>
-</li>
-<li>
-<p>go/scanner</p>
-</li>
-<li>
-<p>go/token</p>
-</li>
-<li>
-<p>go/types</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>この本は、ドキュメントとソースコードの中間となることを目指します。ドキュメントだけからはただちに知ることのできない、API同士の関連や、全体としての使い方に焦点を当てています。</p>
-</div>
-<div class="paragraph">
-<p>この本が、Goにおけるコード解析や生成のためのツールを書く際の助けになると幸いです。</p>
-</div>
-</div>
 <div class="sect2">
 <h3 id="なぜ_goのためのgo_なのか"><a class="anchor" href="#なぜ_goのためのgo_なのか"></a>なぜ「GoのためのGo」なのか</h3>
 <div class="paragraph">
 <p>Go言語はシンプルさを念頭にデザインされた言語です。仕様は単純明瞭さのために小さく収められていますが、そのため表現力に欠けているとか、コードが冗長になるという印象を持つ人も多いでしょう。有名なところでは、ジェネリクスや例外といった機能が（今のところ）存在しないことが問題にされることが多いようです。</p>
 </div>
 <div class="paragraph">
-<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げ、Goを取りまくツール群を含めて見てみると、<code>go fmt</code> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、人間のプログラミングを機械によってさまざまな面から補助しようという態度がGoという言語にはあります。</p>
+<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げてGoを取りまくツール群を含めて見てみると、<code>go fmt</code> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、人間のプログラミングを機械によってさまざまな面から補助しようという態度がGoという言語にはあります。</p>
 </div>
 <div class="paragraph">
 <p><code>go/*</code> 標準パッケージは、Goのプログラムを対象とし、解析や操作を行うためのAPIを提供します。これらのAPIを利用し、一種のメタプログラミングを行うことで、Goプログラミングの力をより引き出せるようになるはずです。</p>
@@ -3851,7 +3808,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-01-15 02:46:27 UTC
+Last updated 2017-01-18 01:25:42 UTC
 </div>
 </div>
 </body>
