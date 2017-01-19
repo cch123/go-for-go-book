@@ -654,7 +654,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <p>Go言語はシンプルさを念頭にデザインされた言語です。仕様は単純明瞭さのために小さく収められていますが、そのため表現力に欠けているとか、コードが冗長になるという印象を持つ人も多いでしょう。有名なところでは、ジェネリクスや例外といった機能が（今のところ）存在しないことが問題にされることが多いようです。</p>
 </div>
 <div class="paragraph">
-<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げてGoを取りまくツール群を含めて見てみると、<code>go fmt</code> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、人間のプログラミングを機械によってさまざまな面から補助しようという態度がGoという言語にはあります。</p>
+<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げてGoを取りまくツール群を含めて見てみると、<code>go fmt</code> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、Goという言語には、人間のプログラミングを機械によってさまざまな面から補助しようという態度があります。</p>
 </div>
 <div class="paragraph">
 <p><code>go/*</code> 標準パッケージは、Goのプログラムを対象とし、解析や操作を行うためのAPIを提供します。これらのAPIを利用し、一種のメタプログラミングを行うことで、Goプログラミングの力をより引き出せるようになるはずです。</p>
@@ -744,7 +744,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc820012d40), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc820012d80)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc420012dc0), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc420012e00)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1643,8 +1643,8 @@ field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc82001a580), (*ast.Field)(0xc82001a600)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc82001a580)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc42001a540), (*ast.Field)(0xc42001a5c0)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc42001a540)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2160,12 +2160,12 @@ Valid position with file name:      example.go:2:3</pre>
 <div class="listingblock">
 <div class="content">
 <pre>example.go:3:8   obj=0x0           kind=bad decl=&lt;nil&gt;
-example.go:6:8   obj=0xc82001c410  kind=var decl=*ast.AssignStmt
+example.go:6:8   obj=0xc42001c3c0  kind=var decl=*ast.AssignStmt
 example.go:6:13  obj=0x0           kind=bad decl=&lt;nil&gt;
-example.go:6:20  obj=0xc82001c410  kind=var decl=*ast.AssignStmt
-example.go:7:9   obj=0xc82001c410  kind=var decl=*ast.AssignStmt
-example.go:7:16  obj=0xc82001c460  kind=var decl=*ast.Field
-example.go:7:36  obj=0xc82001c460  kind=var decl=*ast.Field</pre>
+example.go:6:20  obj=0xc42001c3c0  kind=var decl=*ast.AssignStmt
+example.go:7:9   obj=0xc42001c3c0  kind=var decl=*ast.AssignStmt
+example.go:7:16  obj=0xc42001c410  kind=var decl=*ast.Field
+example.go:7:36  obj=0xc42001c410  kind=var decl=*ast.Field</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2703,8 +2703,8 @@ string</pre>
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Importer</span> <span class="tok-kd">interface</span> <span class="tok-p">{</span>
     <span class="tok-c1">// Import returns the imported package for the given import</span>
     <span class="tok-c1">// path, or an error if the package couldn&#39;t be imported.</span>
-    <span class="tok-c1">// Import is responsible for returning the same package for</span>
-    <span class="tok-c1">// matching import paths.</span>
+    <span class="tok-c1">// Two calls to Import with the same path return the same</span>
+    <span class="tok-c1">// package.</span>
     <span class="tok-nx">Import</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">Package</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
 <span class="tok-p">}</span></code></pre>
 </div>
@@ -2744,7 +2744,7 @@ string</pre>
 <div class="listingblock">
 <div class="content">
 <pre>[Fatal Fatalf Fatalln Flags LUTC Ldate Llongfile Lmicroseconds Logger Lshortfile LstdFlags Ltime New Output Panic Panicf Panicln Prefix Print Printf Println SetFlags SetOutput SetPrefix init]
-[package fmt ("fmt") package io ("io") package os ("os") package runtime ("runtime") package sync ("sync") package time ("time")]</pre>
+[package io ("io") package sync ("sync") package time ("time")]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2782,9 +2782,12 @@ string</pre>
     <span class="tok-c1">// error found.</span>
     <span class="tok-nx">Error</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
 
-    <span class="tok-c1">// Importer is called for each import declaration except when</span>
-    <span class="tok-c1">// importing package &quot;unsafe&quot;. An error is reported if an</span>
-    <span class="tok-c1">// importer is needed but none was installed.</span>
+    <span class="tok-c1">// An importer is used to import packages referred to from</span>
+    <span class="tok-c1">// import declarations.</span>
+    <span class="tok-c1">// If the installed importer implements ImporterFrom, the type</span>
+    <span class="tok-c1">// checker calls ImportFrom instead of Import.</span>
+    <span class="tok-c1">// The type checker reports an error if an importer is needed</span>
+    <span class="tok-c1">// but none was installed.</span>
     <span class="tok-nx">Importer</span> <span class="tok-nx">Importer</span>
 
     <span class="tok-c1">// If Sizes != nil, it provides the sizing functions for package unsafe.</span>
@@ -3399,6 +3402,7 @@ Usage of [go] doc:
 
     <span class="tok-c1">// String returns a human-readable string of the object.</span>
     <span class="tok-nx">String</span><span class="tok-p">()</span> <span class="tok-kt">string</span>
+
     <span class="tok-c1">// Has unexported methods.</span>
 <span class="tok-p">}</span></code></pre>
 </div>
@@ -3646,7 +3650,13 @@ Usage of [go] doc:
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/github.com/golang/gddo/gosrc#service">github.com/golang/gddo/gosrc.service</a></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="go"></code></pre>
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">service</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-nx">pattern</span>         <span class="tok-o">*</span><span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">Regexp</span>
+    <span class="tok-nx">prefix</span>          <span class="tok-kt">string</span>
+    <span class="tok-nx">get</span>             <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">http</span><span class="tok-p">.</span><span class="tok-nx">Client</span><span class="tok-p">,</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-kt">string</span><span class="tok-p">]</span><span class="tok-kt">string</span><span class="tok-p">,</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">Directory</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+    <span class="tok-nx">getPresentation</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">http</span><span class="tok-p">.</span><span class="tok-nx">Client</span><span class="tok-p">,</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-kt">string</span><span class="tok-p">]</span><span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">Presentation</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+    <span class="tok-nx">getProject</span>      <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">http</span><span class="tok-p">.</span><span class="tok-nx">Client</span><span class="tok-p">,</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-kt">string</span><span class="tok-p">]</span><span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-nx">Project</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+<span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3658,7 +3668,53 @@ Usage of [go] doc:
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/github.com/golang/gddo/gosrc#Directory">github.com/golang/gddo/gosrc.Directory</a></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="go"></code></pre>
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Directory</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-c1">// The import path for this package.</span>
+    <span class="tok-nx">ImportPath</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Import path of package after resolving go-import meta tags, if any.</span>
+    <span class="tok-nx">ResolvedPath</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Import path prefix for all packages in the project.</span>
+    <span class="tok-nx">ProjectRoot</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Name of the project.</span>
+    <span class="tok-nx">ProjectName</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Project home page.</span>
+    <span class="tok-nx">ProjectURL</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Version control system: git, hg, bzr, ...</span>
+    <span class="tok-nx">VCS</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Version control: active or should be suppressed.</span>
+    <span class="tok-nx">Status</span> <span class="tok-nx">DirectoryStatus</span>
+
+    <span class="tok-c1">// Cache validation tag. This tag is not necessarily an HTTP entity tag.</span>
+    <span class="tok-c1">// The tag is &quot;&quot; if there is no meaningful cache validation for the VCS.</span>
+    <span class="tok-nx">Etag</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Files.</span>
+    <span class="tok-nx">Files</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">File</span>
+
+    <span class="tok-c1">// Subdirectories, not guaranteed to contain Go code.</span>
+    <span class="tok-nx">Subdirectories</span> <span class="tok-p">[]</span><span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Location of directory on version control service website.</span>
+    <span class="tok-nx">BrowseURL</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Format specifier for link to source line. It must contain one %s (file URL)</span>
+    <span class="tok-c1">// followed by one %d (source line number), or be empty string if not available.</span>
+    <span class="tok-c1">// Example: &quot;%s#L%d&quot;.</span>
+    <span class="tok-nx">LineFmt</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Whether the repository of this directory is a fork of another one.</span>
+    <span class="tok-nx">Fork</span> <span class="tok-kt">bool</span>
+
+    <span class="tok-c1">// How many stars (for a GitHub project) or followers (for a BitBucket</span>
+    <span class="tok-c1">// project) the repository of this directory has.</span>
+    <span class="tok-nx">Stars</span> <span class="tok-kt">int</span>
+<span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3776,11 +3832,11 @@ Usage of [go] doc:
     <span class="tok-c1">// ReadDir returns a slice of os.FileInfo, sorted by Name,</span>
     <span class="tok-c1">// describing the content of the named directory.</span>
     <span class="tok-c1">// If ReadDir is nil, Import uses ioutil.ReadDir.</span>
-    <span class="tok-nx">ReadDir</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">dir</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">fi</span> <span class="tok-p">[]</span><span class="tok-nx">os</span><span class="tok-p">.</span><span class="tok-nx">FileInfo</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+    <span class="tok-nx">ReadDir</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">dir</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">([]</span><span class="tok-nx">os</span><span class="tok-p">.</span><span class="tok-nx">FileInfo</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
 
     <span class="tok-c1">// OpenFile opens a file (not a directory) for reading.</span>
     <span class="tok-c1">// If OpenFile is nil, Import uses os.Open.</span>
-    <span class="tok-nx">OpenFile</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">r</span> <span class="tok-nx">io</span><span class="tok-p">.</span><span class="tok-nx">ReadCloser</span><span class="tok-p">,</span> <span class="tok-nx">err</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
+    <span class="tok-nx">OpenFile</span> <span class="tok-kd">func</span><span class="tok-p">(</span><span class="tok-nx">path</span> <span class="tok-kt">string</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nx">io</span><span class="tok-p">.</span><span class="tok-nx">ReadCloser</span><span class="tok-p">,</span> <span class="tok-kt">error</span><span class="tok-p">)</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -3815,7 +3871,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-01-18 04:56:47 UTC
+Last updated 2017-01-19 12:58:49 UTC
 </div>
 </div>
 </body>
