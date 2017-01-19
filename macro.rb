@@ -3,8 +3,10 @@ require 'asciidoctor/extensions'
 require 'pathname'
 require 'json'
 
-CACHE_DIR = Pathname.new('.cache')
-CONFIG = JSON.parse(File.read('config.json'))
+CACHE_DIR    = Pathname.new('.cache')
+EXAMPLES_DIR = Pathname.new('examples')
+
+CONFIG     = JSON.parse(File.read('config.json'))
 GO_VERSION = CONFIG['Versions']['Go']
 
 def run_cached(kind, command, file = nil)
@@ -37,7 +39,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
 
   def process(parent, target, attrs)
     filename = attrs['file'] || "#{target}.go"
-    file = Pathname.new("examples/#{target}/#{filename}")
+    file = EXAMPLES_DIR + "#{target}/#{filename}"
     style = attrs.delete(1)
 
     if style === 'output'
@@ -92,13 +94,7 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
         'title'    => "godoc: http://godoc.org/pkg/#{pkg}##{entry}[#{target}]",
       })
     )
-    # TODO
-    doc_block = create_block(
-      parent,
-      :quote,
-      doc,
-      {}
-    )
+    # TODO doc
     decl_block
   end
 end
@@ -129,9 +125,11 @@ class TermMacro < Asciidoctor::Extensions::InlineMacroProcessor
   end
 end
 
-class ReadConfigPeprocessor < Asciidoctor::Extensions::Preprocessor
+class SetAttributesPreprocessor < Asciidoctor::Extensions::Preprocessor
   def process document, reader
     document.attributes['go_version'] = GO_VERSION
+    document.attributes['revnumber'] = %x(git describe --tags --always HEAD).chomp
+    document.attributes['revdate'] = %x(git log -1 --pretty=%aI).chomp
     reader
   end
 end
@@ -141,7 +139,7 @@ Asciidoctor::Extensions.register do
   block_macro  GoDocMacro
   inline_macro GoSourceMacro
   inline_macro TermMacro
-  preprocessor ReadConfigPeprocessor
+  preprocessor SetAttributesPreprocessor
 
   if @document.basebackend?('html') && @document.attributes['backend'] != 'pdf' && ENV['PRODUCTION']
     postprocessor do
