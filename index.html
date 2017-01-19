@@ -572,18 +572,26 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <li><a href="#パッケージの型情報">4.5. パッケージの型情報</a>
 <ul class="sectlevel3">
 <li><a href="#types_package">4.5.1. types.Package</a></li>
-<li><a href="#types_info">4.5.2. types.Info</a></li>
 </ul>
 </li>
-<li><a href="#スコープ_2">4.6. スコープ</a></li>
-<li><a href="#型とオブジェクト">4.7. 型とオブジェクト</a>
+<li><a href="#スコープ_2">4.6. スコープ</a>
 <ul class="sectlevel3">
-<li><a href="#types_type">4.7.1. types.Type</a></li>
-<li><a href="#types_object">4.7.2. types.Object</a></li>
+<li><a href="#ユニバーススコープ">4.6.1. ユニバーススコープ</a></li>
 </ul>
 </li>
-<li><a href="#types_typeの階層">Appendix B: types.Typeの階層</a></li>
-<li><a href="#types_objectの階層">Appendix C: types.Objectの階層</a></li>
+<li><a href="#オブジェクト_2">4.7. オブジェクト</a>
+<ul class="sectlevel3">
+<li><a href="#types_builtin">4.7.1. types.Builtin</a></li>
+</ul>
+</li>
+<li><a href="#types_info">4.8. types.Info</a></li>
+<li><a href="#型の情報">4.9. 型の情報</a>
+<ul class="sectlevel3">
+<li><a href="#types_type">4.9.1. types.Type</a></li>
+</ul>
+</li>
+<li><a href="#types_objectの階層">Appendix B: types.Objectの階層</a></li>
+<li><a href="#types_typeの階層">Appendix C: types.Typeの階層</a></li>
 </ul>
 </li>
 <li><a href="#ビルド情報">5. ビルド情報</a></li>
@@ -2804,7 +2812,7 @@ string</pre>
 <p>各フィールドを調整することで、<code>Check()</code> による型チェックを行う際の挙動をカスタマイズできます。</p>
 </div>
 <div class="paragraph">
-<p>特に、<code>Error func(err error)</code> は型チェックの際に生じたエラーを全て受け取るコールバックとして便利です。</p>
+<p>特に、<code>Error func(err error)</code> は型チェックの際に生じたエラーを全て受け取るコールバックとして便利です。これが nil である場合、最初のエラーが起きた時点で型チェックが停止します。</p>
 </div>
 </div>
 <div class="sect2">
@@ -2844,7 +2852,8 @@ string</pre>
 <p><code>init</code> 関数の本体が存在しない</p>
 </li>
 <li>
-<p>C形式の <code>for</code> 文の後処理部で変数を定義しようとしている</p>
+<p>C形式の <code>for</code> 文の後処理文で変数を定義しようとしている<br>
+…… <code>for i := 0; i &lt; 10; i, j := i+1, i {</code> のような形。構文解析の時点では受けつけてしまいます</p>
 </li>
 </ul>
 </div>
@@ -2904,32 +2913,355 @@ example.go:7:6: cannot convert 1 (untyped int constant) to string</pre>
 </div>
 <div class="sect2">
 <h3 id="パッケージの型情報"><a class="anchor" href="#パッケージの型情報"></a>4.5. パッケージの型情報</h3>
-<div class="sect3">
-<h4 id="types_package"><a class="anchor" href="#types_package"></a>4.5.1. types.Package</h4>
-
+<div class="paragraph">
+<p><code>types.Config.Check()</code> によって得られる型情報は、パッケージに対応する <code>types.Package</code> と、補助的で詳細な情報である <code>types.Info</code> で表現されます。</p>
 </div>
 <div class="sect3">
-<h4 id="types_info"><a class="anchor" href="#types_info"></a>4.5.2. types.Info</h4>
+<h4 id="types_package"><a class="anchor" href="#types_package"></a>4.5.1. types.Package</h4>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Package">go/types.Package</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Package</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-c1">// Has unexported fields.</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>types.Package</code> 構造体は公開されたフィールドを持たないため、メソッドからアクセスします。</p>
+</div>
+<div class="paragraph">
+<p>あまり意味のない例ですが、以下では <code>$GOROOT/src/cmd/cover</code> ディレクトリのソースコードの型チェックを行っています。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 15. typechecknameandpath.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/ast&quot;</span>
+    <span class="tok-s">&quot;go/importer&quot;</span>
+    <span class="tok-s">&quot;go/parser&quot;</span>
+    <span class="tok-s">&quot;go/token&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+    <span class="tok-s">&quot;path/filepath&quot;</span>
+    <span class="tok-s">&quot;runtime&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">path</span> <span class="tok-o">:=</span> <span class="tok-s">&quot;cmd/cover&quot;</span>
+
+    <span class="tok-nx">fset</span> <span class="tok-o">:=</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">NewFileSet</span><span class="tok-p">()</span>
+    <span class="tok-nx">aPkgs</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseDir</span><span class="tok-p">(</span><span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-nx">filepath</span><span class="tok-p">.</span><span class="tok-nx">Join</span><span class="tok-p">(</span><span class="tok-nx">runtime</span><span class="tok-p">.</span><span class="tok-nx">GOROOT</span><span class="tok-p">(),</span> <span class="tok-s">&quot;src&quot;</span><span class="tok-p">,</span> <span class="tok-nx">path</span><span class="tok-p">),</span> <span class="tok-kc">nil</span><span class="tok-p">,</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">Mode</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span>
+
+    <span class="tok-nx">conf</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Config</span><span class="tok-p">{</span><span class="tok-nx">Importer</span><span class="tok-p">:</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">()}</span>
+
+    <span class="tok-k">for</span> <span class="tok-nx">_</span><span class="tok-p">,</span> <span class="tok-nx">aPkg</span> <span class="tok-o">:=</span> <span class="tok-k">range</span> <span class="tok-nx">aPkgs</span> <span class="tok-p">{</span>
+        <span class="tok-nx">files</span> <span class="tok-o">:=</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">{}</span>
+        <span class="tok-k">for</span> <span class="tok-nx">_</span><span class="tok-p">,</span> <span class="tok-nx">f</span> <span class="tok-o">:=</span> <span class="tok-k">range</span> <span class="tok-nx">aPkg</span><span class="tok-p">.</span><span class="tok-nx">Files</span> <span class="tok-p">{</span>
+            <span class="tok-nx">files</span> <span class="tok-p">=</span> <span class="tok-nb">append</span><span class="tok-p">(</span><span class="tok-nx">files</span><span class="tok-p">,</span> <span class="tok-nx">f</span><span class="tok-p">)</span>
+        <span class="tok-p">}</span>
+        <span class="tok-nx">pkg</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">conf</span><span class="tok-p">.</span><span class="tok-nx">Check</span><span class="tok-p">(</span><span class="tok-nx">path</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-nx">files</span><span class="tok-p">,</span> <span class="tok-kc">nil</span><span class="tok-p">)</span>
+        <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Printf</span><span class="tok-p">(</span><span class="tok-s">&quot;path=%v name=%v\n&quot;</span><span class="tok-p">,</span> <span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Path</span><span class="tok-p">(),</span> <span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Name</span><span class="tok-p">())</span>
+    <span class="tok-p">}</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>path=cmd/cover name=main
+path=cmd/cover name=main_test</pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="スコープ_2"><a class="anchor" href="#スコープ_2"></a>4.6. スコープ</h3>
+<div class="paragraph">
+<p><code>Path</code> や <code>Name</code> などの基本的な情報の他に有用なのは、解析されたパッケージのスコープ情報でしょう。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Package.Scope">go/types.Package.Scope</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-p">(</span><span class="tok-nx">pkg</span> <span class="tok-o">*</span><span class="tok-nx">Package</span><span class="tok-p">)</span> <span class="tok-nx">Scope</span><span class="tok-p">()</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Scope">go/types.Scope</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Scope</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-c1">// Has unexported fields.</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>types.Scope</code> 構造体は型におけるスコープを表します。スコープは基本的に、そこに所属する名前から、それが表すオブジェクト（&#8594; <a href="#オブジェクト">オブジェクト</a>）へのマッピングであると考えられます。</p>
+</div>
+<div class="paragraph">
+<p>スコープは階層構造になっていて、<code>Parent()</code> および <code>Child()</code> メソッドによりその親（ひとつ外側のスコープ）や子にアクセスできます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Scope.Parent">go/types.Scope.Parent</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-p">(</span><span class="tok-nx">s</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span><span class="tok-p">)</span> <span class="tok-nx">Parent</span><span class="tok-p">()</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Scope.Child">go/types.Scope.Child</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-p">(</span><span class="tok-nx">s</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span><span class="tok-p">)</span> <span class="tok-nx">Child</span><span class="tok-p">(</span><span class="tok-nx">i</span> <span class="tok-kt">int</span><span class="tok-p">)</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span></code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ユニバーススコープ"><a class="anchor" href="#ユニバーススコープ"></a>4.6.1. ユニバーススコープ</h4>
+<div class="paragraph">
+<p>最も外側のスコープをユニバーススコープと呼ぶことは前に述べたとおりですが、<code>ast</code> パッケージと違い <code>types</code> パッケージにはこれが定義されています。</p>
+</div>
+<div class="paragraph">
+<p>以下の例では、ユニバーススコープに定義されている名前を列挙しています。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 16. typesuniverse.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Universe</span><span class="tok-p">.</span><span class="tok-nx">Names</span><span class="tok-p">())</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[append bool byte cap close complex complex128 complex64 copy delete error false float32 float64 imag int int16 int32 int64 int8 iota len make new nil panic print println real recover rune string true uint uint16 uint32 uint64 uint8 uintptr]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>組み込みの関数や型がユニバーススコープに属していることが分かります。</p>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="型とオブジェクト"><a class="anchor" href="#型とオブジェクト"></a>4.7. 型とオブジェクト</h3>
-<div class="sect3">
-<h4 id="types_type"><a class="anchor" href="#types_type"></a>4.7.1. types.Type</h4>
+<h3 id="オブジェクト_2"><a class="anchor" href="#オブジェクト_2"></a>4.7. オブジェクト</h3>
+<div class="paragraph">
+<p><code>types</code> パッケージにおけるオブジェクトは、<code>ast</code> パッケージにおけるそれと異なり、インタフェースとして表現されています。また、より詳しい情報を持ちます。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Object">go/types.Object</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Object</span> <span class="tok-kd">interface</span> <span class="tok-p">{</span>
+    <span class="tok-nx">Parent</span><span class="tok-p">()</span> <span class="tok-o">*</span><span class="tok-nx">Scope</span> <span class="tok-c1">// scope in which this object is declared</span>
+    <span class="tok-nx">Pos</span><span class="tok-p">()</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">Pos</span> <span class="tok-c1">// position of object identifier in declaration</span>
+    <span class="tok-nx">Pkg</span><span class="tok-p">()</span> <span class="tok-o">*</span><span class="tok-nx">Package</span>  <span class="tok-c1">// nil for objects in the Universe scope and labels</span>
+    <span class="tok-nx">Name</span><span class="tok-p">()</span> <span class="tok-kt">string</span>   <span class="tok-c1">// package local object name</span>
+    <span class="tok-nx">Type</span><span class="tok-p">()</span> <span class="tok-nx">Type</span>     <span class="tok-c1">// object type</span>
+    <span class="tok-nx">Exported</span><span class="tok-p">()</span> <span class="tok-kt">bool</span> <span class="tok-c1">// reports whether the name starts with a capital letter</span>
+    <span class="tok-nx">Id</span><span class="tok-p">()</span> <span class="tok-kt">string</span>     <span class="tok-c1">// object id (see Id below)</span>
 
+    <span class="tok-c1">// String returns a human-readable string of the object.</span>
+    <span class="tok-nx">String</span><span class="tok-p">()</span> <span class="tok-kt">string</span>
+
+    <span class="tok-c1">// Has unexported methods.</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ast.Object</code> における <code>Kind</code> フィールドに対応するものを持たないため、type switch でその種類を判別することになります。型におけるオブジェクト（TODO: 表現）と、それを表すデータ型は以下のようになっています。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>組み込み関数（<code>*types.Builtin</code>）</p>
+</li>
+<li>
+<p>定数（<code>*types.Const</code>）</p>
+</li>
+<li>
+<p>関数（<code>*types.Func</code>）</p>
+</li>
+<li>
+<p>ラベル（<code>*types.Label</code>）</p>
+</li>
+<li>
+<p><code>nil</code> （<code>*types.Nil</code>）</p>
+</li>
+<li>
+<p>インポートされたパッケージ（<code>*types.PkgName</code>）</p>
+</li>
+<li>
+<p>宣言された型（<code>*types.TypeName</code>）</p>
+</li>
+<li>
+<p>宣言された変数など（<code>*types.Var</code>）</p>
+</li>
+</ul>
 </div>
 <div class="sect3">
-<h4 id="types_object"><a class="anchor" href="#types_object"></a>4.7.2. types.Object</h4>
+<h4 id="types_builtin"><a class="anchor" href="#types_builtin"></a>4.7.1. types.Builtin</h4>
+<div class="paragraph">
+<p>組み込み関数を表す構造体です。組み込み関数は決まった型を持たないため、<code>Type()</code> は invalid な型を返します。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 17. typesbuiltin.go</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
+
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">obj</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Universe</span><span class="tok-p">.</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;append&quot;</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Printf</span><span class="tok-p">(</span><span class="tok-s">&quot;%v (%T)\n&quot;</span><span class="tok-p">,</span> <span class="tok-nx">obj</span><span class="tok-p">,</span> <span class="tok-nx">obj</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Printf</span><span class="tok-p">(</span><span class="tok-s">&quot;%v (%T)\n&quot;</span><span class="tok-p">,</span> <span class="tok-nx">obj</span><span class="tok-p">.</span><span class="tok-nx">Type</span><span class="tok-p">(),</span> <span class="tok-nx">obj</span><span class="tok-p">.</span><span class="tok-nx">Type</span><span class="tok-p">())</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>builtin append (*types.Builtin)
+invalid type (*types.Basic)</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="types_info"><a class="anchor" href="#types_info"></a>4.8. types.Info</h3>
+<div class="paragraph">
+<p>さて、<code>types.Scope</code> のメソッドを使うことで、パッケージ中に登場した名前に関する情報をオブジェクトとして得ることは一応可能です。しかしこれだけでは、</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>あるオブジェクトがどこで定義されたのか</p>
+</li>
+<li>
+<p>ある式にどんな型が与えられたのか</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>などについて（ただちには）知ることができません。そこで <code>Check</code> 関数の最後の引数に渡す構造体、<code>types.Info</code> の出番となります。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Info">go/types.Info</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">type</span> <span class="tok-nx">Info</span> <span class="tok-kd">struct</span> <span class="tok-p">{</span>
+    <span class="tok-c1">// Types maps expressions to their types, and for constant</span>
+    <span class="tok-c1">// expressions, their values. Invalid expressions are omitted.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// For (possibly parenthesized) identifiers denoting built-in</span>
+    <span class="tok-c1">// functions, the recorded signatures are call-site specific:</span>
+    <span class="tok-c1">// if the call result is not a constant, the recorded type is</span>
+    <span class="tok-c1">// an argument-specific signature. Otherwise, the recorded type</span>
+    <span class="tok-c1">// is invalid.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// Identifiers on the lhs of declarations (i.e., the identifiers</span>
+    <span class="tok-c1">// which are being declared) are collected in the Defs map.</span>
+    <span class="tok-c1">// Identifiers denoting packages are collected in the Uses maps.</span>
+    <span class="tok-nx">Types</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Expr</span><span class="tok-p">]</span><span class="tok-nx">TypeAndValue</span>
+
+    <span class="tok-c1">// Defs maps identifiers to the objects they define (including</span>
+    <span class="tok-c1">// package names, dots &quot;.&quot; of dot-imports, and blank &quot;_&quot; identifiers).</span>
+    <span class="tok-c1">// For identifiers that do not denote objects (e.g., the package name</span>
+    <span class="tok-c1">// in package clauses, or symbolic variables t in t := x.(type) of</span>
+    <span class="tok-c1">// type switch headers), the corresponding objects are nil.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// For an anonymous field, Defs returns the field *Var it defines.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// Invariant: Defs[id] == nil || Defs[id].Pos() == id.Pos()</span>
+    <span class="tok-nx">Defs</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Ident</span><span class="tok-p">]</span><span class="tok-nx">Object</span>
+
+    <span class="tok-c1">// Uses maps identifiers to the objects they denote.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// For an anonymous field, Uses returns the *TypeName it denotes.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// Invariant: Uses[id].Pos() != id.Pos()</span>
+    <span class="tok-nx">Uses</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Ident</span><span class="tok-p">]</span><span class="tok-nx">Object</span>
+
+    <span class="tok-c1">// Implicits maps nodes to their implicitly declared objects, if any.</span>
+    <span class="tok-c1">// The following node and object types may appear:</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">//    node               declared object</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">//    *ast.ImportSpec    *PkgName for dot-imports and imports without renames</span>
+    <span class="tok-c1">//    *ast.CaseClause    type-specific *Var for each type switch case clause (incl. default)</span>
+    <span class="tok-c1">//      *ast.Field         anonymous parameter *Var</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-nx">Implicits</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Node</span><span class="tok-p">]</span><span class="tok-nx">Object</span>
+
+    <span class="tok-c1">// Selections maps selector expressions (excluding qualified identifiers)</span>
+    <span class="tok-c1">// to their corresponding selections.</span>
+    <span class="tok-nx">Selections</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">SelectorExpr</span><span class="tok-p">]</span><span class="tok-o">*</span><span class="tok-nx">Selection</span>
+
+    <span class="tok-c1">// Scopes maps ast.Nodes to the scopes they define. Package scopes are not</span>
+    <span class="tok-c1">// associated with a specific node but with all files belonging to a package.</span>
+    <span class="tok-c1">// Thus, the package scope can be found in the type-checked Package object.</span>
+    <span class="tok-c1">// Scopes nest, with the Universe scope being the outermost scope, enclosing</span>
+    <span class="tok-c1">// the package scope, which contains (one or more) files scopes, which enclose</span>
+    <span class="tok-c1">// function scopes which in turn enclose statement and function literal scopes.</span>
+    <span class="tok-c1">// Note that even though package-level functions are declared in the package</span>
+    <span class="tok-c1">// scope, the function scopes are embedded in the file scope of the file</span>
+    <span class="tok-c1">// containing the function declaration.</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">// The following node types may appear in Scopes:</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-c1">//    *ast.File</span>
+    <span class="tok-c1">//    *ast.FuncType</span>
+    <span class="tok-c1">//    *ast.BlockStmt</span>
+    <span class="tok-c1">//    *ast.IfStmt</span>
+    <span class="tok-c1">//    *ast.SwitchStmt</span>
+    <span class="tok-c1">//    *ast.TypeSwitchStmt</span>
+    <span class="tok-c1">//    *ast.CaseClause</span>
+    <span class="tok-c1">//    *ast.CommClause</span>
+    <span class="tok-c1">//    *ast.ForStmt</span>
+    <span class="tok-c1">//    *ast.RangeStmt</span>
+    <span class="tok-c1">//</span>
+    <span class="tok-nx">Scopes</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Node</span><span class="tok-p">]</span><span class="tok-o">*</span><span class="tok-nx">Scope</span>
+
+    <span class="tok-c1">// InitOrder is the list of package-level initializers in the order in which</span>
+    <span class="tok-c1">// they must be executed. Initializers referring to variables related by an</span>
+    <span class="tok-c1">// initialization dependency appear in topological order, the others appear</span>
+    <span class="tok-c1">// in source order. Variables without an initialization expression do not</span>
+    <span class="tok-c1">// appear in this list.</span>
+    <span class="tok-nx">InitOrder</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">Initializer</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>types.Info</code> は型チェック中に得られた、詳細な情報を保持する構造体です。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="型の情報"><a class="anchor" href="#型の情報"></a>4.9. 型の情報</h3>
+<div class="sect3">
+<h4 id="types_type"><a class="anchor" href="#types_type"></a>4.9.1. types.Type</h4>
 
 </div>
 </div>
 <div class="sect2">
-<h3 id="types_typeの階層"><a class="anchor" href="#types_typeの階層"></a>Appendix B: types.Typeの階層</h3>
+<h3 id="types_objectの階層"><a class="anchor" href="#types_objectの階層"></a>Appendix B: types.Objectの階層</h3>
+<div class="listingblock">
+<div class="content">
+<pre>go/types.Object
+  *go/types.Builtin
+  *go/types.Const
+  *go/types.Func
+  *go/types.Label
+  *go/types.Nil
+  *go/types.PkgName
+  *go/types.TypeName
+  *go/types.Var</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="types_typeの階層"><a class="anchor" href="#types_typeの階層"></a>Appendix C: types.Typeの階層</h3>
 <div class="listingblock">
 <div class="content">
 <pre>go/types.Type
@@ -2944,22 +3276,6 @@ example.go:7:6: cannot convert 1 (untyped int constant) to string</pre>
   *go/types.Slice
   *go/types.Struct
   *go/types.Tuple</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="types_objectの階層"><a class="anchor" href="#types_objectの階層"></a>Appendix C: types.Objectの階層</h3>
-<div class="listingblock">
-<div class="content">
-<pre>go/types.Object
-  *go/types.Builtin
-  *go/types.Const
-  *go/types.Func
-  *go/types.Label
-  *go/types.Nil
-  *go/types.PkgName
-  *go/types.TypeName
-  *go/types.Var</pre>
 </div>
 </div>
 </div>
@@ -3096,7 +3412,7 @@ type Node interface {
 <p><code>go doc</code> サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 15. go doc -h</div>
+<div class="title">リスト 18. go doc -h</div>
 <div class="content">
 <pre>% go doc -h
 Usage of [go] doc:
@@ -3306,7 +3622,7 @@ Usage of [go] doc:
 <p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 16. sushi.go</div>
+<div class="title">リスト 19. sushi.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
@@ -3335,7 +3651,7 @@ Usage of [go] doc:
 <p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
 <div id="sushi_string.go" class="listingblock">
-<div class="title">リスト 17. sushi_string.go</div>
+<div class="title">リスト 20. sushi_string.go</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
@@ -3745,7 +4061,7 @@ Usage of [go] doc:
 <div class="sect4">
 <h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
 <div class="listingblock">
-<div class="title">リスト 18. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="title">リスト 21. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
     <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
@@ -3871,7 +4187,7 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-01-19 12:58:49 UTC
+Last updated 2017-01-19 14:12:06 UTC
 </div>
 </div>
 </body>
