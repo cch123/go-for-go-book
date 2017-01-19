@@ -1,8 +1,25 @@
 require 'asciidoctor'
 require 'asciidoctor/extensions'
 require 'pathname'
+require 'json'
 
 CACHE_DIR = Pathname.new('.cache')
+CONFIG = JSON.parse(File.read('config.json'))
+GO_VERSION = CONFIG['Versions']['Go']
+
+def run_cached(kind, command, file = nil)
+  cache_file = Pathname.new(CACHE_DIR+"#{kind}-#{GO_VERSION}"+(file || command.gsub(/[^\w.]/, '_')))
+  cache_mtime = cache_file.mtime rescue Time.new(0)
+  content = if !File.exist?(cache_file) || file && cache_mtime < file.mtime
+    STDERR.puts "macro: #{command}"
+    c = %x(#{command})
+    cache_file.parent.mkpath
+    cache_file.write(c)
+    c
+  else
+    cache_file.read
+  end
+end
 
 # ref: http://asciidoctor.org/docs/user-manual/#block-macro-processor-example
 
@@ -24,17 +41,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
     style = attrs.delete(1)
 
     if style === 'output'
-      cache_file = Pathname.new(CACHE_DIR+'go-run'+file)
-      cache_mtime = cache_file.mtime rescue Time.new(0)
-      content = if cache_mtime < file.mtime
-        c = %x(go run #{file} 2>&1)
-        cache_file.parent.mkpath
-        cache_file.write(c)
-        c
-      else
-        cache_file.read
-      end
-
+      content = run_cached('go-run', "go run #{file} 2>&1", file)
       create_listing_block(
         parent,
         content,
@@ -73,7 +80,8 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
     if /^[a-z]/ === entry
       opts += ' -u'
     end
-    decl = %x(go doc #{opts} #{target}).gsub(/^ {4}.*/m, '').gsub("\t", '    ').lines.map(&:chomp)
+    decl = run_cached('go-doc', "go doc #{opts} #{target}")
+    decl = decl.gsub(/^ {4}.*/m, '').gsub("\t", '    ').lines.map(&:chomp)
     create_listing_block(
       parent,
       decl,
@@ -112,11 +120,19 @@ class TermMacro < Asciidoctor::Extensions::InlineMacroProcessor
   end
 end
 
+class ReadConfigPeprocessor < Asciidoctor::Extensions::Preprocessor
+  def process document, reader
+    document.attributes['go_version'] = GO_VERSION
+    reader
+  end
+end
+
 Asciidoctor::Extensions.register do
   block_macro  GoExampleMacro
   block_macro  GoDocMacro
   inline_macro GoSourceMacro
   inline_macro TermMacro
+  preprocessor ReadConfigPeprocessor
 
   if @document.basebackend?('html') && @document.attributes['backend'] != 'pdf' && ENV['PRODUCTION']
     postprocessor do
