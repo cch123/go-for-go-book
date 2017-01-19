@@ -2,9 +2,12 @@ require 'asciidoctor'
 require 'asciidoctor/extensions'
 require 'pathname'
 require 'json'
+require 'digest'
+require 'uri'
+require 'net/http'
 
-CACHE_DIR    = Pathname.new('.cache')
-EXAMPLES_DIR = Pathname.new('examples')
+CACHE_DIR    = Pathname.new('./.cache')
+EXAMPLES_DIR = Pathname.new('./examples')
 
 CONFIG     = JSON.parse(File.read('config.json'))
 GO_VERSION = CONFIG['Versions']['Go']
@@ -50,9 +53,42 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
         attrs
       )
     else
+      source = IO.read(file)
+      digest = Digest::SHA1.hexdigest(source)
+
+      playground_keys_file = EXAMPLES_DIR + 'playground_keys.json'
+      playground_keys = JSON.parse(File.read(playground_keys_file))
+
+      playground_key = playground_keys[digest]
+      unless playground_key
+        # quick check if the example contains non-standard package or not
+        if /\./ === %x(go list -f {{.Imports}} #{file}) # we know that file starts with ./
+          # nop
+        else
+          uri = URI('https://playground.golang.org/share')
+          Net::HTTP.start(uri.host, uri.port) do |http|
+            STDERR.print "macro: sharing #{file} to playground ... "
+
+            req = Net::HTTP::Post.new uri
+            req.body = source
+            req['Content-Type'] = 'text/plain'
+
+            resp = http.request req
+
+            STDERR.puts "#{resp.code} #{resp.message}"
+            if 200 <= resp.code && resp.code < 300
+              playground_keys[digest] = playground_key = resp.body.chomp
+              File.open(playground_keys_file, 'w') do |f|
+                f.puts playground_keys.to_json
+              end
+            end
+          end rescue nil
+        end
+      end
+
       block = create_listing_block(
         parent,
-        IO.read(file).gsub("\t", '    '),
+        source.gsub("\t", '    '),
         attrs.merge({
           'style'    => 'source',
           'language' => 'go',
