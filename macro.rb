@@ -80,17 +80,26 @@ class GoDocMacro < Asciidoctor::Extensions::BlockMacroProcessor
     if /^[a-z]/ === entry
       opts += ' -u'
     end
-    decl = run_cached('go-doc', "go doc #{opts} #{target}")
-    decl = decl.gsub(/^ {4}.*/m, '').gsub("\t", '    ').lines.map(&:chomp)
-    create_listing_block(
+    godoc = run_cached('go-doc', "go doc #{opts} #{target}")
+    godoc.sub!(/\n\n\n.*$/m, '')
+    decl, *doc = godoc.split(/^ {4}/)
+    decl_block = create_listing_block(
       parent,
-      decl,
+      decl.gsub("\t", '    ').lines.map(&:chomp),
       attrs.merge({
         'style'    => 'source',
         'language' => 'go',
         'title'    => "godoc: http://godoc.org/pkg/#{pkg}##{entry}[#{target}]",
       })
     )
+    # TODO
+    doc_block = create_block(
+      parent,
+      :quote,
+      doc,
+      {}
+    )
+    decl_block
   end
 end
 
