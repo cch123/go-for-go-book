@@ -11,6 +11,7 @@
 :toclevels: 3
 :lang: ja
 :author: motemen (https://motemen.github.io/)
+:docinfo1:
 
 include::00-intro.adoc[leveloffset=+1]
 include::01-ast.adoc[leveloffset=+1]

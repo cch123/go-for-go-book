@@ -161,58 +161,17 @@ class TermMacro < Asciidoctor::Extensions::InlineMacroProcessor
   end
 end
 
-class SetAttributesPreprocessor < Asciidoctor::Extensions::Preprocessor
-  def process document, reader
-    document.attributes['go_version'] = GO_VERSION
-    document.attributes['revnumber'] = %x(git describe --tags --always HEAD).chomp
-    document.attributes['revdate'] = %x(git log -1 --pretty=%aI).chomp
-    reader
-  end
-end
-
 Asciidoctor::Extensions.register do
   block_macro  GoExampleMacro
   block_macro  GoDocMacro
   inline_macro GoSourceMacro
   inline_macro TermMacro
-  preprocessor SetAttributesPreprocessor
-
-  if @document.basebackend?('html') && @document.attributes['backend'] != 'pdf' && ENV['PRODUCTION']
-    postprocessor do
-      process do |doc, output|
-        output
-          .sub('</html>', <<-GA_HTML)
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-34276254-7', 'auto');
-  ga('send', 'pageview');
-</script>
-</html>
-        GA_HTML
-      end
-    end
-  end
-
-  if @document.basebackend?('html') && @document.attributes['backend'] != 'pdf'
-    postprocessor do
-      process do |doc, output|
-        output
-          .sub('</head>', <<-JAVASCRIPT.chomp)
-<script>
-if (/\.github\.io$/.test(location.host) && location.protocol === 'http:') {
-  location.protocol = 'https:';
-}
-</script>
-</head>
-          JAVASCRIPT
-          .sub('</style>', <<-STYLE.chomp)
-body{word-break:break-word;}
-</style>
-          STYLE
-      end
+  preprocessor do
+    process do |document, reader|
+      document.attributes['go_version'] = GO_VERSION
+      document.attributes['revnumber'] = %x(git describe --tags --always HEAD).chomp
+      document.attributes['revdate'] = %x(git log -1 --pretty=%aI).chomp
+      reader
     end
   end
 end
