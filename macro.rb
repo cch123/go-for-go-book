@@ -4,7 +4,7 @@ require 'pathname'
 require 'json'
 require 'digest'
 require 'uri'
-require 'net/http'
+require 'net/https'
 
 CACHE_DIR    = Pathname.new('./.cache')
 EXAMPLES_DIR = Pathname.new('./examples')
@@ -56,7 +56,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
       source = IO.read(file)
       digest = Digest::SHA1.hexdigest(source)
 
-      playground_keys_file = EXAMPLES_DIR + 'playground_keys.json'
+      playground_keys_file = EXAMPLES_DIR + 'playground-keys.json'
       playground_keys = JSON.parse(File.read(playground_keys_file))
 
       playground_key = playground_keys[digest]
@@ -65,24 +65,25 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
         if /\./ === %x(go list -f {{.Imports}} #{file}) # we know that file starts with ./
           # nop
         else
-          uri = URI('https://playground.golang.org/share')
-          Net::HTTP.start(uri.host, uri.port) do |http|
-            STDERR.print "macro: sharing #{file} to playground ... "
+          uri = URI('https://play.golang.org/share')
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = true
 
-            req = Net::HTTP::Post.new uri
-            req.body = source
-            req['Content-Type'] = 'text/plain'
+          STDERR.print "macro: sharing #{file} to playground ... "
 
-            resp = http.request req
+          req = Net::HTTP::Post.new uri
+          req.body = source
+          req['Content-Type'] = 'text/plain'
 
-            STDERR.puts "#{resp.code} #{resp.message}"
-            if 200 <= resp.code && resp.code < 300
-              playground_keys[digest] = playground_key = resp.body.chomp
-              File.open(playground_keys_file, 'w') do |f|
-                f.puts playground_keys.to_json
-              end
+          resp = http.request req
+
+          STDERR.puts "#{resp.code} #{resp.message}"
+          if 200 <= resp.code.to_i && resp.code.to_i < 300
+            playground_keys[digest] = playground_key = resp.body.chomp
+            File.open(playground_keys_file, 'w') do |f|
+              f.puts playground_keys.to_json
             end
-          end rescue nil
+          end
         end
       end
 
@@ -92,10 +93,9 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
         attrs.merge({
           'style'    => 'source',
           'language' => 'go',
-          'title'    => filename,
         })
       )
-      block.title = filename
+      block.title = playground_key ? "#{filename} icon:play-circle-o[title=View in the Playground, window=_blank, link=https://play.golang.org/p/#{playground_key}]" : filename
       block.assign_caption
       block
     end
