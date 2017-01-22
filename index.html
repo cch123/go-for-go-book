@@ -416,7 +416,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .print-only{display:block!important}
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
-body{word-break:break-word;}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
 <style>
@@ -484,9 +483,24 @@ body{word-break:break-word;}
 .listingblock .pygments .tok-vi { color: #19177C } /* Name.Variable.Instance */
 .listingblock .pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
 </style>
+<style>
+body { word-break: break-word; }
+</style>
+
 <script>
-if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
+if (/\.github\.io$/.test(location.host) && location.protocol === 'http:') {
   location.protocol = 'https:';
+}
+</script>
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+if (!/\blocalhost\b/.test(location.host)) {
+  ga('create', 'UA-34276254-7', 'auto');
+  ga('send', 'pageview');
 }
 </script>
 </head>
@@ -495,6 +509,8 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <h1>GoのためのGo</h1>
 <div class="details">
 <span id="author" class="author">motemen (https://motemen.github.io/)</span><br>
+<span id="revnumber">version 071d85f,</span>
+<span id="revdate">2017-01-22T18:27:09+09:00</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目次</div>
@@ -574,14 +590,19 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <li><a href="#types_package">4.5.1. types.Package</a></li>
 </ul>
 </li>
-<li><a href="#スコープ_2">4.6. スコープ</a>
+<li><a href="#typesにおけるスコープ">4.6. typesにおけるスコープ</a>
 <ul class="sectlevel3">
 <li><a href="#ユニバーススコープ">4.6.1. ユニバーススコープ</a></li>
 </ul>
 </li>
-<li><a href="#オブジェクト_2">4.7. オブジェクト</a>
+<li><a href="#typesにおけるオブジェクト">4.7. typesにおけるオブジェクト</a>
 <ul class="sectlevel3">
 <li><a href="#types_builtin">4.7.1. types.Builtin</a></li>
+<li><a href="#types_const">4.7.2. types.Const</a></li>
+<li><a href="#types_func">4.7.3. types.Func</a></li>
+<li><a href="#types_pkgname">4.7.4. types.PkgName</a></li>
+<li><a href="#types_typename">4.7.5. types.TypeName</a></li>
+<li><a href="#types_var">4.7.6. types.Var</a></li>
 </ul>
 </li>
 <li><a href="#types_info">4.8. types.Info</a></li>
@@ -640,13 +661,6 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>ウェブサイト: <a href="https://motemen.github.io/go-for-go-book/" class="bare">https://motemen.github.io/go-for-go-book/</a></p>
-</div>
-</div>
-</div>
 <div class="sect1">
 <h2 id="はじめに"><a class="anchor" href="#はじめに"></a>はじめに</h2>
 <div class="sectionbody">
@@ -711,7 +725,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 まずはGoの式（<dfn>expression</dfn>）を解析するところからはじめましょう。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 1. parseexpr.go</div>
+<div class="title">リスト 1. parseexpr.go <span class="icon"><a class="image" href="https://play.golang.org/p/XPslK7vU3x" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -764,7 +778,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <p><code>%#v</code> による表示でも大まかには構文木のノードの様子を知ることができますが、定数値の意味やさらに深いノードの情報には欠けています。構文木をさらに詳細に見ていくには、<code>ast.Print</code> 関数が便利です：</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 2. parseexpr-print.go</div>
+<div class="title">リスト 2. parseexpr-print.go <span class="icon"><a class="image" href="https://play.golang.org/p/uw-z_FnNxc" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -910,7 +924,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <p>最後の引数 <code>mode</code> では構文解析する範囲の指定などが行えます。後で<a href="#コメントとドキュメント">コメントとドキュメント</a>を扱うときに少し触れます。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 3. parsefile.go</div>
+<div class="title">リスト 3. parsefile.go <span class="icon"><a class="image" href="https://play.golang.org/p/HGVqc1bczw" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -1074,7 +1088,7 @@ if (/.github.io$/.test(location.host) && location.protocol === 'http:') {
 <p>以下は先ほどのソースコードファイル中の識別子を一覧する例です。訪問したノードの具体的な型を知るために、type assertionをおこなっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 4. listidents.go</div>
+<div class="title">リスト 4. listidents.go <span class="icon"><a class="image" href="https://play.golang.org/p/EroI4nTKot" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -1617,7 +1631,7 @@ field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.</pre>
 <p>これら2つの構造体はそれぞれ構造体、インタフェースを表現します。また、<code>Incomplete</code> フィールドを持っています。これらは通常 <code>false</code> ですが、<a href="#ast.Filter">フィルタ</a>によってノード中のフィールドやメソッドの宣言が取り除かれる際に <code>true</code> となり、ソースコードとノードに乖離があることを示します。<code>go doc</code> が出力する &#8220;// Has unexported fields.&#8221; はこの値を参照しています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 6. structtypeincomplete.go</div>
+<div class="title">リスト 6. structtypeincomplete.go <span class="icon"><a class="image" href="https://play.golang.org/p/28fDrrXZiR" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -1966,7 +1980,7 @@ quickfix.go:76: go/ast.ExprStmt composite literal uses unkeyed fields</pre>
 <p><code>token.Position</code> 構造体はファイル名、行番号、カラム位置を持ち、ソースコード中の位置としては最も詳細な情報を含みます。<code>String()</code> メソッドによってわかりやすい位置情報が得られます。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 7. positionstring.go</div>
+<div class="title">リスト 7. positionstring.go <span class="icon"><a class="image" href="https://play.golang.org/p/lBJWYcUtVe" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2007,7 +2021,7 @@ Valid position with file name:      example.go:2:3</pre>
 <p>以下のプログラムには <code>T{k: 0}</code> という同じ形をしたコードが出現します。ここで <code>k</code> が指すものは一方ではトップレベルの定数、もう一方では構造体のフィールドと、それぞれ違ったものになります（<a href="https://github.com/golang/example/tree/master/gotypes"><code>go/types</code>: The Go Type Checker</a> より）。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 8. indeterminableident.go</div>
+<div class="title">リスト 8. indeterminableident.go <span class="icon"><a class="image" href="https://play.golang.org/p/DEqNP5JAY-" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">p</span>
 
@@ -2122,7 +2136,7 @@ Valid position with file name:      example.go:2:3</pre>
 <p>構文上同じオブジェクトを指すと思わしき識別子に対応する <code>*ast.Ident</code> は、同じ <code>ast.Object</code> を共有します。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 9. astobject.go</div>
+<div class="title">リスト 9. astobject.go <span class="icon"><a class="image" href="https://play.golang.org/p/zW0Fb-qyWc" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2367,7 +2381,7 @@ TODO: golang/gddo の例
 </div>
 </div>
 <div class="listingblock">
-<div class="title">リスト 10. parsecomment.go</div>
+<div class="title">リスト 10. parsecomment.go <span class="icon"><a class="image" href="https://play.golang.org/p/uDWRwBuOQx" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2626,6 +2640,16 @@ WIP
 <div class="paragraph">
 <p>この章では、Goパッケージの型チェックと型にまつわるデータ構造を提供する <code>go/types</code> パッケージのAPIを見ていきます。</p>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>TODO</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -2637,7 +2661,14 @@ WIP
 <li>
 <p>型推論</p>
 </li>
+<li>
+<p>その他構文的なチェック</p>
+</li>
 </ul>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="sect2">
 <h3 id="型チェックを行う"><a class="anchor" href="#型チェックを行う"></a>4.1. 型チェックを行う</h3>
@@ -2657,7 +2688,7 @@ WIP
 <p>最後の引数である <code>info *types.Info</code> は、パッケージ内の型にまつわる詳細な情報を格納する先として指定します。単純に型チェックを行いたいだけの場合は <code>nil</code> でも構いません。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 12. typechecksimple.go</div>
+<div class="title">リスト 12. typechecksimple.go <span class="icon"><a class="image" href="https://play.golang.org/p/szN-pDyXak" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2733,7 +2764,7 @@ string</pre>
 <p>以下はパッケージを読み込み、そのパッケージが公開している名前および依存しているパッケージの情報を印字する例です。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 13. importer.go</div>
+<div class="title">リスト 13. importer.go <span class="icon"><a class="image" href="https://play.golang.org/p/jdhTpuTc6k" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2762,7 +2793,7 @@ string</pre>
 <div class="sect2">
 <h3 id="types_config"><a class="anchor" href="#types_config"></a>4.3. types.Config</h3>
 <div class="paragraph">
-<p><code>types.Config</code> 構造体が、<code>go/types</code> パッケージのエントリポイントとなります。</p>
+<p><code>types.Config</code> 構造体が <code>go/types</code> パッケージのエントリポイントとなります。</p>
 </div>
 <div class="listingblock">
 <div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Config">go/types.Config</a></div>
@@ -2861,7 +2892,7 @@ string</pre>
 <p>以下で、ソフトなエラーとそうでない重篤なエラーの例を確認できます。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 14. typecheckerrors.go</div>
+<div class="title">リスト 14. typecheckerrors.go <span class="icon"><a class="image" href="https://play.golang.org/p/GJ5RPbyr4K" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2933,7 +2964,7 @@ example.go:7:6: cannot convert 1 (untyped int constant) to string</pre>
 <p>あまり意味のない例ですが、以下では <code>$GOROOT/src/cmd/cover</code> ディレクトリのソースコードの型チェックを行っています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 15. typechecknameandpath.go</div>
+<div class="title">リスト 15. typechecknameandpath.go <span class="icon"><a class="image" href="https://play.golang.org/p/p6PF6GRqiW" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -2976,7 +3007,7 @@ path=cmd/cover name=main_test</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="スコープ_2"><a class="anchor" href="#スコープ_2"></a>4.6. スコープ</h3>
+<h3 id="typesにおけるスコープ"><a class="anchor" href="#typesにおけるスコープ"></a>4.6. typesにおけるスコープ</h3>
 <div class="paragraph">
 <p><code>Path</code> や <code>Name</code> などの基本的な情報の他に有用なのは、解析されたパッケージのスコープ情報でしょう。</p>
 </div>
@@ -3021,7 +3052,7 @@ path=cmd/cover name=main_test</pre>
 <p>以下の例では、ユニバーススコープに定義されている名前を列挙しています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 16. typesuniverse.go</div>
+<div class="title">リスト 16. typesuniverse.go <span class="icon"><a class="image" href="https://play.golang.org/p/JJV5RT5h_e" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -3046,7 +3077,7 @@ path=cmd/cover name=main_test</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="オブジェクト_2"><a class="anchor" href="#オブジェクト_2"></a>4.7. オブジェクト</h3>
+<h3 id="typesにおけるオブジェクト"><a class="anchor" href="#typesにおけるオブジェクト"></a>4.7. typesにおけるオブジェクト</h3>
 <div class="paragraph">
 <p><code>types</code> パッケージにおけるオブジェクトは、<code>ast</code> パッケージにおけるそれと異なり、インタフェースとして表現されています。また、より詳しい情報を持ちます。</p>
 </div>
@@ -3070,7 +3101,7 @@ path=cmd/cover name=main_test</pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>ast.Object</code> における <code>Kind</code> フィールドに対応するものを持たないため、type switch でその種類を判別することになります。型におけるオブジェクト（TODO: 表現）と、それを表すデータ型は以下のようになっています。</p>
+<p><code>ast.Object</code> における <code>Kind</code> フィールドに対応するものを持たないため、type switchでその種類を判別することになります。typesパッケージで表現されるオブジェクトの種類と、対応するデータ型は以下のようになっています。</p>
 </div>
 <div class="ulist">
 <ul>
@@ -3100,13 +3131,16 @@ path=cmd/cover name=main_test</pre>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>これらについて、以下で見ていきます。</p>
+</div>
 <div class="sect3">
 <h4 id="types_builtin"><a class="anchor" href="#types_builtin"></a>4.7.1. types.Builtin</h4>
 <div class="paragraph">
-<p>組み込み関数を表す構造体です。組み込み関数は決まった型を持たないため、<code>Type()</code> は invalid な型を返します。</p>
+<p>組み込み関数を表します。組み込み関数は決まった型を持たないため、<code>Type()</code> は invalid な型を返します。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 17. typesbuiltin.go</div>
+<div class="title">リスト 17. typesbuiltin.go <span class="icon"><a class="image" href="https://play.golang.org/p/0ZaB6DWlye" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
 
@@ -3127,6 +3161,120 @@ path=cmd/cover name=main_test</pre>
 <pre>builtin append (*types.Builtin)
 invalid type (*types.Basic)</pre>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="types_const"><a class="anchor" href="#types_const"></a>4.7.2. types.Const</h4>
+<div class="paragraph">
+<p>定数を表します。<code>Val()</code> メソッドは、その定数値を表す <code>go/constant</code> パッケージの値を返します。</p>
+</div>
+<div class="listingblock">
+<div class="title">godoc: <a href="http://godoc.org/pkg/go/types#Const.Val">go/types.Const.Val</a></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kd">func</span> <span class="tok-p">(</span><span class="tok-nx">obj</span> <span class="tok-o">*</span><span class="tok-nx">Const</span><span class="tok-p">)</span> <span class="tok-nx">Val</span><span class="tok-p">()</span> <span class="tok-nx">constant</span><span class="tok-p">.</span><span class="tok-nx">Value</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="https://golang.org/ref/spec#Constant_expressions">定数式</a>は型チェック時に評価され、値としてオブジェクトに保持されます（TODO: 定数畳み込み）。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 18. typesconst.go <span class="icon"><a class="image" href="https://play.golang.org/p/6QfOZ6VFWX" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
+
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/ast&quot;</span>
+    <span class="tok-s">&quot;go/importer&quot;</span>
+    <span class="tok-s">&quot;go/parser&quot;</span>
+    <span class="tok-s">&quot;go/token&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">fset</span> <span class="tok-o">:=</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">NewFileSet</span><span class="tok-p">()</span>
+    <span class="tok-nx">f</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-s">&quot;example.go&quot;</span><span class="tok-p">,</span> <span class="tok-nx">src</span><span class="tok-p">,</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">Mode</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span>
+
+    <span class="tok-nx">conf</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Config</span><span class="tok-p">{</span><span class="tok-nx">Importer</span><span class="tok-p">:</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">()}</span>
+
+    <span class="tok-nx">pkg</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">conf</span><span class="tok-p">.</span><span class="tok-nx">Check</span><span class="tok-p">(</span><span class="tok-s">&quot;path/to/pkg&quot;</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">{</span><span class="tok-nx">f</span><span class="tok-p">},</span> <span class="tok-kc">nil</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;c2&quot;</span><span class="tok-p">).(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Const</span><span class="tok-p">).</span><span class="tok-nx">Val</span><span class="tok-p">())</span>
+<span class="tok-p">}</span>
+
+<span class="tok-kd">var</span> <span class="tok-nx">src</span> <span class="tok-p">=</span> <span class="tok-s">`package p</span>
+
+<span class="tok-s">const (</span>
+<span class="tok-s">    s = &quot;Hello, &quot; + &quot;world&quot;</span>
+<span class="tok-s">    c1 = complex(iota, float64(len(s)))</span>
+<span class="tok-s">    c2</span>
+<span class="tok-s">)</span>
+<span class="tok-s">`</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>(2 + 12i)</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="types_func"><a class="anchor" href="#types_func"></a>4.7.3. types.Func</h4>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+TBD
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="types_pkgname"><a class="anchor" href="#types_pkgname"></a>4.7.4. types.PkgName</h4>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+TBD
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="types_typename"><a class="anchor" href="#types_typename"></a>4.7.5. types.TypeName</h4>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+TBD
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="types_var"><a class="anchor" href="#types_var"></a>4.7.6. types.Var</h4>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+TBD
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -3412,7 +3560,7 @@ type Node interface {
 <p><code>go doc</code> サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 18. go doc -h</div>
+<div class="title">リスト 19. go doc -h</div>
 <div class="content">
 <pre>% go doc -h
 Usage of [go] doc:
@@ -3622,7 +3770,7 @@ Usage of [go] doc:
 <p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 19. sushi.go</div>
+<div class="title">リスト 20. sushi.go <span class="icon"><a class="image" href="https://play.golang.org/p/4AKhfaOgQp" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
@@ -3651,7 +3799,7 @@ Usage of [go] doc:
 <p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
 <div id="sushi_string.go" class="listingblock">
-<div class="title">リスト 20. sushi_string.go</div>
+<div class="title">リスト 21. sushi_string.go <span class="icon"><a class="image" href="https://play.golang.org/p/gfirJbaQVX" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
@@ -3755,7 +3903,7 @@ Usage of [go] doc:
 <p>戦略として、値が連続する定数の文字列表現をひとつの長い文字列に連結し、定数の文字列化の際にはそのスライスを返すようにします。この部分のコード生成は単純な文字列連結で実現されています。</p>
 </div>
 <div class="paragraph">
-<p>生成されるのは前述の <a href="#sushi_string.go">sushi_string.go</a> のようなコードです。このソースコード文字列に対して <code>go/format.Source</code> を行って得られた文字列が、出力先のファイルに書き込まれます。ファイル名は、対象の型の名前と入力であるソースコードのディレクトリを元に <code>sushi_string.go</code> といった名前に決まります。</p>
+<p>生成されるのは前述の <a href="#sushi_string.go">sushi_string.go <span class="icon"><a class="image" href="https://play.golang.org/p/gfirJbaQVX" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></a> のようなコードです。このソースコード文字列に対して <code>go/format.Source</code> を行って得られた文字列が、出力先のファイルに書き込まれます。ファイル名は、対象の型の名前と入力であるソースコードのディレクトリを元に <code>sushi_string.go</code> といった名前に決まります。</p>
 </div>
 </div>
 </div>
@@ -4061,7 +4209,7 @@ Usage of [go] doc:
 <div class="sect4">
 <h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
 <div class="listingblock">
-<div class="title">リスト 21. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="title">リスト 22. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
     <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
@@ -4187,16 +4335,9 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-01-19 14:12:06 UTC
+Version 071d85f<br>
+Last updated 2017-01-22 09:27:37 UTC
 </div>
 </div>
 </body>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-34276254-7', 'auto');
-  ga('send', 'pageview');
-</script>
 </html>
