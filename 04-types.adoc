@@ -9,9 +9,15 @@
 
 この章では、Goパッケージの型チェックと型にまつわるデータ構造を提供する `go/types` パッケージのAPIを見ていきます。
 
+[WARNING]
+====
+TODO
+
 - 名前解決
 - 定数畳み込み
 - 型推論
+- その他構文的なチェック
+====
 
 == 型チェックを行う
 
@@ -53,7 +59,7 @@ goexample::importer[output]
 
 == types.Config
 
-`types.Config` 構造体が、`go/types` パッケージのエントリポイントとなります。
+`types.Config` 構造体が `go/types` パッケージのエントリポイントとなります。
 
 godoc::go/types.Config[]
 
@@ -120,7 +126,7 @@ goexample::typechecknameandpath[]
 
 goexample::typechecknameandpath[output]
 
-== スコープ
+== typesにおけるスコープ
 
 `Path` や `Name` などの基本的な情報の他に有用なのは、解析されたパッケージのスコープ情報でしょう。
 
@@ -150,13 +156,13 @@ goexample::typesuniverse[output]
 
 組み込みの関数や型がユニバーススコープに属していることが分かります。
 
-== オブジェクト
+== typesにおけるオブジェクト
 
 `types` パッケージにおけるオブジェクトは、`ast` パッケージにおけるそれと異なり、インタフェースとして表現されています。また、より詳しい情報を持ちます。
 
 godoc::go/types.Object[]
 
-`ast.Object` における `Kind` フィールドに対応するものを持たないため、type switch でその種類を判別することになります。型におけるオブジェクト（TODO: 表現）と、それを表すデータ型は以下のようになっています。
+`ast.Object` における `Kind` フィールドに対応するものを持たないため、type switchでその種類を判別することになります。typesパッケージで表現されるオブジェクトの種類と、対応するデータ型は以下のようになっています。
 
 * 組み込み関数（`*types.Builtin`）
 * 定数（`*types.Const`）
@@ -167,13 +173,43 @@ godoc::go/types.Object[]
 * 宣言された型（`*types.TypeName`）
 * 宣言された変数など（`*types.Var`）
 
+これらについて、以下で見ていきます。
+
 === types.Builtin
 
-組み込み関数を表す構造体です。組み込み関数は決まった型を持たないため、`Type()` は invalid な型を返します。
+組み込み関数を表します。組み込み関数は決まった型を持たないため、`Type()` は invalid な型を返します。
 
 goexample::typesbuiltin[]
 
 goexample::typesbuiltin[output]
+
+=== types.Const
+
+定数を表します。`Val()` メソッドは、その定数値を表す `go/constant` パッケージの値を返します。
+
+godoc::go/types.Const.Val[]
+
+https://golang.org/ref/spec#Constant_expressions[定数式]は型チェック時に評価され、値としてオブジェクトに保持されます（TODO: 定数畳み込み）。
+
+goexample::typesconst[]
+
+goexample::typesconst[output]
+
+=== types.Func
+
+WARNING: TBD
+
+=== types.PkgName
+
+WARNING: TBD
+
+=== types.TypeName
+
+WARNING: TBD
+
+=== types.Var
+
+WARNING: TBD
 
 == types.Info
 

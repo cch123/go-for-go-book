@@ -95,7 +95,7 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
           'language' => 'go',
         })
       )
-      block.title = playground_key ? "#{filename} icon:play-circle-o[title=View in the Playground, window=_blank, link=https://play.golang.org/p/#{playground_key}]" : filename
+      block.title = playground_key ? "#{filename} icon:play-circle-o[title=View in Go Playground, window=_blank, link=https://play.golang.org/p/#{playground_key}]" : filename
       block.assign_caption
       block
     end
