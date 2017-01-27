@@ -79,6 +79,8 @@ godoc::go/doc.AllDecls[]
 
 === doc.Packageのレイアウト
 
+WARNING: WIP
+
 `doc.Package` 構造体はドキュメントの表示に都合のよいように、整理された状態で
 
 == 例示のためのテスト

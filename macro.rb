@@ -65,24 +65,31 @@ class GoExampleMacro < Asciidoctor::Extensions::BlockMacroProcessor
         if /\./ === %x(go list -f {{.Imports}} #{file}) # we know that file starts with ./
           # nop
         else
-          uri = URI('https://play.golang.org/share')
-          http = Net::HTTP.new(uri.host, uri.port)
-          http.use_ssl = true
-
           STDERR.print "macro: sharing #{file} to playground ... "
 
-          req = Net::HTTP::Post.new uri
-          req.body = source
-          req['Content-Type'] = 'text/plain'
+          begin
+            uri = URI('https://play.golang.org/share')
+            http = Net::HTTP.new(uri.host, uri.port)
+            http.use_ssl = true
 
-          resp = http.request req
+            req = Net::HTTP::Post.new uri
+            req.body = source
+            req['Content-Type'] = 'text/plain'
 
-          STDERR.puts "#{resp.code} #{resp.message}"
-          if 200 <= resp.code.to_i && resp.code.to_i < 300
-            playground_keys[digest] = playground_key = resp.body.chomp
-            File.open(playground_keys_file, 'w') do |f|
-              f.puts playground_keys.to_json
+            resp = http.request req
+
+            if 200 <= resp.code.to_i && resp.code.to_i < 300
+              playground_keys[digest] = playground_key = resp.body.chomp
+              File.open(playground_keys_file, 'w') do |f|
+                f.puts playground_keys.to_json
+              end
+
+              STDERR.puts "succeeded: #{playground_key}"
+            else
+              raise "got [#{resp.code} #{resp.message}]"
             end
+          rescue => e
+            STDERR.puts "failed: #{e}"
           end
         end
       end
