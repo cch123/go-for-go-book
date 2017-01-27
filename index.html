@@ -37,8 +37,8 @@ if (!/\blocalhost\b/.test(location.host)) {
 <h1>GoのためのGo</h1>
 <div class="details">
 <span id="author" class="author">motemen (https://motemen.github.io/)</span><br>
-<span id="revnumber">version e119fc7,</span>
-<span id="revdate">2017-01-23T13:15:02+09:00</span>
+<span id="revnumber">version 6d7a725,</span>
+<span id="revdate">2017-01-27T13:40:33+09:00</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目次</div>
@@ -195,7 +195,7 @@ if (!/\blocalhost\b/.test(location.host)) {
 <div class="sect2">
 <h3 id="この本について"><a class="anchor" href="#この本について"></a>この本について</h3>
 <div class="paragraph">
-<p>この本では、Go言語の標準パッケージのうち <code>go/</code> で始まるものについて、実例を交えながら紹介します。ドキュメントとソースコードの中間となることを目指し、ドキュメントだけからはただちに知ることのできないAPI同士の関連や、全体としての使い方に焦点を当てます。</p>
+<p>この本では、Go言語の標準パッケージのうち <code>go/</code> で始まるものについて、実例を交えながら紹介します。ドキュメントとソースコードの中間となることを目指し、実例を交えつつ、ドキュメントだけからはただちに知ることのできないAPI同士の関連や全体としての使い方に焦点を当てます。</p>
 </div>
 </div>
 <div class="sect2">
@@ -204,7 +204,7 @@ if (!/\blocalhost\b/.test(location.host)) {
 <p>Go言語はシンプルさを念頭にデザインされた言語です。仕様は単純明瞭さのために小さく収められていますが、そのため表現力に欠けているとか、コードが冗長になるという印象を持つ人も多いでしょう。有名なところでは、ジェネリクスや例外といった機能が（今のところ）存在しないことが問題にされることが多いようです。</p>
 </div>
 <div class="paragraph">
-<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げてGoを取りまくツール群を含めて見てみると、<code>go fmt</code> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、Goという言語には、人間のプログラミングを機械によってさまざまな面から補助しようという態度があります。</p>
+<p>一般に、ソフトウェアエンジニアリングというものは書かれる言語だけに依るものではありません。視点を拡げてGoを取りまくツール群を含めて見てみると、<a href="https://godoc.org/cmd/go#hdr-Run_gofmt_on_package_sources"><code>go fmt</code></a> や <a href="https://godoc.org/golang.org/x/tools/cmd/goimports"><code>goimports</code></a> といったツールが広く使われていること、また <a href="https://blog.golang.org/generate"><code>go generate</code></a> コマンドの存在などを見ても、Goという言語には、人間のプログラミングを機械によってさまざまな面から補助しようという態度があります。</p>
 </div>
 <div class="paragraph">
 <p><code>go/*</code> 標準パッケージは、Goのプログラムを対象とし、解析や操作を行うためのAPIを提供します。これらのAPIを利用し、一種のメタプログラミングを行うことで、Goプログラミングの力をより引き出せるようになるはずです。</p>
@@ -359,7 +359,7 @@ if (!/\blocalhost\b/.test(location.host)) {
 </div>
 </div>
 <div class="paragraph">
-<p>第一引数 <code>fset</code> に関しては、<a href="#ソースコード中の位置">ソースコード中の位置</a> で触れます。ここでは <code>nil</code> を渡すので十分です。</p>
+<p>第一引数 <code>fset</code> に関しては、<a href="#ソースコード中の位置">ソースコード中の位置</a> で触れます。ここでは <code>nil</code> を渡せば十分です。</p>
 </div>
 </div>
 <div class="sect3">
@@ -1193,8 +1193,8 @@ field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>fields=[]*ast.Field{(*ast.Field)(0xc42006c100), (*ast.Field)(0xc42006c180)} incomplete=false
-fields=[]*ast.Field{(*ast.Field)(0xc42006c100)} incomplete=true</pre>
+<pre>fields=[]*ast.Field{(*ast.Field)(0xc42001a540), (*ast.Field)(0xc42001a5c0)} incomplete=false
+fields=[]*ast.Field{(*ast.Field)(0xc42001a540)} incomplete=true</pre>
 </div>
 </div>
 </div>
@@ -2090,6 +2090,18 @@ func ParseFile(fset *token.FileSet, filename string, src interface{}, mode Mode)
 </div>
 <div class="sect3">
 <h4 id="doc_packageのレイアウト"><a class="anchor" href="#doc_packageのレイアウト"></a>2.3.1. doc.Packageのレイアウト</h4>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+WIP
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p><code>doc.Package</code> 構造体はドキュメントの表示に都合のよいように、整理された状態で</p>
 </div>
@@ -2747,29 +2759,172 @@ invalid type (*types.Basic)</pre>
 </div>
 <div class="sect3">
 <h4 id="types_func"><a class="anchor" href="#types_func"></a>4.7.3. types.Func</h4>
-<div class="admonitionblock warning">
+<div class="paragraph">
+<p>関数を表します。より詳細には、</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>宣言された関数</p>
+</li>
+<li>
+<p>具象メソッド</p>
+</li>
+<li>
+<p>（インタフェースの）抽象メソッド</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>です。</p>
+</div>
+<div class="paragraph">
+<p>以下で、それぞれの場合（トップレベルの関数 <code>F</code>、型 <code>*T</code> のメソッド <code>F</code>、インタフェース <code>I</code> のメソッド <code>F</code>）の出現を確認しています。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 19. typesfunc.go <span class="icon"><a class="image" href="https://play.golang.org/p/jO77omVeV8" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
+
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/ast&quot;</span>
+    <span class="tok-s">&quot;go/importer&quot;</span>
+    <span class="tok-s">&quot;go/parser&quot;</span>
+    <span class="tok-s">&quot;go/token&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">fset</span> <span class="tok-o">:=</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">NewFileSet</span><span class="tok-p">()</span>
+    <span class="tok-nx">f</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-s">&quot;example.go&quot;</span><span class="tok-p">,</span> <span class="tok-nx">src</span><span class="tok-p">,</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">Mode</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span>
+
+    <span class="tok-nx">conf</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Config</span><span class="tok-p">{</span><span class="tok-nx">Importer</span><span class="tok-p">:</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">()}</span>
+
+    <span class="tok-nx">pkg</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">conf</span><span class="tok-p">.</span><span class="tok-nx">Check</span><span class="tok-p">(</span><span class="tok-s">&quot;path/to/pkg&quot;</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">{</span><span class="tok-nx">f</span><span class="tok-p">},</span> <span class="tok-kc">nil</span><span class="tok-p">)</span>
+
+    <span class="tok-c1">// type assersions for clarity</span>
+    <span class="tok-kd">var</span> <span class="tok-p">(</span>
+        <span class="tok-nx">objF</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Object</span> <span class="tok-p">=</span> <span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;F&quot;</span><span class="tok-p">).(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Func</span><span class="tok-p">)</span>
+        <span class="tok-nx">objT</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Object</span> <span class="tok-p">=</span> <span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;T&quot;</span><span class="tok-p">).(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">TypeName</span><span class="tok-p">)</span>
+        <span class="tok-nx">objI</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Object</span> <span class="tok-p">=</span> <span class="tok-nx">pkg</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;I&quot;</span><span class="tok-p">).(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">TypeName</span><span class="tok-p">)</span>
+    <span class="tok-p">)</span> <i class="conum" data-value="1"></i><b>(1)</b>
+
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">objF</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">objT</span><span class="tok-p">.</span><span class="tok-nx">Type</span><span class="tok-p">().(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Named</span><span class="tok-p">).</span><span class="tok-nx">Method</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span>                  <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">objI</span><span class="tok-p">.</span><span class="tok-nx">Type</span><span class="tok-p">().</span><span class="tok-nx">Underlying</span><span class="tok-p">().(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Interface</span><span class="tok-p">).</span><span class="tok-nx">Method</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span> <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="tok-p">}</span>
+
+<span class="tok-kd">var</span> <span class="tok-nx">src</span> <span class="tok-p">=</span> <span class="tok-s">`package p</span>
+
+<span class="tok-s">func F() {}</span>
+
+<span class="tok-s">type T struct{}</span>
+
+<span class="tok-s">func (*T) F() {}</span>
+
+<span class="tok-s">type I interface {</span>
+<span class="tok-s">    F()</span>
+<span class="tok-s">}</span>
+<span class="tok-s">`</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>func path/to/pkg.F()
+func (*path/to/pkg.T).F()
+func (path/to/pkg.I).F()</pre>
+</div>
+</div>
+<div class="colist arabic">
 <table>
 <tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-TBD
-</td>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>パッケージスコープ内の名前にアクセスします。<code>F</code> はトップレベルの関数に、<code>T</code> および <code>I</code> は型名に対応するオブジェクトとして取得します。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>型 <code>T</code> に属する最初のメソッドとして、<code>T.F()</code> に対応するオブジェクトを取得します。</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>型 <code>I</code> が指すインタフェース <code>interface { F() }</code> の最初の（抽象）メソッドとして、<code>I.F()</code> に対応するオブジェクトを取得します。</td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>インタフェースの抽象メソッドと、それ以外の具象メソッドに対応するオブジェクトへアクセスする方法は微妙に異なりますが、これはあとの節で詳しく触れます。</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="types_pkgname"><a class="anchor" href="#types_pkgname"></a>4.7.4. types.PkgName</h4>
-<div class="admonitionblock warning">
+<div class="paragraph">
+<p><code>import</code> 宣言によってインポートされたパッケージの名前を表します。</p>
+</div>
+<div class="paragraph">
+<p><code>Imported()</code> メソッドで、インポートされたパッケージに関する情報を保持する <a href="#types_package"><code>types.Package</code> 構造体</a>を得られます。これは <code>Config.Check</code> で得られるのと同様のものです。</p>
+</div>
+<div class="paragraph">
+<p>以下の例では、<code>fmtPkg</code> という名前でインポートした <code>fmt</code> パッケージと、同パッケージのエクスポートする <code>Errorf</code> 関数に対応するオブジェクトを取得しています。</p>
+</div>
+<div class="paragraph">
+<p>インポートしたパッケージの名前はパッケージスコープではなくファイルスコープに導入されるため、後の節で説明する<a href="#types_info"><code>Info</code> 構造体</a>を使ってファイルスコープを取得しています。</p>
+</div>
+<div class="listingblock">
+<div class="title">リスト 20. typespkgname.go <span class="icon"><a class="image" href="https://play.golang.org/p/AIQENS7mLZ" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">main</span>
+
+<span class="tok-kn">import</span> <span class="tok-p">(</span>
+    <span class="tok-s">&quot;fmt&quot;</span>
+    <span class="tok-s">&quot;go/ast&quot;</span>
+    <span class="tok-s">&quot;go/importer&quot;</span>
+    <span class="tok-s">&quot;go/parser&quot;</span>
+    <span class="tok-s">&quot;go/token&quot;</span>
+    <span class="tok-s">&quot;go/types&quot;</span>
+<span class="tok-p">)</span>
+
+<span class="tok-kd">func</span> <span class="tok-nx">main</span><span class="tok-p">()</span> <span class="tok-p">{</span>
+    <span class="tok-nx">fset</span> <span class="tok-o">:=</span> <span class="tok-nx">token</span><span class="tok-p">.</span><span class="tok-nx">NewFileSet</span><span class="tok-p">()</span>
+    <span class="tok-nx">f</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-o">:=</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">ParseFile</span><span class="tok-p">(</span><span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-s">&quot;example.go&quot;</span><span class="tok-p">,</span> <span class="tok-nx">src</span><span class="tok-p">,</span> <span class="tok-nx">parser</span><span class="tok-p">.</span><span class="tok-nx">Mode</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">))</span>
+
+    <span class="tok-nx">conf</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Config</span><span class="tok-p">{</span><span class="tok-nx">Importer</span><span class="tok-p">:</span> <span class="tok-nx">importer</span><span class="tok-p">.</span><span class="tok-nx">Default</span><span class="tok-p">()}</span>
+
+    <span class="tok-nx">info</span> <span class="tok-o">:=</span> <span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Info</span><span class="tok-p">{</span>
+        <span class="tok-nx">Scopes</span><span class="tok-p">:</span> <span class="tok-kd">map</span><span class="tok-p">[</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">Node</span><span class="tok-p">]</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">Scope</span><span class="tok-p">{},</span>
+    <span class="tok-p">}</span>
+    <span class="tok-nx">_</span><span class="tok-p">,</span> <span class="tok-nx">_</span> <span class="tok-p">=</span> <span class="tok-nx">conf</span><span class="tok-p">.</span><span class="tok-nx">Check</span><span class="tok-p">(</span><span class="tok-s">&quot;path/to/pkg&quot;</span><span class="tok-p">,</span> <span class="tok-nx">fset</span><span class="tok-p">,</span> <span class="tok-p">[]</span><span class="tok-o">*</span><span class="tok-nx">ast</span><span class="tok-p">.</span><span class="tok-nx">File</span><span class="tok-p">{</span><span class="tok-nx">f</span><span class="tok-p">},</span> <span class="tok-o">&amp;</span><span class="tok-nx">info</span><span class="tok-p">)</span>
+
+    <span class="tok-nx">objPkgName</span> <span class="tok-o">:=</span> <span class="tok-nx">info</span><span class="tok-p">.</span><span class="tok-nx">Scopes</span><span class="tok-p">[</span><span class="tok-nx">f</span><span class="tok-p">].</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;fmtPkg&quot;</span><span class="tok-p">).(</span><span class="tok-o">*</span><span class="tok-nx">types</span><span class="tok-p">.</span><span class="tok-nx">PkgName</span><span class="tok-p">)</span>
+
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">objPkgName</span><span class="tok-p">)</span>
+    <span class="tok-nx">fmt</span><span class="tok-p">.</span><span class="tok-nx">Println</span><span class="tok-p">(</span><span class="tok-nx">objPkgName</span><span class="tok-p">.</span><span class="tok-nx">Imported</span><span class="tok-p">().</span><span class="tok-nx">Scope</span><span class="tok-p">().</span><span class="tok-nx">Lookup</span><span class="tok-p">(</span><span class="tok-s">&quot;Errorf&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">}</span>
+
+<span class="tok-kd">var</span> <span class="tok-nx">src</span> <span class="tok-p">=</span> <span class="tok-s">`package p</span>
+
+<span class="tok-s">import fmtPkg &quot;fmt&quot;</span>
+
+<span class="tok-s">func main() {</span>
+<span class="tok-s">    fmtPkg.Println(&quot;Hello, world&quot;)</span>
+<span class="tok-s">}</span>
+<span class="tok-s">`</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>package fmtPkg ("fmt")
+func fmt.Errorf(format string, a ...interface{}) error</pre>
+</div>
+</div>
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-TBD
+ファイル先頭の <code>package</code> 節で指定された名前はスコープに導入されないので、自パッケージの名前が <code>PkgName</code> の形で登場することはありません。
 </td>
 </tr>
 </table>
@@ -2911,6 +3066,18 @@ TBD
 </div>
 <div class="paragraph">
 <p><code>types.Info</code> は型チェック中に得られた、詳細な情報を保持する構造体です。</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+WIP
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -3088,7 +3255,7 @@ type Node interface {
 <p><code>go doc</code> サブコマンドに与えられるコマンドライン引数は、ユーザの意図を表した以下のような形の文字列のリストになっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 19. go doc -h</div>
+<div class="title">リスト 21. go doc -h</div>
 <div class="content">
 <pre>% go doc -h
 Usage of [go] doc:
@@ -3298,7 +3465,7 @@ Usage of [go] doc:
 <p><code>go doc golang.org/x/tools/cmd/stringer</code> にある例を見るのが分かりやすいでしょう。以下のように定数を定義したソースコードを書いたとします。この定数を表示するため <code>fmt.Print(Uni)</code> などとしても、<code>2</code> と印字されるだけでどんな意味を持った値なのかの情報に欠けてしまっています。</p>
 </div>
 <div class="listingblock">
-<div class="title">リスト 20. sushi.go <span class="icon"><a class="image" href="https://play.golang.org/p/4AKhfaOgQp" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
+<div class="title">リスト 22. sushi.go <span class="icon"><a class="image" href="https://play.golang.org/p/4AKhfaOgQp" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-kn">package</span> <span class="tok-nx">sushi</span>
 
@@ -3327,7 +3494,7 @@ Usage of [go] doc:
 <p>見るからに単調な作業になので、プログラム的に生成することを考えますよね。そこで <code>stringer</code> の出番です。以上のような内容のソースコード <code>sushi.go</code> に対して <code>stringer -type Sushi sushi.go</code> を実行すると、次のソースコードが <code>pill_string.go</code> として生成されます。</p>
 </div>
 <div id="sushi_string.go" class="listingblock">
-<div class="title">リスト 21. sushi_string.go <span class="icon"><a class="image" href="https://play.golang.org/p/gfirJbaQVX" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
+<div class="title">リスト 23. sushi_string.go <span class="icon"><a class="image" href="https://play.golang.org/p/gfirJbaQVX" target="_blank"><i class="fa fa-play-circle-o" title="View in Go Playground"></i></a></span></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-c1">// Code generated by &quot;stringer -type Sushi sushi.go&quot;; DO NOT EDIT</span>
 
@@ -3737,7 +3904,7 @@ Usage of [go] doc:
 <div class="sect4">
 <h5 id="例_github"><a class="anchor" href="#例_github"></a>例：GitHub</h5>
 <div class="listingblock">
-<div class="title">リスト 22. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
+<div class="title">リスト 24. <a href="https://github.com/golang/go/blob/75e3d37/:gddo/gosrc/github.go#L20"><code>github.go:20</code></a></div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="go"><span class="tok-nx">addService</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-nx">service</span><span class="tok-p">{</span>
     <span class="tok-nx">pattern</span><span class="tok-p">:</span>         <span class="tok-nx">regexp</span><span class="tok-p">.</span><span class="tok-nx">MustCompile</span><span class="tok-p">(</span><span class="tok-s">`^github\.com/(?P&lt;owner&gt;[a-z0-9A-Z_.\-]+)/(?P&lt;repo&gt;[a-z0-9A-Z_.\-]+)(?P&lt;dir&gt;/.*)?$`</span><span class="tok-p">),</span>
@@ -3863,8 +4030,8 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Version e119fc7<br>
-Last updated 2017-01-23 04:45:43 UTC
+Version 6d7a725<br>
+Last updated 2017-01-27 04:41:14 UTC
 </div>
 </div>
 </body>
