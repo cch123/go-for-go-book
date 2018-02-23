@@ -37,8 +37,8 @@ if (!/\blocalhost\b/.test(location.host)) {
 <h1>GoのためのGo</h1>
 <div class="details">
 <span id="author" class="author">motemen (https://motemen.github.io/)</span><br>
-<span id="revnumber">version 6d7a725,</span>
-<span id="revdate">2017-01-27T13:40:33+09:00</span>
+<span id="revnumber">version 7e22436,</span>
+<span id="revdate">2018-02-23T22:41:51+09:00</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目次</div>
@@ -294,7 +294,7 @@ if (!/\blocalhost\b/.test(location.host)) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc420012dc0), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc420012e00)}</pre>
+<pre>&amp;ast.BinaryExpr{X:(*ast.Ident)(0xc4200600c0), OpPos:3, Op:14, Y:(*ast.UnaryExpr)(0xc420060100)}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1710,12 +1710,12 @@ Valid position with file name:      example.go:2:3</pre>
 <div class="listingblock">
 <div class="content">
 <pre>example.go:3:8   obj=0x0           kind=bad decl=&lt;nil&gt;
-example.go:6:8   obj=0xc42001c3c0  kind=var decl=*ast.AssignStmt
+example.go:6:8   obj=0xc4200620f0  kind=var decl=*ast.AssignStmt
 example.go:6:13  obj=0x0           kind=bad decl=&lt;nil&gt;
-example.go:6:20  obj=0xc42001c3c0  kind=var decl=*ast.AssignStmt
-example.go:7:9   obj=0xc42001c3c0  kind=var decl=*ast.AssignStmt
-example.go:7:16  obj=0xc42001c410  kind=var decl=*ast.Field
-example.go:7:36  obj=0xc42001c410  kind=var decl=*ast.Field</pre>
+example.go:6:20  obj=0xc4200620f0  kind=var decl=*ast.AssignStmt
+example.go:7:9   obj=0xc4200620f0  kind=var decl=*ast.AssignStmt
+example.go:7:16  obj=0xc420062140  kind=var decl=*ast.Field
+example.go:7:36  obj=0xc420062140  kind=var decl=*ast.Field</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3801,7 +3801,7 @@ Usage of [go] doc:
 <div class="sect3">
 <h4 id="外部サービスへの対応"><a class="anchor" href="#外部サービスへの対応"></a>7.6.1. 外部サービスへの対応</h4>
 <div class="paragraph">
-<p>GitHubやBitBuckectなど有名どころでAPIも提供されているサービスに対しては、それぞれからソースコードを取得する処理が実装されています。</p>
+<p>GitHubやBitBucketなど有名どころでAPIも提供されているサービスに対しては、それぞれからソースコードを取得する処理が実装されています。</p>
 </div>
 <div class="paragraph">
 <p>各サービスは <code>gosrc.service</code> 構造体として表現されます：</p>
@@ -3877,7 +3877,7 @@ Usage of [go] doc:
 </div>
 </div>
 <div class="paragraph">
-<p><code>Presentation</code> はプレゼンテーション用の機能で、http://go-talks.appspot.com/[go-talks.appspot.org]でのみ利用されているものです。</p>
+<p><code>Presentation</code> はプレゼンテーション用の機能で、<a href="http://go-talks.appspot.com/">go-talks.appspot.org</a>でのみ利用されているものです。</p>
 </div>
 <div class="paragraph">
 <p><code>Project</code> は <code>Description</code> だけを持つ構造体で、Goのドキュメントレベルでパッケージの説明が得られなかった場合に、サービスで設定されている説明を利用するためのものです。</p>
@@ -4030,8 +4030,8 @@ WIP
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 6d7a725<br>
-Last updated 2017-01-27 04:41:14 UTC
+Version 7e22436<br>
+Last updated 2018-02-23 13:42:18 UTC
 </div>
 </div>
 </body>
