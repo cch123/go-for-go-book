@@ -40,7 +40,7 @@ gddoはユーザから見るとドキュメントを表示するだけのサイ�
 
 === 外部サービスへの対応
 
-GitHubやBitBuckectなど有名どころでAPIも提供されているサービスに対しては、それぞれからソースコードを取得する処理が実装されています。
+GitHubやBitBucketなど有名どころでAPIも提供されているサービスに対しては、それぞれからソースコードを取得する処理が実装されています。
 
 各サービスは `gosrc.service` 構造体として表現されます：
 
@@ -52,7 +52,7 @@ godoc::github.com/golang/gddo/gosrc.service[]
 
 godoc::github.com/golang/gddo/gosrc.Directory[]
 
-`Presentation` はプレゼンテーション用の機能で、http://go-talks.appspot.com/[go-talks.appspot.org]でのみ利用されているものです。
+`Presentation` はプレゼンテーション用の機能で、link:http://go-talks.appspot.com/[go-talks.appspot.org]でのみ利用されているものです。
 
 `Project` は `Description` だけを持つ構造体で、Goのドキュメントレベルでパッケージの説明が得られなかった場合に、サービスで設定されている説明を利用するためのものです。
 
