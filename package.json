@@ -8,7 +8,7 @@
     "watch:build": "gaze 'npm run build:html' *.adoc **/*.adoc examples/**/*.go macro.rb",
     "build:html": "bundle exec asciidoctor -r ./macro.rb index.adoc -D build",
     "build:pdf": "bundle exec asciidoctor-pdf -r asciidoctor-pdf-cjk -r ./macro.rb index.adoc -D build",
-    "build:mobi": "bundle exec asciidoctor-epub3 -a ebook-format=kf8 -r ./macro.rb index.adoc -D build",
+    "build:mobi": "bundle exec asciidoctor-epub3 -a ebook-format=kf8 -a ebook-compress=standard -r ./macro.rb index.adoc -D build",
     "publish-html": "npm-run-all build:html publish-html:gh-pages",
     "publish-html:gh-pages": "gh-pages --dist build --remote origin --add"
   },
